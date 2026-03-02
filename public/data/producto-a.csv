@@ -1,0 +1,9 @@
+paso;tipo;mensaje;voz;respuesta;fotos
+1;VOZ;Verificar que todos los componentes estén presentes en la mesa de trabajo;Verifique que todos los componentes estén presentes;componentes listos;componentes.jpg
+2;VOZ;Tomar la base principal y colocarla en posición vertical;Tome la base principal y colóquela verticalmente;base colocada;base.jpg
+3;VOZ;Insertar el conector A en el puerto superior;Inserte el conector A en el puerto superior;conector insertado;conector-a.jpg
+4;SISTEMA;Verificando conexión automáticamente;N/A;N/A;N/A
+5;VOZ;Confirmar que la luz LED esté encendida;Confirme que la luz LED esté encendida;luz encendida;led.jpg
+6;VOZ;Aplicar torque de 5Nm al tornillo principal;Aplique torque de cinco newton metros;torque aplicado;torque.jpg
+7;VOZ;Realizar prueba de funcionamiento final;Realice la prueba de funcionamiento final;prueba completada;prueba.jpg
+

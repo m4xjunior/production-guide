@@ -1,0 +1,10 @@
+paso;tipo;mensaje;voz;respuesta;fotos
+1;VOZ;Preparar área de trabajo y herramientas necesarias;Prepare el área de trabajo y las herramientas necesarias;área preparada;area.jpg
+2;VOZ;Tomar el módulo principal del producto B;Tome el módulo principal del producto B;módulo tomado;modulo.jpg
+3;VOZ;Conectar cable rojo al terminal positivo;Conecte el cable rojo al terminal positivo;cable conectado;cable-rojo.jpg
+4;VOZ;Conectar cable negro al terminal negativo;Conecte el cable negro al terminal negativo;cable negro conectado;cable-negro.jpg
+5;SISTEMA;Ejecutando diagnóstico automático del sistema;N/A;N/A;N/A
+6;VOZ;Verificar que no hay cortocircuitos;Verifique que no hay cortocircuitos;sin cortocircuitos;verificacion.jpg
+7;VOZ;Sellar la unidad con la tapa protectora;Selle la unidad con la tapa protectora;unidad sellada;sellado.jpg
+8;VOZ;Etiquetar producto con código de lote;Etiquete el producto con el código de lote;producto etiquetado;etiqueta.jpg
+
