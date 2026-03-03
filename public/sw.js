@@ -23,7 +23,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (event.request.url.includes("/api/stations/")) {
+        if (response.ok && event.request.url.includes("/api/stations/")) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }

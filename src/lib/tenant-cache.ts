@@ -24,7 +24,14 @@ export function setTenantCache(slug: string, id: string): void {
 export function extractSubdomain(hostname: string): string | null {
   // "kh.sao.app" → "kh"
   // "localhost" | "sao.app" → null (usa DEFAULT_TENANT_SLUG)
-  const parts = hostname.split(".");
+  // IPs como "192.168.1.1" → null
+  const hostWithoutPort = hostname.split(":")[0];
+  const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostWithoutPort) ||
+    hostWithoutPort === "localhost" ||
+    hostWithoutPort.includes(":");  // IPv6
+  if (isIp) return null;
+
+  const parts = hostWithoutPort.split(".");
   if (parts.length < 3) return null;
   const sub = parts[0];
   if (sub === "www" || sub === "app") return null;

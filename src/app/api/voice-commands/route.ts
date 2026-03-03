@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Tenant no identificado" }, { status: 400 });
   }
 
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "JSON inválido en el cuerpo de la solicitud" }, { status: 400 });
+  }
   const { scope, action, phrases, stationId, stepId, language, sequence, context } = body;
 
   if (!scope || !action || !phrases?.length) {
@@ -40,6 +45,20 @@ export async function POST(request: NextRequest) {
   if (!["global", "station", "step"].includes(scope)) {
     return NextResponse.json(
       { error: "scope debe ser: global | station | step" },
+      { status: 400 }
+    );
+  }
+
+  if (scope === "station" && !stationId) {
+    return NextResponse.json(
+      { error: "stationId es requerido cuando scope es 'station'" },
+      { status: 400 }
+    );
+  }
+
+  if (scope === "step" && !stepId) {
+    return NextResponse.json(
+      { error: "stepId es requerido cuando scope es 'step'" },
       { status: 400 }
     );
   }
