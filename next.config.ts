@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
