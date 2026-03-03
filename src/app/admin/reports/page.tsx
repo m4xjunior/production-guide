@@ -383,11 +383,11 @@ export default function ReportsPage() {
       {/* Tabs */}
       <Tabs defaultValue="presence">
         <TabsList className="bg-accent">
-          <TabsTrigger value="presence" className="gap-2 data-[state=active]:bg-white">
+          <TabsTrigger value="presence" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
             <Users className="h-4 w-4" />
             Presencia
           </TabsTrigger>
-          <TabsTrigger value="production" className="gap-2 data-[state=active]:bg-white">
+          <TabsTrigger value="production" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
             <BarChart3 className="h-4 w-4" />
             Produccion
           </TabsTrigger>

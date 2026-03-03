@@ -573,7 +573,7 @@ export function ProductionStep({
       </div>
 
       {/* Bottom navigation */}
-      <div className="border-t bg-card px-4 py-4">
+      <div className="border-t border-border bg-card px-4 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Button
             variant="outline"
