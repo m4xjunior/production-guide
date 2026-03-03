@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: p2v-postgres
+    restart: unless-stopped
+    ports:
+      - "54320:5432"
+    environment:
+      POSTGRES_USER: p2v
+      POSTGRES_PASSWORD: p2v_secret
+      POSTGRES_DB: picktvoice
+    volumes:
+      - p2v_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U p2v -d picktvoice"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  p2v_pgdata:
+    driver: local
