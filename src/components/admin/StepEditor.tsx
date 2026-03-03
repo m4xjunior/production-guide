@@ -219,7 +219,7 @@ export function StepEditor({
       <Card className="group">
         <CardContent className="py-3 px-4">
           <div className="flex items-center gap-3">
-            <GripVertical className="h-5 w-5 text-muted-foreground/50 cursor-grab" />
+            <GripVertical className="h-5 w-5 text-muted-foreground/50 cursor-grab" aria-hidden="true" />
             <span className="text-sm font-mono text-muted-foreground w-8">
               #{index + 1}
             </span>
@@ -233,7 +233,7 @@ export function StepEditor({
             {step.isErrorStep && <Badge variant="destructive" className="text-xs">Error</Badge>}
             {(step.conditions?.length ?? 0) > 0 && (
               <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                <GitBranch className="h-3 w-3" />
+                <GitBranch className="h-3 w-3" aria-hidden="true" />
                 {step.conditions!.length} cond.
               </Badge>
             )}
@@ -244,16 +244,18 @@ export function StepEditor({
                 size="sm"
                 onClick={() => onMoveUp(step.id)}
                 disabled={index === 0}
+                aria-label="Mover paso arriba"
               >
-                <ChevronUp className="h-4 w-4" />
+                <ChevronUp className="h-4 w-4" aria-hidden="true" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onMoveDown(step.id)}
                 disabled={index === totalSteps - 1}
+                aria-label="Mover paso abajo"
               >
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
                 Editar
@@ -262,8 +264,9 @@ export function StepEditor({
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(step.id)}
+                aria-label="Eliminar paso"
               >
-                <Trash2 className="h-4 w-4 text-destructive" />
+                <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -284,7 +287,7 @@ export function StepEditor({
               Cancelar
             </Button>
             <Button size="sm" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4 mr-2" aria-hidden="true" />}
               Guardar
             </Button>
           </div>
@@ -338,7 +341,7 @@ export function StepEditor({
             value={formVoz}
             onChange={(e) => setFormVoz(e.target.value)}
             placeholder="Texto que el sistema leera en voz alta..."
-            rows={2}
+            rows={3}
           />
         </div>
 
@@ -371,11 +374,11 @@ export function StepEditor({
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 disabled={uploading}
               />
-              <Button variant="outline" disabled={uploading}>
+              <Button variant="outline" disabled={uploading} aria-label="Subir imagen">
                 {uploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                 ) : (
-                  <ImagePlus className="h-4 w-4" />
+                  <ImagePlus className="h-4 w-4" aria-hidden="true" />
                 )}
               </Button>
             </div>
@@ -469,13 +472,14 @@ export function StepEditor({
             type="button"
             className="flex items-center gap-2 text-sm font-semibold text-foreground w-full text-left"
             onClick={() => setShowConditions((v) => !v)}
+            aria-expanded={showConditions}
           >
             {showConditions ? (
-              <CollapseIcon className="h-4 w-4 text-muted-foreground" />
+              <CollapseIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             ) : (
-              <ExpandIcon className="h-4 w-4 text-muted-foreground" />
+              <ExpandIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             )}
-            <GitBranch className="h-4 w-4 text-primary" />
+            <GitBranch className="h-4 w-4 text-primary" aria-hidden="true" />
             Condiciones de navegacion
             {conditions.length > 0 && (
               <Badge variant="secondary" className="ml-1 text-xs">
@@ -545,8 +549,9 @@ export function StepEditor({
                     size="sm"
                     onClick={() => removeCondition(i)}
                     className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    aria-label="Eliminar condicion"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               ))}
@@ -557,7 +562,7 @@ export function StepEditor({
                   size="sm"
                   onClick={addCondition}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
                   Anadir condicion
                 </Button>
                 <Button
@@ -566,9 +571,9 @@ export function StepEditor({
                   disabled={savingConditions}
                 >
                   {savingConditions ? (
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Save className="h-4 w-4 mr-1" />
+                    <Save className="h-4 w-4 mr-1" aria-hidden="true" />
                   )}
                   Guardar condiciones
                 </Button>

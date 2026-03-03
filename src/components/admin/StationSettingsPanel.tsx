@@ -68,10 +68,11 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="space-y-1.5">
-          <Label>
+          <Label htmlFor="station-settings-voice-id">
             Voice ID (global: <code className="text-xs">{global.ttsVoiceId}</code>)
           </Label>
           <Input
+            id="station-settings-voice-id"
             value={settings.ttsVoiceId ?? ""}
             onChange={(e) => void update("ttsVoiceId", e.target.value)}
             placeholder={`Heredar global: ${global.ttsVoiceId}`}
@@ -79,8 +80,9 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Tamano de fuente (global: {global.fontSize}px)</Label>
+          <Label htmlFor="station-settings-font-size">Tamano de fuente (global: {global.fontSize}px)</Label>
           <Input
+            id="station-settings-font-size"
             type="number"
             min={12}
             max={32}
@@ -93,16 +95,17 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Color de fondo (hex, ej: #f0f4ff)</Label>
+          <Label htmlFor="station-settings-bg-color">Color de fondo (hex, ej: #f0f4ff)</Label>
           <div className="flex gap-2">
             <Input
+              id="station-settings-bg-color"
               value={settings.backgroundColor ?? ""}
               onChange={(e) => void update("backgroundColor", e.target.value)}
               placeholder="Heredar configuracion global"
             />
             {settings.backgroundColor && (
               <div
-                className="w-10 h-10 rounded border"
+                className="w-10 h-10 rounded border shrink-0"
                 style={{ backgroundColor: settings.backgroundColor }}
               />
             )}
@@ -110,16 +113,17 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Color de acento (hex)</Label>
+          <Label htmlFor="station-settings-accent-color">Color de acento (hex)</Label>
           <div className="flex gap-2">
             <Input
+              id="station-settings-accent-color"
               value={settings.accentColor ?? ""}
               onChange={(e) => void update("accentColor", e.target.value)}
               placeholder="Heredar color primario del sistema"
             />
             {settings.accentColor && (
               <div
-                className="w-10 h-10 rounded border"
+                className="w-10 h-10 rounded border shrink-0"
                 style={{ backgroundColor: settings.accentColor }}
               />
             )}
@@ -127,8 +131,9 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Delay auto-avance en ms (global: {global.autoAdvanceDelay}ms)</Label>
+          <Label htmlFor="station-settings-auto-advance">Delay auto-avance en ms (global: {global.autoAdvanceDelay}ms)</Label>
           <Input
+            id="station-settings-auto-advance"
             type="number"
             min={1000}
             max={10000}

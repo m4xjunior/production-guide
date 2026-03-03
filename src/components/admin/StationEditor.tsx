@@ -233,11 +233,11 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
       <div className="flex items-center gap-4">
         <Button variant="ghost" asChild>
           <a href="/admin">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
             Volver
           </a>
         </Button>
-        <h1 className="text-2xl font-bold">{station.name}</h1>
+        <h1 className="text-2xl font-bold truncate">{station.name}</h1>
       </div>
 
       {/* Station details */}
@@ -277,7 +277,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
           {/* References multi-select */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Tag className="h-4 w-4 text-muted-foreground" />
+              <Tag className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Label>Referencias vinculadas</Label>
               {selectedReferenceIds.size > 0 && (
                 <span
@@ -290,7 +290,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
             </div>
             {loadingRefs ? (
               <div className="flex items-center gap-2 py-3">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
                 <span className="text-sm text-muted-foreground">Cargando referencias...</span>
               </div>
             ) : allReferences.length === 0 ? (
@@ -302,7 +302,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
               </div>
             ) : (
               <div
-                className="rounded-md divide-y max-h-64 overflow-y-auto"
+                className="rounded-md divide-y max-h-48 overflow-y-auto"
                 style={{ backgroundColor: "#111113", border: "1px solid #2A2A2E" }}
               >
                 {allReferences.map((ref) => {
@@ -341,7 +341,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
             )}
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Switch
                 checked={formIsActive}
@@ -350,8 +350,8 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
               />
               <Label htmlFor="edit-active">Estacion activa</Label>
             </div>
-            <Button onClick={handleSaveStation} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            <Button onClick={handleSaveStation} disabled={saving} className="w-full sm:w-auto">
+              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4 mr-2" aria-hidden="true" />}
               Guardar estacion
             </Button>
           </div>
@@ -362,15 +362,15 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
 
       {/* Steps section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h2 className="text-xl font-semibold">
             Pasos ({steps.length})
           </h2>
-          <Button onClick={handleAddStep} disabled={addingStep}>
+          <Button onClick={handleAddStep} disabled={addingStep} className="w-full sm:w-auto">
             {addingStep ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
             ) : (
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             )}
             Agregar paso
           </Button>
@@ -382,7 +382,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
               No hay pasos configurados para esta estacion.
             </p>
             <Button onClick={handleAddStep} disabled={addingStep}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               Agregar primer paso
             </Button>
           </div>

@@ -89,7 +89,7 @@ export function MediaDropzone({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 text-muted-foreground">
-            <Upload className="h-10 w-10" />
+            <Upload className="h-10 w-10" aria-hidden="true" />
             <div>
               <p className="text-sm font-medium">
                 Arrastra una imagen aqui o haz clic para seleccionar
@@ -122,8 +122,9 @@ export function MediaDropzone({
             type="button"
             onClick={() => onChange("")}
             className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/80 shadow"
+            aria-label="Eliminar imagen"
           >
-            <X className="h-3 w-3" />
+            <X className="h-3 w-3" aria-hidden="true" />
           </button>
         </div>
       )}

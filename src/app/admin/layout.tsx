@@ -22,7 +22,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Menu,
+  X,
 } from "lucide-react";
+import { PwaContainer } from "@/components/devkit";
 
 // ─── Auth Context ──────────────────────────────────────────
 interface AdminAuthContextType {
@@ -80,6 +83,7 @@ export default function AdminLayout({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const pathname = usePathname();
 
   // Check existing session on mount
@@ -140,21 +144,22 @@ export default function AdminLayout({
   // ─── Loading state ────────────────────────────────────
   if (isChecking) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: "#0A0A0C" }}
+      <PwaContainer
+        className="flex items-center justify-center"
+        gradient="bg-[#0A0A0C]"
       >
-        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#8B1A1A" }} />
-      </div>
+        <Loader2 className="h-8 w-8 animate-spin" style={{ color: "#8B1A1A" }} aria-hidden="true" />
+      </PwaContainer>
     );
   }
 
   // ─── Login gate ───────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{ background: "#0A0A0C" }}
+      <PwaContainer
+        className="flex items-center justify-center p-4"
+        gradient="bg-[#0A0A0C]"
+        scrollable
       >
         <div className="w-full max-w-md relative">
           {/* Gradient metallic border overlay */}
@@ -182,7 +187,7 @@ export default function AdminLayout({
                 className="rounded-full p-4"
                 style={{ background: "rgba(139, 26, 26, 0.1)" }}
               >
-                <Lock className="h-8 w-8" style={{ color: "#8B1A1A" }} />
+                <Lock className="h-8 w-8" style={{ color: "#8B1A1A" }} aria-hidden="true" />
               </div>
             </div>
 
@@ -248,7 +253,7 @@ export default function AdminLayout({
                   (e.currentTarget.style.background = "#8B1A1A")
                 }
               >
-                {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
                 Acceder
               </Button>
               <div className="text-center pt-1">
@@ -269,7 +274,7 @@ export default function AdminLayout({
             </div>
           </div>
         </div>
-      </div>
+      </PwaContainer>
     );
   }
 
@@ -291,14 +296,29 @@ export default function AdminLayout({
         }
       `}</style>
 
-      <div className="min-h-screen flex" style={{ background: "#0A0A0C" }}>
+      <PwaContainer
+        className="flex"
+        gradient="bg-[#0A0A0C]"
+        scrollable
+      >
+        {/* Overlay for mobile drawer */}
+        {mobileDrawerOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 md:hidden"
+            onClick={() => setMobileDrawerOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* ─── Sidebar ─────────────────────────────────── */}
         <aside
-          className="fixed top-0 left-0 z-40 h-screen flex flex-col transition-all duration-200"
+          className={`fixed top-0 left-0 z-40 h-dvh flex flex-col transition-transform duration-300 md:transition-all ${
+            mobileDrawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
           style={{
             background: "#111113",
             borderRight: "1px solid #2A2A2E",
-            width: sidebarCollapsed ? "64px" : "240px",
+            width: sidebarCollapsed && !mobileDrawerOpen ? "64px" : "240px",
           }}
         >
           {/* Scan-line texture overlay */}
@@ -313,12 +333,12 @@ export default function AdminLayout({
 
           {/* Logo area */}
           <div
-            className="h-16 flex items-center px-4 shrink-0 relative z-10"
+            className="h-16 flex items-center justify-between px-4 shrink-0 relative z-10"
             style={{ borderBottom: "1px solid #2A2A2E" }}
           >
-            {!sidebarCollapsed && (
+            {(!sidebarCollapsed || mobileDrawerOpen) && (
               <div className="flex items-center gap-3">
-                <img src="/logo-kh.png" alt="KH" className="h-8 w-auto" />
+                <img src="/logo-kh.png" alt="KH" className="h-8 w-auto" aria-hidden="true" />
                 <div>
                   <h1
                     className="text-sm font-bold leading-tight"
@@ -338,13 +358,28 @@ export default function AdminLayout({
                 </div>
               </div>
             )}
-            {sidebarCollapsed && (
-              <img src="/logo-kh.png" alt="KH" className="h-8 w-auto mx-auto" />
+            {sidebarCollapsed && !mobileDrawerOpen && (
+              <img src="/logo-kh.png" alt="KH" className="h-8 w-auto mx-auto" aria-hidden="true" />
+            )}
+            {mobileDrawerOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden ml-auto p-1 h-auto text-muted-foreground hover:text-foreground"
+                onClick={() => setMobileDrawerOpen(false)}
+                aria-label="Cerrar menu"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             )}
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 py-5 px-3 space-y-1 overflow-y-auto relative z-10">
+          <nav
+            className="flex-1 py-5 px-3 space-y-1 overflow-y-auto relative z-10"
+            role="navigation"
+            aria-label="Navegacion principal"
+          >
             {NAV_ITEMS.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
@@ -387,8 +422,9 @@ export default function AdminLayout({
                   <Icon
                     className="h-5 w-5 shrink-0"
                     style={{ color: isActive ? "#8B1A1A" : undefined }}
+                    aria-hidden="true"
                   />
-                  {!sidebarCollapsed && <span>{item.label}</span>}
+                  {(!sidebarCollapsed || mobileDrawerOpen) && <span>{item.label}</span>}
                 </Link>
               );
             })}
@@ -415,10 +451,10 @@ export default function AdminLayout({
                 e.currentTarget.style.background = "transparent";
                 e.currentTarget.style.color = "#6B6B6B";
               }}
-              title={sidebarCollapsed ? "Ver app operario" : undefined}
+              title={sidebarCollapsed && !mobileDrawerOpen ? "Ver app operario" : undefined}
             >
-              <ExternalLink className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && <span>Ver app operario</span>}
+              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {(!sidebarCollapsed || mobileDrawerOpen) && <span>Ver app operario</span>}
             </Link>
             <button
               onClick={handleLogout}
@@ -436,21 +472,21 @@ export default function AdminLayout({
                 e.currentTarget.style.background = "transparent";
                 e.currentTarget.style.color = "#6B6B6B";
               }}
-              title={sidebarCollapsed ? "Cerrar sesion" : undefined}
+              title={sidebarCollapsed && !mobileDrawerOpen ? "Cerrar sesion" : undefined}
             >
-              <LogOut className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && <span>Cerrar sesion</span>}
+              <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {(!sidebarCollapsed || mobileDrawerOpen) && <span>Cerrar sesion</span>}
             </button>
 
             {/* Separator */}
             <div
-              className="my-2"
+              className="my-2 hidden md:block"
               style={{ height: "1px", background: "#2A2A2E" }}
             />
 
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="flex items-center justify-center w-full rounded-lg text-sm transition-colors"
+              className="hidden md:flex items-center justify-center w-full rounded-lg text-sm transition-colors"
               style={{
                 padding: "8px 12px",
                 color: "#3A3A3E",
@@ -464,12 +500,13 @@ export default function AdminLayout({
                 e.currentTarget.style.color = "#3A3A3E";
               }}
               title={sidebarCollapsed ? "Expandir" : "Colapsar"}
+              aria-label={sidebarCollapsed ? "Expandir barra lateral" : "Colapsar barra lateral"}
             >
               {sidebarCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               ) : (
                 <>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  <ChevronLeft className="h-4 w-4 mr-2" aria-hidden="true" />
                   <span>Colapsar</span>
                 </>
               )}
@@ -478,22 +515,35 @@ export default function AdminLayout({
         </aside>
 
         {/* ─── Main Content ────────────────────────────── */}
-        <main
-          className="flex-1 transition-all duration-200"
-          style={{
-            marginLeft: sidebarCollapsed ? "64px" : "240px",
-          }}
+        <div
+          className={`flex-1 transition-all duration-300 md:transition-all ${
+            sidebarCollapsed ? "md:ml-[64px]" : "md:ml-[240px]"
+          }`}
         >
           {/* Top bar */}
           <header
-            className="sticky top-0 z-30 h-16 flex items-center px-6"
+            className="sticky top-0 z-30 h-16 flex items-center px-4 md:px-6"
             style={{
               background: "#111113",
               borderBottom: "1px solid #2A2A2E",
             }}
           >
-            <div className="flex items-center justify-between w-full">
-              <div>{/* Breadcrumb area -- filled by page content */}</div>
+            <div className="flex items-center justify-between w-full gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden p-1 h-auto text-muted-foreground hover:text-foreground"
+                  onClick={() => setMobileDrawerOpen(true)}
+                  aria-label="Abrir menu"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+                {/* Logo visible only on mobile top bar */}
+                <div className="md:hidden flex items-center">
+                  <img src="/logo-kh.png" alt="KH" className="h-6 w-auto" aria-hidden="true" />
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <div
                   className="flex items-center gap-2 text-xs"
@@ -519,9 +569,9 @@ export default function AdminLayout({
           </header>
 
           {/* Page content */}
-          <div className="p-6">{children}</div>
-        </main>
-      </div>
+          <main className="p-4 md:p-6">{children}</main>
+        </div>
+      </PwaContainer>
     </AdminAuthContext.Provider>
   );
 }
