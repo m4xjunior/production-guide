@@ -67,7 +67,8 @@ export default function VoiceCommandsPage() {
     }
     const rec = new SpeechRecognition();
     rec.lang = "es-ES";
-    rec.onresult = (e: Event & { results: SpeechRecognitionResultList }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
       const transcript = e.results[0][0].transcript;
       const norm = transcript.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
       const matched = commands.find((c) =>
