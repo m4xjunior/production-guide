@@ -131,6 +131,8 @@ model StepLog {
   @@map("step_logs")
 }
 
+/// @deprecated — Substituído por Tenant.ttsVoiceId, Tenant.theme, etc. em v3.0
+/// Mantido para compatibilidade backward durante migração.
 model GlobalSettings {
   id               String   @id @default("global")
   ttsVoiceId       String   @default("JBFqnCBsd6RMkjVDRZzb") @map("tts_voice_id")
@@ -146,6 +148,7 @@ model GlobalSettings {
   useWhisperSTT    Boolean  @default(false) @map("use_whisper_stt")
   updatedAt        DateTime @updatedAt @map("updated_at")
   updatedBy        String?  @map("updated_by")
+  tenantId         String?  @map("tenant_id") @db.Uuid // null = legacy KH
 
   @@map("global_settings")
 }
@@ -166,7 +169,7 @@ model StationSettings {
 }
 
 model AuditLog {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @db.Uuid
   action      String
   entityType  String   @map("entity_type")
   entityId    String?  @map("entity_id")
@@ -175,6 +178,7 @@ model AuditLog {
   performedBy String   @map("performed_by")
   performedAt DateTime @default(now()) @map("performed_at")
   tenantId    String   @map("tenant_id") @db.Uuid
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 
   @@index([entityType, entityId])
   @@index([performedAt])
@@ -278,6 +282,7 @@ model Tenant {
   references    Reference[]
   admins        TenantAdmin[]
   voiceCommands VoiceCommand[]
+  auditLogs     AuditLog[]
 
   @@map("tenants")
 }
@@ -316,8 +321,8 @@ model VoiceCommand {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  station Station? @relation(fields: [stationId], references: [id])
-  step    Step?    @relation(fields: [stepId], references: [id])
+  station Station? @relation(fields: [stationId], references: [id], onDelete: SetNull)
+  step    Step?    @relation(fields: [stepId], references: [id], onDelete: SetNull)
 
   @@index([tenantId, scope])
   @@map("voice_commands")
