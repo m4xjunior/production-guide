@@ -7,7 +7,7 @@ import { ReferenceSelector } from "@/components/ReferenceSelector";
 import { ProductionStep } from "@/components/ProductionStep";
 import { AudioUnlockOverlay } from "@/components/devkit";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { type Step, type OperatorSession } from "@/types";
+import { type Step, type OperatorSession, type Reference } from "@/types";
 import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
@@ -30,6 +30,7 @@ export default function Home() {
   const [selectedStationId, setSelectedStationId] = useState("");
   const [selectedStationName, setSelectedStationName] = useState("");
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
+  const [stationReferences, setStationReferences] = useState<Reference[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -163,7 +164,8 @@ export default function Home() {
       const refs = Array.isArray(station.references) ? station.references : [];
 
       if (refs.length > 0) {
-        // Go to reference selection
+        // Go to reference selection — pass already-loaded refs to avoid a second fetch
+        setStationReferences(refs);
         setLoading(false);
         setAppState("reference-selection");
       } else {
@@ -209,6 +211,7 @@ export default function Home() {
     sessionStorage.removeItem("p2v_session");
     setSteps([]);
     setCurrentStepIndex(0);
+    setStationReferences([]);
     setAppState("station-selection");
   }, []);
 
@@ -247,6 +250,7 @@ export default function Home() {
     setSelectedStationId("");
     setSelectedStationName("");
     setSelectedReferenceId(null);
+    setStationReferences([]);
     setSteps([]);
     setCurrentStepIndex(0);
   }, [sessionId]);
@@ -306,6 +310,7 @@ export default function Home() {
         stationName={selectedStationName}
         operatorNumber={operatorNumber}
         operatorName={operatorName}
+        references={stationReferences}
         onReferenceSelected={handleReferenceSelected}
         onBack={() => setAppState("station-selection")}
       />

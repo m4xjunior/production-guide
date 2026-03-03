@@ -42,6 +42,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar que referenceId está vinculado a la estación y está activo
+    if (referenceId) {
+      const linked = await prisma.stationReference.findFirst({
+        where: {
+          stationId,
+          referenceId,
+          reference: { isActive: true },
+        },
+      });
+      if (!linked) {
+        return NextResponse.json(
+          { error: "La referencia no está vinculada a esta estación o no está activa" },
+          { status: 400 },
+        );
+      }
+    }
+
     // Desactivar sesiones activas previas de este operario
     await prisma.operatorSession.updateMany({
       where: {

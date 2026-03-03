@@ -10,6 +10,8 @@ interface ReferenceSelectorProps {
   stationName: string;
   operatorNumber: string;
   operatorName?: string;
+  /** Pre-loaded references from the parent. When provided, no additional fetch is performed. */
+  references?: Reference[];
   onReferenceSelected: (referenceId: string) => void;
   onBack: () => void;
 }
@@ -19,14 +21,22 @@ export function ReferenceSelector({
   stationName,
   operatorNumber,
   operatorName,
+  references: referencesProp,
   onReferenceSelected,
   onBack,
 }: ReferenceSelectorProps) {
-  const [references, setReferences] = useState<Reference[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [references, setReferences] = useState<Reference[]>(referencesProp ?? []);
+  const [loading, setLoading] = useState(referencesProp === undefined);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // If references were already provided by the parent, skip the fetch entirely.
+    if (referencesProp !== undefined) {
+      setReferences(referencesProp);
+      setLoading(false);
+      return;
+    }
+
     const fetchReferences = async () => {
       setLoading(true);
       setError("");
@@ -45,7 +55,7 @@ export function ReferenceSelector({
     };
 
     fetchReferences();
-  }, [stationId]);
+  }, [stationId, referencesProp]);
 
   return (
     <div

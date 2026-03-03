@@ -12,8 +12,8 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const station = await prisma.station.findUnique({
-      where: { id },
+    const station = await prisma.station.findFirst({
+      where: { id, isActive: true },
       include: {
         references: {
           include: {
@@ -86,15 +86,27 @@ export async function PUT(
 
     // Sync station references if provided
     if (Array.isArray(referenceIds)) {
-      await prisma.stationReference.deleteMany({ where: { stationId: id } });
-      if (referenceIds.length > 0) {
-        await prisma.stationReference.createMany({
-          data: referenceIds.map((referenceId: string) => ({
-            stationId: id,
-            referenceId,
-          })),
-        });
+      const invalidIds = referenceIds.filter(
+        (refId: unknown) => typeof refId !== "string" || (refId as string).trim() === ""
+      );
+      if (invalidIds.length > 0) {
+        return NextResponse.json(
+          { error: "Todos los referenceIds deben ser strings no vacíos" },
+          { status: 400 },
+        );
       }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.stationReference.deleteMany({ where: { stationId: id } });
+        if (referenceIds.length > 0) {
+          await tx.stationReference.createMany({
+            data: referenceIds.map((referenceId: string) => ({
+              stationId: id,
+              referenceId,
+            })),
+          });
+        }
+      });
     }
 
     return NextResponse.json({ station });
