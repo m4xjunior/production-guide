@@ -44,9 +44,9 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
     if (res.ok) {
       const data = (await res.json()) as { settings: StationCfg };
       setSettings(data.settings);
-      toast({ title: "Salvo", description: `${key} atualizado para esta estação.` });
+      toast({ title: "Guardado", description: `${key} actualizado para esta estacion.` });
     } else {
-      toast({ title: "Erro", description: "Não foi possível salvar.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudo guardar.", variant: "destructive" });
     }
   };
 
@@ -61,9 +61,9 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Configurações desta Estação</CardTitle>
+        <CardTitle>Configuraciones de esta estacion</CardTitle>
         <CardDescription>
-          Deixe em branco para herdar as configurações globais do sistema.
+          Dejar en blanco para heredar la configuracion global del sistema.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -74,12 +74,12 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
           <Input
             value={settings.ttsVoiceId ?? ""}
             onChange={(e) => void update("ttsVoiceId", e.target.value)}
-            placeholder={`Herdar global: ${global.ttsVoiceId}`}
+            placeholder={`Heredar global: ${global.ttsVoiceId}`}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Tamanho de fonte (global: {global.fontSize}px)</Label>
+          <Label>Tamano de fuente (global: {global.fontSize}px)</Label>
           <Input
             type="number"
             min={12}
@@ -88,17 +88,17 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
             onChange={(e) =>
               void update("fontSize", e.target.value ? parseInt(e.target.value) : null)
             }
-            placeholder={`Herdar global: ${global.fontSize}px`}
+            placeholder={`Heredar global: ${global.fontSize}px`}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label>Cor de fundo (hex, ex: #f0f4ff)</Label>
+          <Label>Color de fondo (hex, ej: #f0f4ff)</Label>
           <div className="flex gap-2">
             <Input
               value={settings.backgroundColor ?? ""}
               onChange={(e) => void update("backgroundColor", e.target.value)}
-              placeholder="Herdar padrão do sistema"
+              placeholder="Heredar configuracion global"
             />
             {settings.backgroundColor && (
               <div
@@ -110,12 +110,12 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Cor de destaque (hex)</Label>
+          <Label>Color de acento (hex)</Label>
           <div className="flex gap-2">
             <Input
               value={settings.accentColor ?? ""}
               onChange={(e) => void update("accentColor", e.target.value)}
-              placeholder="Herdar cor primária do sistema"
+              placeholder="Heredar color primario del sistema"
             />
             {settings.accentColor && (
               <div
@@ -127,7 +127,7 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Delay auto-avanço em ms (global: {global.autoAdvanceDelay}ms)</Label>
+          <Label>Delay auto-avance en ms (global: {global.autoAdvanceDelay}ms)</Label>
           <Input
             type="number"
             min={1000}
@@ -140,7 +140,7 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
                 e.target.value ? parseInt(e.target.value) : null,
               )
             }
-            placeholder={`Herdar global: ${global.autoAdvanceDelay}ms`}
+            placeholder={`Heredar global: ${global.autoAdvanceDelay}ms`}
           />
         </div>
       </CardContent>

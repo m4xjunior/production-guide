@@ -61,10 +61,10 @@ export default function SettingsPage() {
     if (res.ok) {
       const data = (await res.json()) as { settings: GlobalSettings };
       setSettings(data.settings);
-      toast({ title: "Configuração salva", description: `${key} atualizado com sucesso.` });
+      toast({ title: "Configuracion guardada", description: `${key} actualizado con exito.` });
       loadSettings(); // refresh audit
     } else {
-      toast({ title: "Erro", description: "Não foi possível salvar.", variant: "destructive" });
+      toast({ title: "Error", description: "No se pudo guardar.", variant: "destructive" });
     }
   };
 
@@ -79,12 +79,12 @@ export default function SettingsPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Configurações Globais</h1>
+        <h1 className="text-2xl font-bold">Configuraciones Globales</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Afeta todos os operadores e estações do sistema (salvo quando a estação tem configuração própria).
+          Afecta a todos los operarios y estaciones del sistema (salvo cuando la estacion tiene configuracion propia).
           {settings.updatedAt && (
             <span className="ml-2 text-xs">
-              Última atualização: {new Date(settings.updatedAt).toLocaleString("pt-BR")}
+              Ultima actualizacion: {new Date(settings.updatedAt).toLocaleString("es-ES")}
             </span>
           )}
         </p>
@@ -93,16 +93,16 @@ export default function SettingsPage() {
       <Tabs defaultValue="tts">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="tts">Voz TTS</TabsTrigger>
-          <TabsTrigger value="ui">Interface</TabsTrigger>
-          <TabsTrigger value="behavior">Comportamento</TabsTrigger>
-          <TabsTrigger value="transcription">Transcrição</TabsTrigger>
+          <TabsTrigger value="ui">Interfaz</TabsTrigger>
+          <TabsTrigger value="behavior">Comportamiento</TabsTrigger>
+          <TabsTrigger value="transcription">Transcripcion</TabsTrigger>
           <TabsTrigger value="audit">Auditoria</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tts" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>ElevenLabs — Configuração de Voz</CardTitle>
+              <CardTitle>ElevenLabs — Configuracion de Voz</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-1.5">
@@ -113,13 +113,13 @@ export default function SettingsPage() {
                   placeholder="JBFqnCBsd6RMkjVDRZzb"
                 />
                 <p className="text-xs text-muted-foreground">
-                  ID da voz no ElevenLabs. Alterar regenera áudios nos próximos passos criados.
+                  ID de la voz en ElevenLabs. Cambiarla regenera los audios en los proximos pasos creados.
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label>
-                  Velocidade:{" "}
+                  Velocidad:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsSpeed}x
                   </Badge>
@@ -136,13 +136,13 @@ export default function SettingsPage() {
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>0.5x (lento)</span>
                   <span>1.0x (normal)</span>
-                  <span>2.0x (rápido)</span>
+                  <span>2.0x (rapido)</span>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>
-                  Estabilidade:{" "}
+                  Estabilidad:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsStability}
                   </Badge>
@@ -162,7 +162,7 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <Label>
-                  Similaridade:{" "}
+                  Similitud:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsSimilarity}
                   </Badge>
@@ -186,12 +186,12 @@ export default function SettingsPage() {
         <TabsContent value="ui" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Interface do Operador</CardTitle>
+              <CardTitle>Interfaz del Operario</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label>
-                  Tamanho de fonte:{" "}
+                  Tamano de fuente:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.fontSize}px
                   </Badge>
@@ -211,12 +211,12 @@ export default function SettingsPage() {
                   className="p-3 rounded border bg-muted"
                   style={{ fontSize: `${settings.fontSize}px` }}
                 >
-                  Prévia: Instrução de montagem do produto
+                  Vista previa: Instruccion de montaje del producto
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label>Idioma padrão</Label>
+                <Label>Idioma predeterminado</Label>
                 <select
                   value={settings.defaultLanguage}
                   onChange={(e) => void updateSetting("defaultLanguage", e.target.value)}
@@ -236,12 +236,12 @@ export default function SettingsPage() {
         <TabsContent value="behavior" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Comportamento do Sistema</CardTitle>
+              <CardTitle>Comportamiento del Sistema</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label>
-                  Delay auto-avanço:{" "}
+                  Delay auto-avance:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.autoAdvanceDelay / 1000}s
                   </Badge>
@@ -266,9 +266,9 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
-                  <p className="text-sm font-medium">QC habilitado por padrão</p>
+                  <p className="text-sm font-medium">QC habilitado por defecto</p>
                   <p className="text-xs text-muted-foreground">
-                    Novos passos criados terão QC ativado automaticamente
+                    Los nuevos pasos creados tendran QC activado automaticamente
                   </p>
                 </div>
                 <Switch
@@ -283,15 +283,15 @@ export default function SettingsPage() {
         <TabsContent value="transcription" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Reconhecimento de Voz</CardTitle>
+              <CardTitle>Reconocimiento de Voz</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
                   <p className="text-sm font-medium">Usar Whisper (servidor local)</p>
                   <p className="text-xs text-muted-foreground">
-                    Usa o servidor Python local com Whisper para máxima precisão em vez do Web
-                    Speech API do navegador
+                    Usa el servidor Python local con Whisper para maxima precision en lugar de la Web
+                    Speech API del navegador
                   </p>
                 </div>
                 <Switch
@@ -301,7 +301,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label>URL do servidor Whisper</Label>
+                <Label>URL del servidor Whisper</Label>
                 <Input
                   defaultValue={settings.whisperServerUrl}
                   onBlur={(e) => void updateSetting("whisperServerUrl", e.target.value)}
@@ -309,7 +309,7 @@ export default function SettingsPage() {
                   disabled={!settings.useWhisperSTT}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Inicie o servidor: <code>cd transcription-server && ./start.sh</code>
+                  Inicie el servidor: <code>cd transcription-server && ./start.sh</code>
                 </p>
               </div>
             </CardContent>
@@ -319,12 +319,12 @@ export default function SettingsPage() {
         <TabsContent value="audit" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Histórico de Mudanças</CardTitle>
+              <CardTitle>Historial de Cambios</CardTitle>
             </CardHeader>
             <CardContent>
               {auditLogs.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  Nenhuma mudança registrada ainda.
+                  Ningun cambio registrado aun.
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -334,7 +334,7 @@ export default function SettingsPage() {
                         {log.action}
                       </Badge>
                       <span className="text-muted-foreground text-xs">
-                        {new Date(log.performedAt).toLocaleString("pt-BR")}
+                        {new Date(log.performedAt).toLocaleString("es-ES")}
                       </span>
                       <span className="text-xs">por {log.performedBy}</span>
                     </div>

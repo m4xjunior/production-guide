@@ -92,9 +92,9 @@ export function MediaDropzone({
             <Upload className="h-10 w-10" />
             <div>
               <p className="text-sm font-medium">
-                Arraste uma imagem aqui ou clique para selecionar
+                Arrastra una imagen aqui o haz clic para seleccionar
               </p>
-              <p className="text-xs mt-1">JPEG, PNG, WebP — máx. 10 MB</p>
+              <p className="text-xs mt-1">JPEG, PNG, WebP — max. 10 MB</p>
             </div>
           </div>
         )}
@@ -115,7 +115,7 @@ export function MediaDropzone({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
-            alt="Prévia"
+            alt="Vista previa"
             className="rounded-lg border max-h-36 object-cover shadow-sm"
           />
           <button
