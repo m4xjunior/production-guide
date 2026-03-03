@@ -30,6 +30,11 @@ import { StepTransition } from "@/components/StepTransition";
 import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
 import { resolveNextStep } from "@/lib/resolveNextStep";
+
+export type ExtendedStep = Step & {
+  videoUrl?: string | null;
+  synonyms?: string[];
+};
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
 import { StepAssemblyViewer } from "@/components/StepAssemblyViewer";
@@ -50,15 +55,15 @@ import {
 } from "lucide-react";
 
 interface ProductionStepProps {
-  step: Step;
-  steps: Step[];
+  step: ExtendedStep;
+  steps: ExtendedStep[];
   currentIndex: number;
   totalSteps: number;
   operatorNumber: string;
   sessionId: string;
-  stationId: string;
-  completedUnits: number;
-  onStepCompleted: (nextStep?: Step | null) => void;
+  stationId?: string;
+  completedUnits?: number;
+  onStepCompleted: (nextStep?: ExtendedStep | null) => void;
   onPreviousStep: () => void;
   onNextStep: () => void;
   onBackToStations: () => void;
@@ -74,8 +79,8 @@ export function ProductionStep({
   totalSteps,
   operatorNumber,
   sessionId,
-  stationId,
-  completedUnits,
+  stationId = "",
+  completedUnits = 0,
   onStepCompleted,
   onPreviousStep,
   onNextStep,
@@ -777,14 +782,21 @@ export function ProductionStep({
               {/* Right: Visual guidance */}
               <div className="flex items-start justify-center">
                 <div className="w-full space-y-4">
-                  {step.modelUrl && (
+                  {step.videoUrl ? (
+                    <video
+                      src={step.videoUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full aspect-video rounded-xl object-cover"
+                    />
+                  ) : step.modelUrl ? (
                     <StepAssemblyViewer
                       sourceUrl={step.modelUrl}
                       stepLabel={`Montaje 3D · Paso ${currentIndex + 1}`}
                     />
-                  )}
-
-                  {step.photoUrl ? (
+                  ) : step.photoUrl ? (
                     <div className="w-full rounded-xl overflow-hidden border border-border bg-card shadow-sm">
                       <img
                         src={step.photoUrl}
@@ -794,10 +806,6 @@ export function ProductionStep({
                           (e.target as HTMLImageElement).src = "/file.svg";
                         }}
                       />
-                    </div>
-                  ) : !step.modelUrl ? (
-                    <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
-                      <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
                     </div>
                   ) : null}
                 </div>

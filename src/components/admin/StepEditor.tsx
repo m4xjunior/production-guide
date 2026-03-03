@@ -16,6 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type Step, type StepCondition } from "@/types";
+
+export type ExtendedStep = Step & {
+  videoUrl?: string | null;
+  synonyms?: string[];
+};
 import {
   GripVertical,
   Trash2,
@@ -32,13 +37,13 @@ import {
 } from "lucide-react";
 
 interface StepEditorProps {
-  step: Step;
+  step: ExtendedStep;
   index: number;
   totalSteps: number;
   stationId: string;
   adminPassword: string;
-  allSteps: Step[];
-  onSave: (updatedStep: Step) => void;
+  allSteps: ExtendedStep[];
+  onSave: (updatedStep: ExtendedStep) => void;
   onDelete: (stepId: string) => void;
   onMoveUp: (stepId: string) => void;
   onMoveDown: (stepId: string) => void;
@@ -79,6 +84,8 @@ export function StepEditor({
   const [formIsErrorStep, setFormIsErrorStep] = useState(step.isErrorStep ?? false);
   const [formErrorMessage, setFormErrorMessage] = useState(step.errorMessage || "");
   const [formPeriodEveryN, setFormPeriodEveryN] = useState(step.periodEveryN?.toString() || "");
+  const [formVideoUrl, setFormVideoUrl] = useState(step.videoUrl || null);
+  const [formSynonyms, setFormSynonyms] = useState<string[]>(step.synonyms || []);
 
   // Conditions: convert from DB format to draft format
   const toDrafts = (conditions?: StepCondition[]): ConditionDraft[] =>
@@ -107,6 +114,8 @@ export function StepEditor({
         respuesta: formRespuesta || null,
         photoUrl: formPhotoUrl || null,
         modelUrl: formModelUrl || null,
+        videoUrl: formVideoUrl || null,
+        synonyms: formSynonyms,
         isQc: formIsQc,
         qcFrequency: formQcFrequency ? parseInt(formQcFrequency) : null,
         isErrorStep: formIsErrorStep,
@@ -388,6 +397,83 @@ export function StepEditor({
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           )}
+        </div>
+
+        {/* Video del paso */}
+        <div className="space-y-2">
+          <label className="text-sm text-zinc-400">Vídeo (MP4/WebM, máx 200MB)</label>
+          {formVideoUrl ? (
+            <div className="relative">
+              <video src={formVideoUrl} className="w-full rounded-md max-h-32" controls />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute top-1 right-1 text-red-400 hover:text-red-300"
+                onClick={() => setFormVideoUrl(null)}
+              >
+                Eliminar
+              </Button>
+            </div>
+          ) : (
+            <div
+              className="border-2 border-dashed border-zinc-700 rounded-md p-4 text-center text-sm text-zinc-500 cursor-pointer hover:border-zinc-500 transition-colors"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={async (e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+                const fd = new FormData();
+                fd.append("video", file);
+                fd.append("stationId", stationId);
+                fd.append("stepId", step.id);
+                const res = await fetch("/api/upload/video", {
+                  method: "POST",
+                  headers: { "X-Admin-Password": adminPassword },
+                  body: fd,
+                });
+                const { url } = await res.json();
+                if (url) setFormVideoUrl(url);
+              }}
+            >
+              Arrastra el vídeo aquí o
+              <input
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                className="hidden"
+                id={`video-upload-${step.id}`}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const fd = new FormData();
+                  fd.append("video", file);
+                  fd.append("stationId", stationId);
+                  fd.append("stepId", step.id);
+                  const res = await fetch("/api/upload/video", {
+                    method: "POST",
+                    headers: { "X-Admin-Password": adminPassword },
+                    body: fd,
+                  });
+                  const { url } = await res.json();
+                  if (url) setFormVideoUrl(url);
+                }}
+              />
+              <label htmlFor={`video-upload-${step.id}`} className="cursor-pointer text-blue-400 hover:underline ml-1">
+                selecciona
+              </label>
+            </div>
+          )}
+        </div>
+
+        {/* Sinónimos de voz */}
+        <div className="space-y-2">
+          <label className="text-sm text-zinc-400">Sinónimos de respuesta (voz)</label>
+          <p className="text-xs text-zinc-600">El operario puede decir cualquiera de estas frases para confirmar el paso.</p>
+          <input
+            className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white"
+            placeholder="ok, bueno, correcto"
+            value={(formSynonyms || []).join(", ")}
+            onChange={(e) => setFormSynonyms(e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean))}
+          />
         </div>
 
         <div className="space-y-2">
