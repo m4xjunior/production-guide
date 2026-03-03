@@ -40,7 +40,7 @@ export const OperatorInputAnimated: React.FC<OperatorInputAnimatedProps> = ({
               <KHLogo size={140} />
             </div>
             <h1
-              className="text-6xl font-bold text-white mb-6 animate-fadeInDown high-contrast-text"
+              className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fadeInDown high-contrast-text"
               style={{ animationDelay: "100ms" }}
             >
               Guía de Producción
@@ -53,7 +53,7 @@ export const OperatorInputAnimated: React.FC<OperatorInputAnimatedProps> = ({
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/15 rounded-3xl shadow-2xl p-10 border border-white/30 animate-fadeInUp">
+          <div className="backdrop-blur-md bg-white/15 rounded-3xl shadow-2xl p-6 md:p-10 border border-white/30 animate-fadeInUp">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
                 <label
@@ -87,6 +87,7 @@ export const OperatorInputAnimated: React.FC<OperatorInputAnimatedProps> = ({
               >
                 <button
                   type="submit"
+                  aria-label="Comenzar producción"
                   className="group relative w-full h-16 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-xl rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-red-300 voice-button"
                 >
                   {/* Glare Effect */}

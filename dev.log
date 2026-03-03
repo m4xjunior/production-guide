@@ -1,0 +1,19 @@
+
+> production-guide@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling / ...
+ ✓ Compiled / in 11.4s (722 modules)
+ GET / 200 in 13657ms
+ GET / 200 in 144ms
+ ○ Compiling /api/products ...
+ ✓ Compiled /api/products in 1738ms (725 modules)
+ GET /api/products 200 in 2073ms
+ GET /api/products 200 in 213ms
+ GET / 200 in 522ms

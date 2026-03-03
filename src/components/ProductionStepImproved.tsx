@@ -385,7 +385,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
               </div>
               <div className="bg-red-500/10 rounded-lg p-6 border border-red-500/20 flex-1 overflow-y-auto">
                 <p
-                  className="text-white leading-relaxed font-bold"
+                  className="text-white leading-relaxed font-bold break-words"
                   style={{ fontSize: "36px" }}
                 >
                   {step.mensaje}
@@ -423,6 +423,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
                     <button
                       onClick={() => speak(step.voz)}
                       disabled={isSpeaking}
+                      aria-label="Repetir instrucciones de voz"
                       className="group relative px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-800 disabled:to-blue-800 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
                     >
                       <span className="flex items-center space-x-2">
@@ -455,6 +456,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
                   {/* Continuous Listening Button */}
                   <button
                     onClick={toggleContinuousMode}
+                    aria-label={useContinuousMode ? "Parar Escucha Continua" : "Iniciar Escucha Continua"}
                     className={`group relative h-16 rounded-xl font-semibold text-lg overflow-hidden transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 ${
                       useContinuousMode
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white focus:ring-green-300"
@@ -481,6 +483,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
                   {/* Manual Listening Button */}
                   <button
                     onClick={handleVoiceInput}
+                    aria-label={isListening ? "Parar Grabación Manual" : "Iniciar Escucha Manual"}
                     className={`group relative h-16 rounded-xl font-semibold text-lg overflow-hidden transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 ${
                       isListening
                         ? "bg-gradient-to-r from-red-700 to-red-800 text-white focus:ring-red-300"
@@ -577,6 +580,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
             <div className="bg-black/20 backdrop-blur-md rounded-xl shadow-lg p-3 border border-white/10">
               <button
                 onClick={() => setShowManualInput(!showManualInput)}
+                aria-label={showManualInput ? "Ocultar entrada manual" : "Mostrar entrada manual"}
                 className="text-red-400 hover:text-red-300 text-sm underline mb-2"
               >
                 {showManualInput ? "Ocultar" : "Entrada manual"}
@@ -584,7 +588,9 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
 
               {showManualInput && (
                 <form onSubmit={handleManualSubmit} className="space-y-2">
+                  <label htmlFor="manualInput" className="sr-only">Entrada manual</label>
                   <input
+                    id="manualInput"
                     type="text"
                     value={manualInput}
                     onChange={(e) => setManualInput(e.target.value)}
@@ -593,6 +599,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
                   />
                   <button
                     type="submit"
+                    aria-label="Enviar entrada manual"
                     className="w-full py-2 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded text-sm hover:from-green-700 hover:to-green-800 transition-all"
                   >
                     Enviar
@@ -668,6 +675,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
               <button
                 onClick={onPreviousStep}
                 disabled={stepNumber <= 1}
+                aria-label="Paso anterior"
                 className="flex items-center space-x-1 px-3 py-1 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded text-sm transition-all disabled:cursor-not-allowed"
               >
                 <svg
@@ -693,6 +701,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
               <button
                 onClick={onNextStep}
                 disabled={stepNumber >= totalSteps}
+                aria-label="Próximo paso"
                 className="flex items-center space-x-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded text-sm transition-all disabled:cursor-not-allowed"
               >
                 <span>Próximo</span>

@@ -35,6 +35,7 @@ const ProductButton: React.FC<ProductButtonProps> = ({
     >
       <button
         onClick={onClick}
+        aria-label={`Seleccionar producto ${product.id}`}
         className="relative w-full h-32 bg-gradient-to-br from-red-600 via-red-700 to-red-800 rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-red-300 overflow-hidden animate-fadeInUp voice-button"
       >
         {/* Glare Effect */}
@@ -158,7 +159,7 @@ export const ProductSelectorAnimated: React.FC<
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-6">
         <div className="relative z-10 max-w-6xl w-full">
           <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold text-white mb-6 animate-fadeInDown high-contrast-text">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fadeInDown high-contrast-text">
               Productos Disponibles
             </h1>
             <p
@@ -187,6 +188,7 @@ export const ProductSelectorAnimated: React.FC<
               <button
                 onClick={() => setShowUploadModal(true)}
                 disabled={true}
+                aria-label="Crear nuevo producto (desactivado)"
                 className="relative w-full h-32 bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-2xl shadow-lg transform transition-all duration-300 overflow-hidden animate-fadeInUp border-2 border-dashed border-gray-500 opacity-50 cursor-not-allowed"
               >
                 {/* Content */}

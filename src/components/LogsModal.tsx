@@ -162,6 +162,7 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
             </h2>
             <button
               onClick={onClose}
+              aria-label="Cerrar logs"
               className="text-gray-400 hover:text-white transition-colors"
             >
               <svg
@@ -194,6 +195,7 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
 
             <select
               value={filterStatus}
+              aria-label="Filtrar logs"
               onChange={(e) =>
                 setFilterStatus(
                   e.target.value as "all" | "complete" | "incomplete",
@@ -270,8 +272,8 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
           ) : (
-            <div className="overflow-auto h-full">
-              <table className="w-full text-white">
+            <div className="overflow-x-auto h-full">
+              <table className="w-full min-w-[800px] text-white">
                 <thead>
                   <tr className="border-b border-white/20">
                     <th className="text-left py-3 px-4">Fecha/Hora</th>
