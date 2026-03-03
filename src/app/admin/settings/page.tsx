@@ -124,34 +124,34 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="tts">
-        <TabsList className="grid w-full grid-cols-5 bg-[#141416]">
+        <TabsList className="flex overflow-x-auto flex-nowrap w-full bg-[#141416] justify-start sm:grid sm:grid-cols-5">
           <TabsTrigger
             value="tts"
-            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+            className="whitespace-nowrap data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
           >
             Voz TTS
           </TabsTrigger>
           <TabsTrigger
             value="ui"
-            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+            className="whitespace-nowrap data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
           >
             Interfaz
           </TabsTrigger>
           <TabsTrigger
             value="behavior"
-            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+            className="whitespace-nowrap data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
           >
             Comportamiento
           </TabsTrigger>
           <TabsTrigger
             value="transcription"
-            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+            className="whitespace-nowrap data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
           >
             Transcripcion
           </TabsTrigger>
           <TabsTrigger
             value="audit"
-            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+            className="whitespace-nowrap data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
           >
             Auditoria
           </TabsTrigger>
@@ -165,8 +165,9 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-1.5">
-                <Label>Voice ID</Label>
+                <Label htmlFor="ttsVoiceId">Voice ID</Label>
                 <Input
+                  id="ttsVoiceId"
                   defaultValue={settings.ttsVoiceId}
                   onBlur={(e) => void updateSetting("ttsVoiceId", e.target.value)}
                   placeholder="JBFqnCBsd6RMkjVDRZzb"
@@ -177,13 +178,14 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>
+                <Label id="label-ttsSpeed">
                   Velocidad:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsSpeed}x
                   </Badge>
                 </Label>
                 <Slider
+                  aria-labelledby="label-ttsSpeed"
                   value={[settings.ttsSpeed]}
                   onValueChange={([v]) => void updateSetting("ttsSpeed", v)}
                   min={0.5}
@@ -198,13 +200,14 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>
+                <Label id="label-ttsStability">
                   Estabilidad:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsStability}
                   </Badge>
                 </Label>
                 <Slider
+                  aria-labelledby="label-ttsStability"
                   value={[settings.ttsStability]}
                   onValueChange={([v]) => void updateSetting("ttsStability", v)}
                   min={0}
@@ -214,13 +217,14 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>
+                <Label id="label-ttsSimilarity">
                   Similitud:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.ttsSimilarity}
                   </Badge>
                 </Label>
                 <Slider
+                  aria-labelledby="label-ttsSimilarity"
                   value={[settings.ttsSimilarity]}
                   onValueChange={([v]) => void updateSetting("ttsSimilarity", v)}
                   min={0}
@@ -242,7 +246,7 @@ export default function SettingsPage() {
                     onClick={() => void handleRegenerateAudio(false)}
                     disabled={isRegenerating}
                   >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} aria-hidden="true" />
                     Generar faltantes
                   </Button>
                   <Button 
@@ -266,13 +270,14 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label>
+                <Label id="label-fontSize">
                   Tamano de fuente:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.fontSize}px
                   </Badge>
                 </Label>
                 <Slider
+                  aria-labelledby="label-fontSize"
                   value={[settings.fontSize]}
                   onValueChange={([v]) => void updateSetting("fontSize", v)}
                   min={12}
@@ -317,13 +322,14 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label>
+                <Label id="label-autoAdvanceDelay">
                   Delay auto-avance:{" "}
                   <Badge variant="outline" className="ml-1">
                     {settings.autoAdvanceDelay / 1000}s
                   </Badge>
                 </Label>
                 <Slider
+                  aria-labelledby="label-autoAdvanceDelay"
                   value={[settings.autoAdvanceDelay]}
                   onValueChange={([v]) => void updateSetting("autoAdvanceDelay", v)}
                   min={1000}
@@ -339,12 +345,13 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between rounded-lg border border-[#2A2A2E] bg-[#141416] p-4">
                 <div>
-                  <p className="text-sm font-medium">QC habilitado por defecto</p>
+                  <Label htmlFor="enableQcByDefault" className="text-sm font-medium cursor-pointer">QC habilitado por defecto</Label>
                   <p className="text-xs text-muted-foreground">
                     Los nuevos pasos creados tendran QC activado automaticamente
                   </p>
                 </div>
                 <Switch
+                  id="enableQcByDefault"
                   checked={settings.enableQcByDefault}
                   onCheckedChange={(v) => void updateSetting("enableQcByDefault", v)}
                 />
@@ -362,21 +369,23 @@ export default function SettingsPage() {
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between rounded-lg border border-[#2A2A2E] bg-[#141416] p-4">
                 <div>
-                  <p className="text-sm font-medium">Usar Whisper (servidor local)</p>
+                  <Label htmlFor="useWhisperSTT" className="text-sm font-medium cursor-pointer">Usar Whisper (servidor local)</Label>
                   <p className="text-xs text-muted-foreground">
                     Usa el servidor Python local con Whisper para maxima precision en lugar de la Web
                     Speech API del navegador
                   </p>
                 </div>
                 <Switch
+                  id="useWhisperSTT"
                   checked={settings.useWhisperSTT}
                   onCheckedChange={(v) => void updateSetting("useWhisperSTT", v)}
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label>URL del servidor Whisper</Label>
+                <Label htmlFor="whisperServerUrl">URL del servidor Whisper</Label>
                 <Input
+                  id="whisperServerUrl"
                   defaultValue={settings.whisperServerUrl}
                   onBlur={(e) => void updateSetting("whisperServerUrl", e.target.value)}
                   placeholder="ws://localhost:8765"

@@ -320,47 +320,47 @@ export default function ReportsPage() {
       {/* Date range */}
       <Card className="border-border">
         <CardContent className="pt-5 pb-4">
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="date-from" className="text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" />
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+            <div className="space-y-1.5 w-full sm:w-auto">
+              <Label htmlFor="date-from-report" className="text-muted-foreground flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                 Desde
               </Label>
               <Input
-                id="date-from"
+                id="date-from-report"
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-44 border-border"
+                className="w-full sm:w-44 border-border"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="date-to" className="text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" />
+            <div className="space-y-1.5 w-full sm:w-auto">
+              <Label htmlFor="date-to-report" className="text-muted-foreground flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                 Hasta
               </Label>
               <Input
-                id="date-to"
+                id="date-to-report"
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-44 border-border"
+                className="w-full sm:w-44 border-border"
               />
             </div>
             <Button
               onClick={handleSearch}
-              className="bg-[#8B1A1A] hover:bg-[#A52525]"
+              className="bg-[#8B1A1A] hover:bg-[#A52525] w-full sm:w-auto"
               disabled={loadingPresence || loadingProduction}
             >
               {(loadingPresence || loadingProduction) ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
               ) : (
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2" aria-hidden="true" />
               )}
               Consultar
             </Button>
             {/* Quick date buttons */}
-            <div className="flex items-center gap-1 ml-auto">
+            <div className="flex flex-wrap items-center gap-1 sm:ml-auto">
               <Button
                 variant="ghost"
                 size="sm"
@@ -404,17 +404,17 @@ export default function ReportsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="presence">
-        <TabsList className="bg-accent">
-          <TabsTrigger value="presence" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Users className="h-4 w-4" />
+        <TabsList className="bg-accent flex overflow-x-auto flex-nowrap w-full">
+          <TabsTrigger value="presence" className="gap-2 whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Users className="h-4 w-4" aria-hidden="true" />
             Presencia
           </TabsTrigger>
-          <TabsTrigger value="production" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <BarChart3 className="h-4 w-4" />
+          <TabsTrigger value="production" className="gap-2 whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <BarChart3 className="h-4 w-4" aria-hidden="true" />
             Produccion
           </TabsTrigger>
-          <TabsTrigger value="stops" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
-            <Square className="h-4 w-4" />
+          <TabsTrigger value="stops" className="gap-2 whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Square className="h-4 w-4" aria-hidden="true" />
             Paros
           </TabsTrigger>
         </TabsList>
@@ -437,12 +437,12 @@ export default function ReportsPage() {
                   size="sm"
                   onClick={fetchPresence}
                   disabled={loadingPresence}
-                  className="border-border"
+                  className="border-border w-full sm:w-auto"
                 >
                   {loadingPresence ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Search className="h-4 w-4" />
+                    <Search className="h-4 w-4" aria-hidden="true" />
                   )}
                 </Button>
                 <Button
@@ -450,9 +450,9 @@ export default function ReportsPage() {
                   size="sm"
                   onClick={exportPresenceCSV}
                   disabled={rawPresence.length === 0}
-                  className="border-border"
+                  className="border-border w-full sm:w-auto"
                 >
-                  <Download className="h-4 w-4 mr-1" />
+                  <Download className="h-4 w-4 mr-1" aria-hidden="true" />
                   CSV
                 </Button>
               </div>
@@ -460,7 +460,7 @@ export default function ReportsPage() {
             <CardContent>
               {loadingPresence ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" aria-hidden="true" />
                 </div>
               ) : presenceData.length === 0 ? (
                 <EmptyState
@@ -469,21 +469,22 @@ export default function ReportsPage() {
                   hint="Selecciona un rango de fechas y pulsa Consultar."
                 />
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent bg-accent/50">
-                      <TableHead className="w-8"></TableHead>
-                      <TableHead className="text-muted-foreground font-semibold">
-                        Operario
-                      </TableHead>
-                      <TableHead className="text-muted-foreground font-semibold text-right">
-                        Horas totales
-                      </TableHead>
-                      <TableHead className="text-muted-foreground font-semibold text-right">
-                        Sesiones
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[500px]">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent bg-accent/50">
+                        <TableHead scope="col" className="w-8"></TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold">
+                          Operario
+                        </TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold text-right">
+                          Horas totales
+                        </TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold text-right">
+                          Sesiones
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
                   <TableBody>
                     {presenceData.map((row) => {
                       const isExpanded = expandedPresence.has(row.operatorNumber);
@@ -500,7 +501,8 @@ export default function ReportsPage() {
                       );
                     })}
                   </TableBody>
-                </Table>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -524,12 +526,12 @@ export default function ReportsPage() {
                   size="sm"
                   onClick={fetchProduction}
                   disabled={loadingProduction}
-                  className="border-border"
+                  className="border-border w-full sm:w-auto"
                 >
                   {loadingProduction ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Search className="h-4 w-4" />
+                    <Search className="h-4 w-4" aria-hidden="true" />
                   )}
                 </Button>
                 <Button
@@ -537,9 +539,9 @@ export default function ReportsPage() {
                   size="sm"
                   onClick={exportProductionCSV}
                   disabled={rawProduction.length === 0}
-                  className="border-border"
+                  className="border-border w-full sm:w-auto"
                 >
-                  <Download className="h-4 w-4 mr-1" />
+                  <Download className="h-4 w-4 mr-1" aria-hidden="true" />
                   CSV
                 </Button>
               </div>
@@ -547,7 +549,7 @@ export default function ReportsPage() {
             <CardContent>
               {loadingProduction ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" aria-hidden="true" />
                 </div>
               ) : productionData.length === 0 ? (
                 <EmptyState
@@ -556,21 +558,22 @@ export default function ReportsPage() {
                   hint="Selecciona un rango de fechas y pulsa Consultar."
                 />
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent bg-accent/50">
-                      <TableHead className="w-8"></TableHead>
-                      <TableHead className="text-muted-foreground font-semibold">
-                        Estacion
-                      </TableHead>
-                      <TableHead className="text-muted-foreground font-semibold text-right">
-                        Unidades completadas
-                      </TableHead>
-                      <TableHead className="text-muted-foreground font-semibold text-right">
-                        Tiempo medio / unidad
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[500px]">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent bg-accent/50">
+                        <TableHead scope="col" className="w-8"></TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold">
+                          Estacion
+                        </TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold text-right">
+                          Unidades completadas
+                        </TableHead>
+                        <TableHead scope="col" className="text-muted-foreground font-semibold text-right">
+                          Tiempo medio / unidad
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
                   <TableBody>
                     {productionData.map((row) => {
                       const isExpanded = expandedProduction.has(row.stationName);
@@ -584,7 +587,8 @@ export default function ReportsPage() {
                       );
                     })}
                   </TableBody>
-                </Table>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -620,12 +624,21 @@ function PresenceOperatorRow({
       <TableRow
         className="cursor-pointer hover:bg-accent"
         onClick={onToggle}
+        aria-expanded={isExpanded}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
       >
         <TableCell className="w-8 pr-0">
           {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground/60" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground/60" aria-label="Contraer fila" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60" aria-label="Expandir fila" />
           )}
         </TableCell>
         <TableCell className="font-medium text-foreground">
@@ -656,7 +669,7 @@ function PresenceOperatorRow({
             </TableCell>
             <TableCell className="text-right text-sm text-muted-foreground">
               <span className="flex items-center justify-end gap-1">
-                <Clock className="h-3 w-3" />
+                <Clock className="h-3 w-3" aria-hidden="true" />
                 {formatDateTime(session.loginAt)}
                 {" - "}
                 {session.logoutAt ? formatDateTime(session.logoutAt) : "En curso"}
@@ -693,12 +706,21 @@ function ProductionStationRow({
       <TableRow
         className="cursor-pointer hover:bg-accent"
         onClick={onToggle}
+        aria-expanded={isExpanded}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
       >
         <TableCell className="w-8 pr-0">
           {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground/60" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground/60" aria-label="Contraer fila" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground/60" aria-label="Expandir fila" />
           )}
         </TableCell>
         <TableCell className="font-medium text-foreground">
@@ -750,7 +772,7 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12">
-      <Icon className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+      <Icon className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden="true" />
       <p className="text-muted-foreground">{message}</p>
       <p className="text-xs text-muted-foreground/60 mt-1">{hint}</p>
     </div>

@@ -306,38 +306,38 @@ export default function StationsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Estaciones</h1>
           <p className="text-muted-foreground mt-1">
             Gestiona las estaciones de trabajo y sus configuraciones
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={fetchStations}
             disabled={loading}
-            className="border-border"
+            className="border-border w-full sm:w-auto"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
             Actualizar
           </Button>
           <Button
             size="sm"
             onClick={openCreate}
-            className="bg-[#8B1A1A] hover:bg-[#A52525]"
+            className="bg-[#8B1A1A] hover:bg-[#A52525] w-full sm:w-auto"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             Nueva estacion
           </Button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+      <div className="relative max-w-md w-full">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -349,12 +349,12 @@ export default function StationsPage() {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" aria-hidden="true" />
         </div>
       ) : filteredStations.length === 0 ? (
         <Card className="border-border">
           <CardContent className="py-16 text-center">
-            <Factory className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+            <Factory className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" aria-hidden="true" />
             {searchQuery ? (
               <>
                 <p className="text-lg text-muted-foreground">
@@ -377,7 +377,7 @@ export default function StationsPage() {
                   className="mt-4 bg-[#8B1A1A] hover:bg-[#A52525]"
                   onClick={openCreate}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
                   Crear primera estacion
                 </Button>
               </>
@@ -386,16 +386,17 @@ export default function StationsPage() {
         </Card>
       ) : (
         <Card className="border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent bg-accent/50">
-                <TableHead className="text-muted-foreground font-semibold">Nombre</TableHead>
-                <TableHead className="text-muted-foreground font-semibold">Codigo producto</TableHead>
-                <TableHead className="text-muted-foreground font-semibold text-center">Pasos</TableHead>
-                <TableHead className="text-muted-foreground font-semibold">Estado</TableHead>
-                <TableHead className="text-muted-foreground font-semibold text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent bg-accent/50">
+                  <TableHead scope="col" className="text-muted-foreground font-semibold">Nombre</TableHead>
+                  <TableHead scope="col" className="text-muted-foreground font-semibold">Codigo producto</TableHead>
+                  <TableHead scope="col" className="text-muted-foreground font-semibold text-center">Pasos</TableHead>
+                  <TableHead scope="col" className="text-muted-foreground font-semibold">Estado</TableHead>
+                  <TableHead scope="col" className="text-muted-foreground font-semibold text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filteredStations.map((station) => (
                 <TableRow key={station.id} className="group hover:bg-accent">
@@ -436,31 +437,31 @@ export default function StationsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" asChild>
+                      <Button variant="ghost" size="sm" asChild aria-label={`Ver estacion ${station.name}`}>
                         <Link href={`/admin/stations/${station.id}`}>
-                          <ExternalLink className="h-4 w-4" />
+                          <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         </Link>
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
+                          <Button variant="ghost" size="sm" aria-label={`Acciones para ${station.name}`}>
+                            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuItem onClick={() => openEdit(station)}>
-                            <Pencil className="h-4 w-4 mr-2" />
+                            <Pencil className="h-4 w-4 mr-2" aria-hidden="true" />
                             Editar datos
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleActive(station)}>
                             {station.isActive ? (
                               <>
-                                <PowerOff className="h-4 w-4 mr-2" />
+                                <PowerOff className="h-4 w-4 mr-2" aria-hidden="true" />
                                 Desactivar
                               </>
                             ) : (
                               <>
-                                <Power className="h-4 w-4 mr-2" />
+                                <Power className="h-4 w-4 mr-2" aria-hidden="true" />
                                 Activar
                               </>
                             )}
@@ -470,7 +471,7 @@ export default function StationsPage() {
                             onClick={() => openDelete(station)}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                             Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -480,7 +481,8 @@ export default function StationsPage() {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </Card>
       )}
 
@@ -519,7 +521,7 @@ export default function StationsPage() {
               disabled={saving || !formName.trim()}
               className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
               Crear estacion
             </Button>
           </DialogFooter>
@@ -554,7 +556,7 @@ export default function StationsPage() {
               disabled={saving || !formName.trim()}
               className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
               Guardar cambios
             </Button>
           </DialogFooter>
@@ -577,7 +579,7 @@ export default function StationsPage() {
               onClick={handleDelete}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
               Eliminar estacion
             </AlertDialogAction>
           </AlertDialogFooter>

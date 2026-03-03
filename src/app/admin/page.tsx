@@ -145,7 +145,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           icon={Factory}
           label="Estaciones activas"
@@ -189,41 +189,41 @@ export default function AdminDashboardPage() {
               Acciones rapidas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Link href="/admin/stations" className="block">
+          <CardContent className="flex flex-col sm:flex-row gap-2">
+            <Link href="/admin/stations" className="block flex-1">
               <Button
                 variant="outline"
                 className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
               >
                 <span className="flex items-center gap-2">
-                  <Factory className="h-4 w-4 text-[#8B1A1A]" />
+                  <Factory className="h-4 w-4 text-[#8B1A1A]" aria-hidden="true" />
                   Gestionar estaciones
                 </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
               </Button>
             </Link>
-            <Link href="/admin/reports" className="block">
+            <Link href="/admin/reports" className="block flex-1">
               <Button
                 variant="outline"
                 className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
               >
                 <span className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#22C55E]" />
+                  <BarChart3 className="h-4 w-4 text-[#22C55E]" aria-hidden="true" />
                   Ver reportes
                 </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
               </Button>
             </Link>
-            <Link href="/" className="block">
+            <Link href="/" className="block flex-1">
               <Button
                 variant="outline"
                 className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
               >
                 <span className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-[#F59E0B]" />
+                  <Activity className="h-4 w-4 text-[#F59E0B]" aria-hidden="true" />
                   Vista del operario
                 </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
               </Button>
             </Link>
           </CardContent>
@@ -238,40 +238,41 @@ export default function AdminDashboardPage() {
             <Link href="/admin/stations">
               <Button variant="ghost" size="sm" className="text-[#8B1A1A] hover:text-[#A52525] hover:bg-[#8B1A1A]/5">
                 Ver todas
-                <ArrowRight className="h-3 w-3 ml-1" />
+                <ArrowRight className="h-3 w-3 ml-1" aria-hidden="true" />
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
             {recentStations.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground/60">
-                <Factory className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                <Factory className="h-10 w-10 mx-auto mb-2 opacity-40" aria-hidden="true" />
                 <p>No hay estaciones creadas todavia.</p>
                 <Link href="/admin/stations" className="mt-3 inline-block">
                   <Button size="sm">Crear primera estacion</Button>
                 </Link>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                      Nombre
-                    </TableHead>
-                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                      Codigo
-                    </TableHead>
-                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                      Pasos
-                    </TableHead>
-                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                      Estado
-                    </TableHead>
-                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium text-right">
-                      Actualizada
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[600px]">
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-b border-border/50">
+                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                        Nombre
+                      </TableHead>
+                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                        Codigo
+                      </TableHead>
+                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                        Pasos
+                      </TableHead>
+                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                        Estado
+                      </TableHead>
+                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium text-right">
+                        Actualizada
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
                 <TableBody>
                   {recentStations.map((station) => (
                     <TableRow
@@ -308,14 +309,15 @@ export default function AdminDashboardPage() {
                       </TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground/60">
                         <span className="flex items-center justify-end gap-1">
-                          <Clock className="h-3 w-3" />
+                          <Clock className="h-3 w-3" aria-hidden="true" />
                           {formatRelativeTime(station.updatedAt)}
                         </span>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -406,7 +408,7 @@ function StatCard({
           <div
             className={`rounded-lg p-2.5 bg-gradient-to-br ${c.gradientFrom} ${c.gradientTo}`}
           >
-            <Icon className={`h-5 w-5 ${c.icon}`} />
+            <Icon className={`h-5 w-5 ${c.icon}`} aria-hidden="true" />
           </div>
         </div>
       </CardContent>
