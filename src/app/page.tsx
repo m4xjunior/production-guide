@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { OperatorLogin } from "@/components/OperatorLogin";
 import { StationSelector } from "@/components/StationSelector";
 import { ProductionStep } from "@/components/ProductionStep";
+import { AudioUnlockOverlay } from "@/components/devkit";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { type Step, type OperatorSession } from "@/types";
 import { Loader2 } from "lucide-react";
@@ -30,6 +31,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showRestartDialog, setShowRestartDialog] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   const { unlockAudio, preload } = useTextToSpeech();
 
@@ -201,10 +203,20 @@ export default function Home() {
     setCurrentStepIndex(0);
   }, [sessionId]);
 
+  // Audio/mic unlock gate — required on mobile before any audio or speech recognition
+  if (!audioUnlocked) {
+    return (
+      <AudioUnlockOverlay
+        unlockAudio={unlockAudio}
+        onUnlocked={() => setAudioUnlocked(true)}
+      />
+    );
+  }
+
   // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-dvh flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
           <p className="text-xl text-muted-foreground font-medium">

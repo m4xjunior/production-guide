@@ -64,7 +64,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
   }, [handleNumpadPress, handleDelete, handleSubmit]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0A0A0C] p-4 overflow-hidden relative">
+    <div className="min-h-dvh flex items-center justify-center bg-[#0A0A0C] p-4 overflow-hidden relative">
       {/* Industrial background texture */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"

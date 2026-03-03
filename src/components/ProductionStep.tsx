@@ -396,7 +396,7 @@ export function ProductionStep({
       : lastHeard;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
       {/* Top bar */}
       <div className="border-b border-border bg-card px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
