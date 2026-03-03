@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS "tenants" (
   "max_stations"          INTEGER          NOT NULL DEFAULT 10,
   "max_operators"         INTEGER          NOT NULL DEFAULT 50,
   "erp_type"              TEXT,
+  "erp_config_ref"        TEXT,
+  "trial_ends_at"         TIMESTAMPTZ,
   "is_active"             BOOLEAN          NOT NULL DEFAULT true,
   "created_at"            TIMESTAMPTZ      NOT NULL DEFAULT now(),
   "updated_at"            TIMESTAMPTZ      NOT NULL DEFAULT now(),
@@ -188,6 +190,10 @@ CREATE INDEX IF NOT EXISTS "voice_commands_tenant_scope_idx" ON "voice_commands"
 -- =============================================================================
 -- 11. Insertar comandos de voz por defecto para KH
 -- =============================================================================
+CREATE UNIQUE INDEX IF NOT EXISTS "voice_commands_tenant_scope_action_key"
+  ON "voice_commands"("tenant_id", "scope", "action")
+  WHERE "station_id" IS NULL AND "step_id" IS NULL;
+
 INSERT INTO "voice_commands" ("tenant_id", "scope", "action", "phrases", "language")
 VALUES
   ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'global', 'confirm', ARRAY['pin bueno','bueno','ok','confirmado','sí'], 'es-ES'),

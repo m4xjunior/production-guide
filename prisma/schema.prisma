@@ -273,6 +273,8 @@ model Tenant {
   maxStations     Int       @default(10) @map("max_stations")
   maxOperators    Int       @default(50) @map("max_operators")
   erpType         String?   @map("erp_type")
+  erpConfigRef    String?   @map("erp_config_ref")   // referência a secret externo ERP
+  trialEndsAt     DateTime? @map("trial_ends_at") @db.Timestamptz
   isActive        Boolean   @default(true) @map("is_active")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
