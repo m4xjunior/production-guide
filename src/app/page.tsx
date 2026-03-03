@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { OperatorLogin } from "@/components/OperatorLogin";
 import { StationSelector } from "@/components/StationSelector";
+import { ReferenceSelector } from "@/components/ReferenceSelector";
 import { ProductionStep } from "@/components/ProductionStep";
 import { AudioUnlockOverlay } from "@/components/devkit";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -19,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type AppState = "login" | "station-selection" | "production";
+type AppState = "login" | "station-selection" | "reference-selection" | "production";
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("login");
@@ -27,6 +28,8 @@ export default function Home() {
   const [operatorName, setOperatorName] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [selectedStationId, setSelectedStationId] = useState("");
+  const [selectedStationName, setSelectedStationName] = useState("");
+  const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
   const [steps, setSteps] = useState<Step[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -69,6 +72,8 @@ export default function Home() {
           setOperatorName(data.operatorName || "");
           setSessionId(data.sessionId);
           setSelectedStationId(data.stationId);
+          setSelectedStationName(data.stationName || "");
+          setSelectedReferenceId(data.referenceId ?? null);
           setCurrentStepIndex(data.currentStepIndex || 0);
           loadSteps(data.stationId).then((hasSteps) => {
             if (hasSteps) {
@@ -92,10 +97,12 @@ export default function Home() {
         operatorName,
         sessionId,
         stationId: selectedStationId,
+        stationName: selectedStationName,
+        referenceId: selectedReferenceId,
         currentStepIndex,
       }));
     }
-  }, [appState, operatorNumber, operatorName, sessionId, selectedStationId, currentStepIndex]);
+  }, [appState, operatorNumber, operatorName, sessionId, selectedStationId, selectedStationName, selectedReferenceId, currentStepIndex]);
 
   const handleLogin = useCallback(async (operator: string, name: string) => {
     setOperatorNumber(operator);
@@ -103,13 +110,8 @@ export default function Home() {
     setAppState("station-selection");
   }, []);
 
-  const handleStationSelected = useCallback(async (stationId: string) => {
-    // Unlock audio on first user interaction
-    unlockAudio();
-
-    setSelectedStationId(stationId);
+  const startProduction = useCallback(async (stationId: string, referenceId: string | null) => {
     setLoading(true);
-
     try {
       // Create session
       const sessionRes = await fetch("/api/sessions", {
@@ -118,6 +120,7 @@ export default function Home() {
         body: JSON.stringify({
           operatorNumber,
           stationId,
+          ...(referenceId !== null && { referenceId }),
         }),
       });
 
@@ -140,7 +143,45 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [operatorNumber, unlockAudio, loadSteps]);
+  }, [operatorNumber, loadSteps]);
+
+  const handleStationSelected = useCallback(async (stationId: string, stationName: string) => {
+    // Unlock audio on first user interaction
+    unlockAudio();
+
+    setSelectedStationId(stationId);
+    setSelectedStationName(stationName);
+    setSelectedReferenceId(null);
+
+    // Check if station has references linked
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/stations/${stationId}`);
+      if (!res.ok) throw new Error("Error al cargar estacion");
+      const data = await res.json();
+      const station = data.station ?? data;
+      const refs = Array.isArray(station.references) ? station.references : [];
+
+      if (refs.length > 0) {
+        // Go to reference selection
+        setLoading(false);
+        setAppState("reference-selection");
+      } else {
+        // No references: go straight to production
+        setLoading(false);
+        await startProduction(stationId, null);
+      }
+    } catch (err) {
+      console.error("Error checking station references:", err);
+      setLoading(false);
+      await startProduction(stationId, null);
+    }
+  }, [unlockAudio, startProduction]);
+
+  const handleReferenceSelected = useCallback(async (referenceId: string) => {
+    setSelectedReferenceId(referenceId);
+    await startProduction(selectedStationId, referenceId);
+  }, [selectedStationId, startProduction]);
 
   const handleStepCompleted = useCallback(() => {
     if (currentStepIndex < steps.length - 1) {
@@ -204,6 +245,8 @@ export default function Home() {
     setOperatorName("");
     setSessionId("");
     setSelectedStationId("");
+    setSelectedStationName("");
+    setSelectedReferenceId(null);
     setSteps([]);
     setCurrentStepIndex(0);
   }, [sessionId]);
@@ -243,12 +286,28 @@ export default function Home() {
       <StationSelector
         operatorNumber={operatorNumber}
         operatorName={operatorName}
-        onStationSelected={handleStationSelected}
+        onStationSelected={(stationId, stationName) =>
+          handleStationSelected(stationId, stationName)
+        }
         onBack={() => {
           setAppState("login");
           setOperatorNumber("");
           setOperatorName("");
         }}
+      />
+    );
+  }
+
+  // Reference selection
+  if (appState === "reference-selection") {
+    return (
+      <ReferenceSelector
+        stationId={selectedStationId}
+        stationName={selectedStationName}
+        operatorNumber={operatorNumber}
+        operatorName={operatorName}
+        onReferenceSelected={handleReferenceSelected}
+        onBack={() => setAppState("station-selection")}
       />
     );
   }

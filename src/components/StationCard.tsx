@@ -7,7 +7,7 @@ import { Factory, Layers } from "lucide-react";
 
 interface StationCardProps {
   station: Station;
-  onClick: (stationId: string) => void;
+  onClick: (stationId: string, stationName: string) => void;
 }
 
 export function StationCard({ station, onClick }: StationCardProps) {
@@ -16,7 +16,7 @@ export function StationCard({ station, onClick }: StationCardProps) {
   return (
     <Card
       className="cursor-pointer hover:shadow-lg hover:shadow-[#8B1A1A]/10 hover:border-[#8B1A1A]/50 transition-all active:scale-[0.98] border-border"
-      onClick={() => onClick(station.id)}
+      onClick={() => onClick(station.id, station.name)}
     >
       <CardHeader className="pb-3 px-4 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

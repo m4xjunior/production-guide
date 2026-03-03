@@ -5,6 +5,12 @@ export interface Operator {
   isActive: boolean;
 }
 
+export interface Reference {
+  id: string;
+  sageCode: string;
+  name: string;
+}
+
 export interface Station {
   id: string;
   name: string;
@@ -14,6 +20,7 @@ export interface Station {
   createdAt: string;
   updatedAt: string;
   _count?: { steps: number };
+  references?: Reference[];
 }
 
 export interface Step {
@@ -36,11 +43,13 @@ export interface OperatorSession {
   id: string;
   operatorNumber: string;
   stationId: string;
+  referenceId: string | null;
   loginAt: string;
   logoutAt: string | null;
   completedUnits: number;
   isActive: boolean;
   station?: Station;
+  reference?: Reference | null;
 }
 
 export interface StepLog {

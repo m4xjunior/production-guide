@@ -9,12 +9,13 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { StepEditor } from "@/components/admin/StepEditor";
-import { type Station, type Step } from "@/types";
+import { type Station, type Step, type Reference } from "@/types";
 import {
   ArrowLeft,
   Save,
   Plus,
   Loader2,
+  Tag,
 } from "lucide-react";
 
 interface StationEditorPageProps {
@@ -35,6 +36,11 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
   const [formProductCode, setFormProductCode] = useState("");
   const [formIsActive, setFormIsActive] = useState(true);
 
+  // References
+  const [allReferences, setAllReferences] = useState<Reference[]>([]);
+  const [selectedReferenceIds, setSelectedReferenceIds] = useState<Set<string>>(new Set());
+  const [loadingRefs, setLoadingRefs] = useState(false);
+
   const headers = {
     "Content-Type": "application/json",
     "X-Admin-Password": adminPassword,
@@ -42,35 +48,61 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadingRefs(true);
     try {
-      const [stationRes, stepsRes] = await Promise.all([
+      const [stationRes, stepsRes, refsRes] = await Promise.all([
         fetch(`/api/stations/${stationId}`, { headers: { "X-Admin-Password": adminPassword } }),
         fetch(`/api/stations/${stationId}/steps`, { headers: { "X-Admin-Password": adminPassword } }),
+        fetch("/api/references"),
       ]);
 
       if (stationRes.ok) {
         const stationData = await stationRes.json();
-        setStation(stationData);
-        setFormName(stationData.name);
-        setFormDescription(stationData.description || "");
-        setFormProductCode(stationData.productCode || "");
-        setFormIsActive(stationData.isActive);
+        const s: Station = stationData.station ?? stationData;
+        setStation(s);
+        setFormName(s.name);
+        setFormDescription(s.description || "");
+        setFormProductCode(s.productCode || "");
+        setFormIsActive(s.isActive);
+
+        // Load currently linked references
+        if (Array.isArray(s.references)) {
+          setSelectedReferenceIds(new Set(s.references.map((r) => r.id)));
+        }
       }
 
       if (stepsRes.ok) {
         const stepsData = await stepsRes.json();
         setSteps(stepsData.sort((a: Step, b: Step) => a.orderNum - b.orderNum));
       }
+
+      if (refsRes.ok) {
+        const refsData = await refsRes.json();
+        setAllReferences(refsData.references ?? []);
+      }
     } catch (err) {
       console.error("Error loading station:", err);
     } finally {
       setLoading(false);
+      setLoadingRefs(false);
     }
   }, [stationId, adminPassword]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleToggleReference = (refId: string) => {
+    setSelectedReferenceIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(refId)) {
+        next.delete(refId);
+      } else {
+        next.add(refId);
+      }
+      return next;
+    });
+  };
 
   const handleSaveStation = async () => {
     setSaving(true);
@@ -83,11 +115,12 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
           description: formDescription.trim() || null,
           productCode: formProductCode.trim() || null,
           isActive: formIsActive,
+          referenceIds: Array.from(selectedReferenceIds),
         }),
       });
       if (!res.ok) throw new Error("Error al guardar");
       const updated = await res.json();
-      setStation(updated);
+      setStation(updated.station ?? updated);
     } catch (err) {
       console.error(err);
       alert("Error al guardar la estacion");
@@ -239,6 +272,74 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
               rows={2}
             />
           </div>
+
+          {/* References multi-select */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              <Label>Referencias vinculadas</Label>
+              {selectedReferenceIds.size > 0 && (
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full font-medium"
+                  style={{ backgroundColor: "#8B1A1A", color: "#fff" }}
+                >
+                  {selectedReferenceIds.size} seleccionadas
+                </span>
+              )}
+            </div>
+            {loadingRefs ? (
+              <div className="flex items-center gap-2 py-3">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Cargando referencias...</span>
+              </div>
+            ) : allReferences.length === 0 ? (
+              <div
+                className="rounded-md px-3 py-3 text-sm"
+                style={{ backgroundColor: "#111113", border: "1px solid #2A2A2E", color: "#6b7280" }}
+              >
+                No hay referencias activas sincronizadas desde Sage.
+              </div>
+            ) : (
+              <div
+                className="rounded-md divide-y max-h-64 overflow-y-auto"
+                style={{ backgroundColor: "#111113", border: "1px solid #2A2A2E" }}
+              >
+                {allReferences.map((ref) => {
+                  const checked = selectedReferenceIds.has(ref.id);
+                  return (
+                    <label
+                      key={ref.id}
+                      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors"
+                      style={{
+                        backgroundColor: checked ? "rgba(139,26,26,0.15)" : "transparent",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!checked) (e.currentTarget as HTMLLabelElement).style.backgroundColor = "rgba(255,255,255,0.04)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLLabelElement).style.backgroundColor = checked ? "rgba(139,26,26,0.15)" : "transparent";
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => handleToggleReference(ref.id)}
+                        className="rounded"
+                        style={{ accentColor: "#8B1A1A", width: "16px", height: "16px", flexShrink: 0 }}
+                      />
+                      <span className="text-sm font-mono" style={{ color: "#9ca3af" }}>
+                        {ref.sageCode}
+                      </span>
+                      <span className="text-sm" style={{ color: "#e5e7eb" }}>
+                        — {ref.name}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Switch

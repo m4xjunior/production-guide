@@ -38,6 +38,10 @@ const SAGE_NAME_COL = validateIdentifier(process.env.SAGE_NAME_COLUMN || "descri
 const SYNC_INTERVAL = parseInt(process.env.SYNC_INTERVAL || "60") * 1000;
 const SYNC_ONCE = process.env.SYNC_ONCE === "true";
 
+const SAGE_REF_TABLE = validateIdentifier(process.env.SAGE_REFERENCE_TABLE || "Referencia", "SAGE_REFERENCE_TABLE");
+const SAGE_REF_CODE_COL = validateIdentifier(process.env.SAGE_REF_CODE_COLUMN || "id", "SAGE_REF_CODE_COLUMN");
+const SAGE_REF_NAME_COL = validateIdentifier(process.env.SAGE_REF_NAME_COLUMN || "descripcion", "SAGE_REF_NAME_COLUMN");
+
 // ── Prisma (Neon) ──
 function createPrisma(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
@@ -129,15 +133,96 @@ async function syncOperators(): Promise<void> {
   }
 }
 
+// ── Sync References ──
+async function syncReferences(): Promise<void> {
+  const startTime = Date.now();
+  console.log(`[${new Date().toISOString()}] Sync referencias iniciado...`);
+
+  let pool: sql.ConnectionPool | null = null;
+
+  try {
+    pool = await sql.connect(SAGE_CONFIG);
+
+    const result = await pool.request().query(
+      `SELECT ${SAGE_REF_CODE_COL} AS code, ${SAGE_REF_NAME_COL} AS name FROM ${SAGE_REF_TABLE}`
+    );
+
+    const sageRefs = result.recordset as { code: string; name: string }[];
+    console.log(`  Sage: ${sageRefs.length} referencias encontradas`);
+
+    if (sageRefs.length === 0) {
+      console.log("  AVISO: Sage retornou 0 referencias. Pulando sync para nao desativar todas.");
+      return;
+    }
+
+    const now = new Date();
+    let created = 0;
+    let updated = 0;
+
+    for (const ref of sageRefs) {
+      const code = String(ref.code).trim();
+      const name = String(ref.name).trim();
+      if (!code) continue;
+
+      const existing = await prisma.reference.findUnique({
+        where: { sageCode: code },
+      });
+
+      if (existing) {
+        if (existing.name !== name || !existing.isActive) {
+          await prisma.reference.update({
+            where: { sageCode: code },
+            data: { name, isActive: true, lastSyncedAt: now },
+          });
+          updated++;
+        } else {
+          await prisma.reference.update({
+            where: { sageCode: code },
+            data: { lastSyncedAt: now },
+          });
+        }
+      } else {
+        await prisma.reference.create({
+          data: { sageCode: code, name, isActive: true, lastSyncedAt: now },
+        });
+        created++;
+      }
+    }
+
+    // Desativar referencias que nao estao mais no Sage
+    const sageCodes = sageRefs.map((r) => String(r.code).trim()).filter(Boolean);
+    const deactivated = await prisma.reference.updateMany({
+      where: {
+        sageCode: { notIn: sageCodes },
+        isActive: true,
+      },
+      data: { isActive: false, lastSyncedAt: now },
+    });
+
+    const elapsed = Date.now() - startTime;
+    console.log(
+      `  Referencias: +${created} criados, ~${updated} atualizados, -${deactivated.count} desativados (${elapsed}ms)`
+    );
+  } catch (error) {
+    console.error("  ERRO no sync referencias:", error);
+  } finally {
+    if (pool) {
+      await pool.close();
+    }
+  }
+}
+
 // ── Main Loop ──
 async function main(): Promise<void> {
   console.log("=== Sage Operator Sync ===");
   console.log(`  Sage: ${SAGE_CONFIG.server}:${SAGE_CONFIG.port}/${SAGE_CONFIG.database}`);
   console.log(`  Tabela: ${SAGE_TABLE} (${SAGE_CODE_COL}, ${SAGE_NAME_COL})`);
+  console.log(`  Refs: ${SAGE_REF_TABLE} (${SAGE_REF_CODE_COL}, ${SAGE_REF_NAME_COL})`);
   console.log(`  Intervalo: ${SYNC_INTERVAL / 1000}s`);
   console.log("");
 
   await syncOperators();
+  await syncReferences();
 
   if (SYNC_ONCE) {
     console.log("Modo single-run. Encerrando.");
@@ -145,7 +230,10 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  setInterval(syncOperators, SYNC_INTERVAL);
+  setInterval(async () => {
+    await syncOperators();
+    await syncReferences();
+  }, SYNC_INTERVAL);
 
   process.on("SIGINT", async () => {
     console.log("\nEncerrando sync...");

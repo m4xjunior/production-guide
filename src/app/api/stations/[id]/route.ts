@@ -14,6 +14,15 @@ export async function GET(
   try {
     const station = await prisma.station.findUnique({
       where: { id },
+      include: {
+        references: {
+          include: {
+            reference: {
+              select: { id: true, sageCode: true, name: true },
+            },
+          },
+        },
+      },
     });
 
     if (!station) {
@@ -28,7 +37,10 @@ export async function GET(
       orderBy: { orderNum: "asc" },
     });
 
-    return NextResponse.json({ station, steps });
+    // Flatten the references into a simpler array
+    const references = station.references.map((sr) => sr.reference);
+
+    return NextResponse.json({ station: { ...station, references }, steps });
   } catch (error) {
     console.error("Error al obtener estación:", error);
     return NextResponse.json(
@@ -51,7 +63,7 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const { name, description, productCode, isActive } = body;
+    const { name, description, productCode, isActive, referenceIds } = body;
 
     // Verificar que la estación existe
     const existing = await prisma.station.findUnique({ where: { id } });
@@ -71,6 +83,19 @@ export async function PUT(
         ...(isActive !== undefined && { isActive }),
       },
     });
+
+    // Sync station references if provided
+    if (Array.isArray(referenceIds)) {
+      await prisma.stationReference.deleteMany({ where: { stationId: id } });
+      if (referenceIds.length > 0) {
+        await prisma.stationReference.createMany({
+          data: referenceIds.map((referenceId: string) => ({
+            stationId: id,
+            referenceId,
+          })),
+        });
+      }
+    }
 
     return NextResponse.json({ station });
   } catch (error) {

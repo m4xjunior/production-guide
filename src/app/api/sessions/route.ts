@@ -10,7 +10,7 @@ import { prisma } from "@/lib/db";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { operatorNumber, stationId } = body;
+    const { operatorNumber, stationId, referenceId } = body;
 
     if (!operatorNumber || typeof operatorNumber !== "string") {
       return NextResponse.json(
@@ -21,6 +21,12 @@ export async function POST(request: NextRequest) {
     if (!stationId || typeof stationId !== "string") {
       return NextResponse.json(
         { error: "El campo 'stationId' es obligatorio" },
+        { status: 400 },
+      );
+    }
+    if (referenceId !== undefined && typeof referenceId !== "string") {
+      return NextResponse.json(
+        { error: "El campo 'referenceId' debe ser un string" },
         { status: 400 },
       );
     }
@@ -53,6 +59,7 @@ export async function POST(request: NextRequest) {
       data: {
         operatorNumber,
         stationId,
+        ...(referenceId !== undefined && { referenceId }),
       },
     });
 

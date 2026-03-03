@@ -9,7 +9,7 @@ import { ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
 interface StationSelectorProps {
   operatorNumber: string;
   operatorName?: string;
-  onStationSelected: (stationId: string) => void;
+  onStationSelected: (stationId: string, stationName: string) => void;
   onBack: () => void;
 }
 

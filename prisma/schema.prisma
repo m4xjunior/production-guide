@@ -18,9 +18,10 @@ model Station {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
   updatedBy   String?  @map("updated_by") /// Email del ingeniero
 
-  steps    Step[]
-  sessions OperatorSession[]
-  settings StationSettings?
+  steps      Step[]
+  sessions   OperatorSession[]
+  settings   StationSettings?
+  references StationReference[]
 
   @@map("stations")
 }
@@ -74,6 +75,9 @@ model OperatorSession {
   logoutAt       DateTime? @map("logout_at") @db.Timestamptz
   completedUnits Int       @default(0) @map("completed_units")
   isActive       Boolean   @default(true) @map("is_active")
+
+  referenceId  String?    @map("reference_id") @db.Uuid
+  reference    Reference? @relation(fields: [referenceId], references: [id])
 
   station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
   operator Operator? @relation(fields: [operatorNumber], references: [sageCode])
@@ -151,4 +155,31 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([performedAt])
   @@map("audit_logs")
+}
+
+/// Referencias de producto sincronizadas del Sage
+model Reference {
+  id           String   @id @default(uuid()) @db.Uuid
+  sageCode     String   @unique @map("sage_code")
+  name         String
+  isActive     Boolean  @default(true) @map("is_active")
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  stations  StationReference[]
+  sessions  OperatorSession[]
+
+  @@map("references")
+}
+
+/// Many-to-many: cuales referencias puede producir cada estacion
+model StationReference {
+  stationId   String @map("station_id") @db.Uuid
+  referenceId String @map("reference_id") @db.Uuid
+
+  station   Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  reference Reference @relation(fields: [referenceId], references: [id], onDelete: Cascade)
+
+  @@id([stationId, referenceId])
+  @@map("station_references")
 }
