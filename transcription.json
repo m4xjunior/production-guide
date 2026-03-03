@@ -1,0 +1,6190 @@
+{
+  "meeting": {
+    "title": "CONSTRUCCION DE HERRAMIENTA TECNOLÓGICA PARA GESTIONAR PROCESOS DE MONTAJE",
+    "date": "2026-03-02",
+    "duration": "1h 22m",
+    "total_entries": 1028,
+    "speakers": [
+      "Javier Gonzalez",
+      "Max Junior",
+      "Raul Liébana",
+      "Pablo Rovira",
+      "Joaquin Pavon",
+      "Maria Espasa",
+      "Jazmin Naranjo",
+      "Antonio Medina",
+      "Pedro Sanchis Gascon",
+      "Joan Marti"
+    ]
+  },
+  "transcription": [
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:03",
+      "end": "00:00:06",
+      "text": "Cuando tú digas nos ponemos ya."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:06",
+      "end": "00:00:06",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:00:06",
+      "end": "00:00:10",
+      "text": "No creo que me sale algo ahí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:00:10",
+      "end": "00:00:11",
+      "text": "Cortana."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:00:14",
+      "end": "00:00:15",
+      "text": "Está ahí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:16",
+      "end": "00:00:17",
+      "text": "Cuando tú digas."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:00:17",
+      "end": "00:00:18",
+      "text": "Ya está, ya está, adelante."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:18",
+      "end": "00:00:20",
+      "text": "Vale bien."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:21",
+      "end": "00:00:28",
+      "text": "Pues vamos allá, el objetivo de esto que es para que nos quede claro a todos, queremos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:28",
+      "end": "00:00:40",
+      "text": "Tener una herramienta que lo que haga que cualquier cualquier proceso de montaje, los responsables de ejecutarlo, de diseñarlo, puedan puedan parametrizarla."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:00:41",
+      "end": "00:01:03",
+      "text": "Vale, de forma que al final la planta lo que tenga es un proceso estable y robusto. Bien, ¿qué es lo necesario en este tipo de herramientas que yo pueda establecer pasos necesarios en el orden necesario? Primero hacer esto y luego lo otro y hasta que no confirmes uno, no pasas al otro. Lecturas de componentes según se quiera en la estructura, vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:01:03",
+      "end": "00:01:22",
+      "text": "Y por supuesto, también la capacidad de establecer, ya que yo puedo establecer operaciones, establecer controles que no dejan de ser una operación. Es decir, yo hago un plan de control que yo digo cada vez que vayas a hacer este montaje, yo quiero que tú revises que hay cuatro tuercas o que hay."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:01:22",
+      "end": "00:01:41",
+      "text": "El agujero mide más de 5 cm. Entonces yo lo establezco y tú obligatoriamente, el operario quiero decir, estará obligado a responder correcto o no correcto. Vale, esta es la idea original. Luego podemos entrar en el debate de es que en este puesto de montaje en concreto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:01:42",
+      "end": "00:02:05",
+      "text": "Son 40 segundos de tipo de ciclo, por ejemplo, y se le han introducido operaciones por valor de 55. Entonces hay que quitarle controles de calidad, lo que sea, y eso está muy bien. Ya lo haríamos si lo hemos introducido de más. Negociamos, pero de entrada queremos construir sistemas férreos. El sistema original de KH es el pick to voice que está operando."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:02:05",
+      "end": "00:02:18",
+      "text": "En el área de secuenciación de cristales, Max tú, que eres quien más ha trabajado esto, ¿has visto y cómo funciona el sistema de Pick to Voice del 66?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:02:19",
+      "end": "00:02:25",
+      "text": "Sí, ya lo he visto, Alex, ya me han enseñado varias cosas, cosas para mantenimiento también."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:02:21",
+      "end": "00:02:22",
+      "text": "Fenomenal."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:02:26",
+      "end": "00:02:44",
+      "text": "Vale, no es que yo quiero hablar de ese sistema, solo quiero comprender si ya hay un conocimiento de la filosofía que se quiere tener. Vale, por supuesto, cualquier cosa que hagamos tiene que ser una herramienta que el origen del dato obligatoriamente este mensaje, no cabe otra cosa."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:02:33",
+      "end": "00:02:34",
+      "text": "sí, ajá."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:02:44",
+      "end": "00:03:03",
+      "text": "Es decir, yo tengo que tener una consola que a un ingeniero le permita poner la operación uno después de la 2 o el montaje de este artículo con el otro, o la lectura de un código de barras o este u otro, pero yo no tengo que volver a mantener los artículos, lo que es el ratio de eficiencia. de."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:03:03",
+      "end": "00:03:10",
+      "text": "Del montaje que está en Sage, en la operación de San Dayo y sus componentes a validar también."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:03:11",
+      "end": "00:03:13",
+      "text": "Ostia, eso no te entendió yo Javier."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:03:13",
+      "end": "00:03:27",
+      "text": "Pues yo te explico, cuando se creó Wales, cuando se compró Wales, la estupidez del siglo fue que tú tienes que mantener por duplicado los artículos, cosa que siempre supone un problema y las estructuras."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:03:16",
+      "end": "00:03:17",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:03:27",
+      "end": "00:03:28",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:03:28",
+      "end": "00:03:49",
+      "text": "A ver, eso es un axioma que nunca jamás se debe hacer en una organización con sistemas de información. Cuando tú plantas, cuando tú creas satélites de sistemas de información, debes de obligarte a que el dato de partida esté en un único lugar. Da igual dónde, pero sea uno solo, uno de los grandes problemas que tiene ingeniería por culpa de esto."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:03:44",
+      "end": "00:03:45",
+      "text": "Team."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:03:50",
+      "end": "00:03:58",
+      "text": "Es que siempre nos dejamos el alta en Wales o al revés, al que le gusta Wales, rellena Wales y no rellena mensaje."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:04:00",
+      "end": "00:04:20",
+      "text": "O si haces un cambio de un consumo de materiales, lo haces en Wales porque el logístico le importa mucho, pero en Sage se te olvida. Entonces los escandaleros de Sage se quedan obsoletos. La filosofía siempre es mantenimiento único. Eso los informáticos lo saben. Solamente lo recuerdo para que se tenga en cuenta en esta ocasión si también va a suponer un problema."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:04:07",
+      "end": "00:04:07",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:04:10",
+      "end": "00:04:11",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:04:21",
+      "end": "00:04:40",
+      "text": "Vale, porque yo sé que Max ya ha hecho los pinitos, ya que ahora hablaremos de esto con Power, ya ha construido algo que estaba en funcionamiento que lo hizo para Zoomix. Pero bueno, yo no sé si ahí se tuvo en cuenta o no el hecho de que un artículo que tiene una estructura de componentes. si."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:04:40",
+      "end": "00:05:00",
+      "text": "Si yo quiero porque a Chimo le da la gana que tú lees una pieza y que le confirmes un agujero, pues yo no quiero tener que dar de alta la pieza en 1 segundo sistema porque ya está de alta en el escandallo de Sage, lo mismo que el ratio de eficiencia. Si yo quiero medir la productividad de una estación de montaje del Power Electronics."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:00",
+      "end": "00:05:08",
+      "text": "Yo no quiero tener que poner el objetivo de productividad en un sistema alternativo porque ya va a estar en Sage en la estructura del semi elaborado."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:09",
+      "end": "00:05:18",
+      "text": "Que es un producto propio que yo le voy a medir la eficiencia. Yo habré dado de alta la operación y por tanto su productividad. Y si no lo has hecho, lo harás, ¿verdad Pablo?"
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:05:20",
+      "end": "00:05:28",
+      "text": "Sí, ya te he pillado porque pensaba que estabas hablando del me había quedado un poco, o sea, de todo lo que has dicho, sí, totalmente."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:21",
+      "end": "00:05:22",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:24",
+      "end": "00:05:26",
+      "text": "no."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:29",
+      "end": "00:05:35",
+      "text": "Vale, entonces ahora ya dicho esta introducción, Raúl, ¿tú tienes algo que decir o Max que son los que más hablando?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:05:37",
+      "end": "00:05:38",
+      "text": "no especialmente."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:38",
+      "end": "00:05:58",
+      "text": "Vale, entonces ahora ya vamos al tajo. Bien, en primer lugar, Ximo, que él tiene la palabra de muchas cosas para que todos lo sepáis. En los en los procesos de montaje, el cliente establece habitualmente un escaf o unos deseos de control."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:05:58",
+      "end": "00:06:17",
+      "text": "Nos establece una o algo que deberemos garantizar bien. Por lo tanto, la planta o proceso de producción tiene que ser lo suficientemente robusto para autocontrolarnos, preferiblemente en el durante el proceso de ejecución, que también se puede hacer a posteriori."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:06:17",
+      "end": "00:06:33",
+      "text": "Pero preferiblemente mientras trabajo me conviene ir controlándome. Mapex, por ejemplo, tiene una pauta de inspección que lo que hace es que te la dispara con la frecuencia que tú hayas definido y le obliga al trabajador a rellenar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:06:34",
+      "end": "00:06:56",
+      "text": "La confirmación o no de ese control de calidad. Ya sé que no lo hacen, Chimo, ya sé que no les obliga, pero sí que pueden obligar que todos sepáis. Aprovecho, Chimo y María. Mapex tiene un botón que si el de calidad quiere, la fabricación se detiene si no cumplen la pauta de inspección con la frecuencia establecida."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:06:57",
+      "end": "00:06:58",
+      "text": "Es decir, esto."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:06:57",
+      "end": "00:07:00",
+      "text": "I'm said, in serious? I would see."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:06:59",
+      "end": "00:07:16",
+      "text": "Sí, esto lo estuvimos discutiendo Guillermo Carbonell y yo. Si yo te pongo el botón, si lo activo, chimo, cada vez que toque un control, si no te lo rellenan, Mapex no les permite continuar. O sea, se detiene, dime María."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:07:06",
+      "end": "00:07:06",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:07:14",
+      "end": "00:07:18",
+      "text": "Pero Javi, o sea, tú me estás diciendo que Mapex corta la luz de la máquina."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:07:14",
+      "end": "00:07:14",
+      "text": "Fire."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:07:18",
+      "end": "00:07:25",
+      "text": "Mapex corta la luz de la máquina, no corta la luz de la máquina, deja de funcionar, se queda bloqueado."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:07:24",
+      "end": "00:07:28",
+      "text": "Deja de funcionar, o sea, como que dejaría de contar piezas."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:07:26",
+      "end": "00:07:28",
+      "text": "Sure, sure."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:07:27",
+      "end": "00:07:32",
+      "text": "Sí, verdad, la máquina deja, sigue trabajando la máquina, pero Mapice deja de contarte piezas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:07:33",
+      "end": "00:07:33",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:07:34",
+      "end": "00:07:54",
+      "text": "Esto es muy importante y no es el hilo, no es no es el no es el motivo de esta reunión, pero he aprovechado para que lo sepamos por porque tiene una parte similar a lo que estamos hablando. Es decir, yo quiero que haya un control robusto, luego ya puliré si en lugar de 5 controles yo negocio con chimo o con quien sea, en lugar de 5 lo dejamos en 2, fenomenal."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:07:37",
+      "end": "00:07:37",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:07:41",
+      "end": "00:07:41",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:07:42",
+      "end": "00:07:42",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:07:54",
+      "end": "00:08:13",
+      "text": "Bueno, eso es otra cosa distinta, pero lo que todos debemos saber es que los el sistema de producción tiene que ser férreo y si desde ingeniería llega un anfe que termina en una frecuencia de un control, eso se tiene que ejecutar sí o sí correctamente. Además, y Mapex permite con el botón."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:08:14",
+      "end": "00:08:35",
+      "text": "Que si no lo hacen en el momento que tú dices cada 2 cajas, por ejemplo, la máquina se para bien. Dicho esto, en el proceso de montaje manual, que no tienes un autómata que te puede ir midiendo la las piezas que fabricas, nosotros queríamos introducir, pues lo que ya hemos aprendido después de 15 años con el saw que tenemos en cristales, ¿no?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:08:35",
+      "end": "00:08:55",
+      "text": "Un sistema que puede ser por voz, que puede ser por una pantalla que puede incorporar pistolas o detectores tanto fijos como pistolas de escaneado. El caso es que cada trabajador, cuando se pone en su puesto, tenemos la garantía de que monta los componentes que se lo indican porque los escanea todos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:08:55",
+      "end": "00:09:02",
+      "text": "O simplemente porque confirma los que nos den la gana y que una vez efectuado el control o como paso previo al trabajo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:09:03",
+      "end": "00:09:04",
+      "text": "Hace un control, perdón."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:09:05",
+      "end": "00:09:11",
+      "text": "Y añado para todos los nuevos con Power Jazmin."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:09:13",
+      "end": "00:09:19",
+      "text": "Hay un contrato que implica que nosotros íbamos a inspeccionar el material en la recepción."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "00:09:18",
+      "end": "00:09:19",
+      "text": "Hola."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "00:09:21",
+      "end": "00:09:22",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:09:22",
+      "end": "00:09:40",
+      "text": "Entonces, esto siempre está en litigio, porque aunque está firmado, ningún nadie de los que está aquí lo quiere hacer. Vale, porque preferimos ahorrarnos ese dinero, pero la realidad, que todos lo sepamos, es que hay un compromiso por nuestra parte de que cuando se recibe una mercancía."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "00:09:36",
+      "end": "00:09:36",
+      "text": "I."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:09:40",
+      "end": "00:09:55",
+      "text": "Se establece un nivel de frecuencia de inspección que dice pues por cada 300 unidades recibidas de cada artículo voy a inspeccionar 7 estos 4 puntos de control."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:09:59",
+      "end": "00:09:59",
+      "text": "Amen."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:10:02",
+      "end": "00:10:03",
+      "text": "Two."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:03",
+      "end": "00:10:09",
+      "text": "Existe, aunque no se cumpla, existe, vale, entonces."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:10:04",
+      "end": "00:10:16",
+      "text": "Existe, existe, exacto, sí, existe. Y la idea, bueno, en principio, era hacerla con el personal que teníamos disponible ahora, que se bueno, ahora en principio solo 2 chicos que están formados para hacer la inspección."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:17",
+      "end": "00:10:23",
+      "text": "Pero queremos hacerlo efectivamente antes de que el material pase a producción."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:10:24",
+      "end": "00:10:25",
+      "text": "Deberíamos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:24",
+      "end": "00:10:24",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:26",
+      "end": "00:10:27",
+      "text": "Ese es el plan."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:10:26",
+      "end": "00:10:46",
+      "text": "No, que es lo que tú has dicho antes, o sea, al final esto está contratado, salvo que alguien me diga lo contrario, yo lo tendría que hacer antes, no durante que se puede hacer durante. Y como siempre, si hay alguna pieza dañada defectuosa, pues se hace el trámite habitual, igual rechazo, bloqueo, todo lo que tengamos que hacer, pero de la teoría es que tiene que ser antes, que no va a ser antes, a ver si me entiendes."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:30",
+      "end": "00:10:30",
+      "text": "sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:34",
+      "end": "00:10:34",
+      "text": "I."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:45",
+      "end": "00:10:45",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:10:45",
+      "end": "00:11:02",
+      "text": "Sí, pero no, pero aunque tú tengas un incomino, al final tienes un rechazo y tienes problemas igual porque no, al final no haces un incombina todas las piezas 100 * 100%. O sea, que sí, o sea, que hay que hacerlo, pero que se puede hacer en otra etapa del montar. Me refiero, no es aunque."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:10:55",
+      "end": "00:10:57",
+      "text": "No, no, no."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:10:56",
+      "end": "00:10:56",
+      "text": "Entonces."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:11:01",
+      "end": "00:11:03",
+      "text": "Pero fíjate, Toni."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:11:04",
+      "end": "00:11:13",
+      "text": "Lo que estamos diciendo para ahora voy a los informáticos, lo que se nos está pidiendo es estaciones virtuales que permitan definir la acción."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:11:15",
+      "end": "00:11:37",
+      "text": "Si yo pongo una estación y me permites ponerle el nombre de incoming y a otro le llamo montaje del semi elaborado número 12, las 2 estaciones son idénticas a nivel virtual y le permitirán a Chimo establecer el nombre del artículo y los pasos y las preguntas de calidad que le quiere hacer y la frecuencia."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:11:15",
+      "end": "00:11:15",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:11:23",
+      "end": "00:11:23",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:11:38",
+      "end": "00:11:57",
+      "text": "Y en la que se llama montaje del semi elaborado, pues le permitirá al ingeniero describir también los pasos de assembly. Y si como bien Tony ha dicho, yo quiero introducir en la estación de montaje 2 controles de calidad, pues no tengo más que añadir 2 controles, por lo tanto."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:11:54",
+      "end": "00:11:54",
+      "text": "Battle."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:11:58",
+      "end": "00:12:17",
+      "text": "No nos debe marear al grupo si queremos incoming, si hacemos montaje o si hacemos embalaje. Esto Esto que estoy diciendo que a los nuevos les hermana chino supuso un montón de conflicto y de líos porque diferenciábamos el incoming del montaje del embalaje. Se acabó. Lo que queremos es."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:12:17",
+      "end": "00:12:27",
+      "text": "Construir la capacidad de nombro una estación, punto y pelota ya la tengo nombrada y quiero decir qué operaciones hay que hacer y en qué orden."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:12:28",
+      "end": "00:12:46",
+      "text": "Y quiero poder decir si voy a exigir una respuesta de algún tipo, si es de voz mejor y si no por escrito, o no la quiero introducir en las respuestas, en lo que es introducir una respuesta, si vais al SAO que tenemos en el 66, el pick to voice."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:12:47",
+      "end": "00:13:07",
+      "text": "Una Un paso, la respuesta puede decirse que sea por voz, puede ser directamente nada o puede ser una lectura escaneada recibida de un de una pistolita. Vale, para que lo sepáis. Entonces, si nosotros configuramos esas estaciones que van a permitir ayudar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:13:08",
+      "end": "00:13:28",
+      "text": "pues luego ya será una discusión de María internamente con Toni y con quien le dé la gana y con Chime y con quien sea de me voy a poner la estación de incoming vamos a ponerle le vamos a llamar incoming y vamos a inspeccionar a lo mejor no queremos inspeccionar los 150 artículos de Power pero si identificamos 43 artículos"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:13:28",
+      "end": "00:13:49",
+      "text": "que cada lote que entre lo queremos pasar por esa estación y paralelamente durante el proceso de assembly pues también podemos introducir unos controles porque es verdad que aunque todo pase por incoming solo pasará un porcentaje y en el montaje pasa al cien por cien. Bien, dicho todo esto, María,"
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:13:42",
+      "end": "00:13:43",
+      "text": "Hello."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:13:49",
+      "end": "00:13:54",
+      "text": "Y los demás ha quedado explicado bien para los informáticos y para los nuevos ingenieros."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:13:55",
+      "end": "00:13:55",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:13:56",
+      "end": "00:14:04",
+      "text": "Vale, entonces ahora ya entramos con vosotros, Max, me gustaría o a todos nos gustaría."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:13:57",
+      "end": "00:13:57",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:05",
+      "end": "00:14:19",
+      "text": "Pero en primer lugar, lo que ya hicisteis, o sea, si se puede, si nos lo puedes enseñar, sería genial y luego ya entraremos en el detalle de que qué podemos hacer."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:06",
+      "end": "00:14:07",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:08",
+      "end": "00:14:08",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:14",
+      "end": "00:14:15",
+      "text": "Vale, vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:17",
+      "end": "00:14:18",
+      "text": "I think."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:21",
+      "end": "00:14:24",
+      "text": "Un minuto que voy a abrir la plataforma."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:27",
+      "end": "00:14:29",
+      "text": "Y ya empiezo a compartir la pantalla."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:33",
+      "end": "00:14:40",
+      "text": "Como yo, la tenía desactivada, yo la he activado ahora otra vez."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:39",
+      "end": "00:14:42",
+      "text": "Como que la tenía desactivada, pero no se está usando Max."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:14:42",
+      "end": "00:14:44",
+      "text": "Esto es para su mex, Javi."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:14:43",
+      "end": "00:14:47",
+      "text": "Hemos utilizado insuments, aquí está activando la versión local."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:45",
+      "end": "00:14:45",
+      "text": "I."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:48",
+      "end": "00:14:50",
+      "text": "Pero a ver, Tony."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:51",
+      "end": "00:14:53",
+      "text": "¿Tú ahora mismo cómo montas power?"
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:14:55",
+      "end": "00:14:59",
+      "text": "Yo ahora mismo monto pobre con un dossier y una hoja de procesos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:14:59",
+      "end": "00:15:03",
+      "text": "Tú no tienes ningún sistema digital en power, absolutamente ninguno."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:15:05",
+      "end": "00:15:05",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:06",
+      "end": "00:15:11",
+      "text": "Y cuando expides power o montas bultos y embalas tampoco."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:15:10",
+      "end": "00:15:11",
+      "text": "Eso sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:11",
+      "end": "00:15:11",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:15:11",
+      "end": "00:15:16",
+      "text": "Ahí sí que tengo es en el sitio donde tengo en la expedición, no en el embalaje."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:13",
+      "end": "00:15:13",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:16",
+      "end": "00:15:16",
+      "text": "O."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:17",
+      "end": "00:15:20",
+      "text": "En el embalaje, en una estación a la cual le llamamos embalaje."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:15:18",
+      "end": "00:15:18",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:19",
+      "end": "00:15:20",
+      "text": "En."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:15:21",
+      "end": "00:15:21",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:22",
+      "end": "00:15:25",
+      "text": "Vale, Max, tú nos puedes enseñar eso que dice Tony."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:15:25",
+      "end": "00:15:26",
+      "text": "Pero Javier no tiene nada que ver."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:27",
+      "end": "00:15:36",
+      "text": "Esa no sé cuál decir."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:15:29",
+      "end": "00:15:32",
+      "text": "No lo hacen con Pitubo y Javi, esto ya lo hablamos."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:15:30",
+      "end": "00:15:30",
+      "text": "It."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:32",
+      "end": "00:15:36",
+      "text": "Pues que como lo hagan, si nos da igual pick to voice, que lo que están."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:40",
+      "end": "00:15:40",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:15:42",
+      "end": "00:15:43",
+      "text": "Cool."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:42",
+      "end": "00:15:43",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:52",
+      "end": "00:15:52",
+      "text": "Pero."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:15:52",
+      "end": "00:15:56",
+      "text": "No guía el operario, no le dice lo que tiene que hacer, no hay controles, no hay pasos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:54",
+      "end": "00:15:55",
+      "text": "Gracias."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:15:55",
+      "end": "00:16:14",
+      "text": "Vale, sí se lo dice, sí se lo dice. Si os fijáis, es que es lo mismo que tienes hoy en día en el 66. En esa estación yo monto un componente más otro componente más otro componente, que es lo mismo que me obligues a pistolear el componente uno más el componente 2 más el componente 3. Es lo mismo, la filosofía es."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:57",
+      "end": "00:15:57",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:15:58",
+      "end": "00:15:59",
+      "text": "Right."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:00",
+      "end": "00:16:00",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:02",
+      "end": "00:16:02",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:07",
+      "end": "00:16:09",
+      "text": "Está bien."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:10",
+      "end": "00:16:11",
+      "text": "I am."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:12",
+      "end": "00:16:12",
+      "text": "A Juan."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:16:13",
+      "end": "00:16:14",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:16:14",
+      "end": "00:16:15",
+      "text": "Es igual."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:16:15",
+      "end": "00:16:28",
+      "text": "Es que tú estás pensando en el montaje, creo, y esto lo único que hace dice es en el bulto uno, o sea, en el embalaje uno van estos 16 componentes y tú vas escaneando para que todos están dentro."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:16:28",
+      "end": "00:16:47",
+      "text": "Pero es que eso es lo mismo que hacemos en el montaje. Lo único que el hecho de que hay una frase que te diga, monta esto. Tú piensa que el sistema de cristales lo que sabe es que un parálisis lleva 7 componentes y lo que está forzando al trabajador es o a confirmar alguno de ellos o a leerlo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:16:39",
+      "end": "00:16:40",
+      "text": "Thank you."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:16:47",
+      "end": "00:17:06",
+      "text": "Pero es lo mismo que hacer un embalaje. El tío que monta cristales está embalando cristales como tú haces el kit acústico. Lo que estamos forzándonos en el área de parabrisas es a garantizar que el bulto sale con sus 7 componentes. Es lo literalmente lo mismo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:02",
+      "end": "00:17:03",
+      "text": "This call me."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:17:07",
+      "end": "00:17:13",
+      "text": "Es lo mismo, pero la aplicación no está diseñada para guiar a un operario, yo claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:17:11",
+      "end": "00:17:14",
+      "text": "No es tan versátil con lo que comentábamos antes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:11",
+      "end": "00:17:12",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:17:12",
+      "end": "00:17:30",
+      "text": "No es tan versátil, pero vamos a ver qué es lo que sí hace ya. A mí me gustaría verla. Luego podemos ver esto otro, esto otro que tenemos, pero vamos a empezar por ver lo que ya se utiliza hoy en día. Al final, asimilar el montaje de un bulto."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:17:17",
+      "end": "00:17:17",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:17",
+      "end": "00:17:17",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:19",
+      "end": "00:17:19",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:28",
+      "end": "00:17:29",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:17:31",
+      "end": "00:17:38",
+      "text": "Con entregar un parabrisas con los componentes adecuados, porque al final lo mismo podemos ver esa estación actual."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:40",
+      "end": "00:17:45",
+      "text": "Vale, es algo tiene que compartir Alex la pantalla del ese es otro."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:17:44",
+      "end": "00:17:47",
+      "text": "No de no se refiere a la aplicación que estamos haciendo ahora en Power."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:47",
+      "end": "00:17:48",
+      "text": "Lock, why is the body?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:17:49",
+      "end": "00:17:52",
+      "text": "Joan, tú tienes por ahí la aplicación que se une actualmente."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:49",
+      "end": "00:17:50",
+      "text": "One."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:17:52",
+      "end": "00:17:53",
+      "text": "Está."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:17:54",
+      "end": "00:17:57",
+      "text": "Mira, sí es esa, no, sí, sabes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:18:00",
+      "end": "00:18:03",
+      "text": "But, I say it back in it."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:18:03",
+      "end": "00:18:04",
+      "text": "Esta es la nueva."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:18:06",
+      "end": "00:18:15",
+      "text": "Vale, entonces aquí el operario se selecciona que kit va a embalar. Entiendo yo que bulto es la podéis explicar un poquito a ver a ver qué tenemos, mira."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:18:17",
+      "end": "00:18:24",
+      "text": "Bueno, lo puedes explicar tú que estás exactando."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:18:26",
+      "end": "00:18:30",
+      "text": "Vale, ahora mismo lo que tenemos son los 3 productos disponibles que hay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:18:26",
+      "end": "00:18:30",
+      "text": "By the Rwkhya learnt from the Rwkhy."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:18:30",
+      "end": "00:18:34",
+      "text": "Espera, quítate Max, a lo mejor el vale."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:18:32",
+      "end": "00:18:33",
+      "text": "Ya está, ya está."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:18:36",
+      "end": "00:18:36",
+      "text": "Rayón."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:18:39",
+      "end": "00:18:41",
+      "text": "Gracias, están cambiando de sitio."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:18:41",
+      "end": "00:18:41",
+      "text": "But it."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:18:42",
+      "end": "00:18:42",
+      "text": "¿Por qué?"
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:18:43",
+      "end": "00:18:44",
+      "text": "No sé."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:18:45",
+      "end": "00:18:50",
+      "text": "Es que esta es la aplicación que está desarrollando Joan para mejorar la que tenemos actualmente."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:18:52",
+      "end": "00:18:58",
+      "text": "No espera, te te he silenciado yo. Perdón, Joan, tienes que activar del micro."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:07",
+      "end": "00:19:07",
+      "text": "Bye."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:19:08",
+      "end": "00:19:09",
+      "text": "Ahora sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:08",
+      "end": "00:19:18",
+      "text": "Os explico un poco más o menos cómo está. Aquí tenemos los productos disponibles, aquí en la parte de abajo, donde los 3 productos que en teoría son los que se están haciendo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:19",
+      "end": "00:19:29",
+      "text": "Seleccionamos el producto que sea y aquí nos saldrán los bultos que se pueden hacer cada uno con sus componentes, entramos a cada uno y aquí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:30",
+      "end": "00:19:33",
+      "text": "Es donde vamos a poder escanear los componentes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:34",
+      "end": "00:19:40",
+      "text": "Y clicamos a esta parte, aquí vamos a ir escaneando todos los subcomponentes que hay dentro de cada bulto."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:19:41",
+      "end": "00:19:51",
+      "text": "Y cuando terminemos en el momento, no viste, no, pero no se me escucha."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:19:41",
+      "end": "00:19:49",
+      "text": "Para que lo entiendas Javi, que aquí no perdona, perdona Joan 1 segundo, córtate el micro 1 segundo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:19:50",
+      "end": "00:19:51",
+      "text": "Que si no se me escucha doble."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:19:53",
+      "end": "00:20:13",
+      "text": "Para que lo entiendas, Javi, que aquí no lo ves. Básicamente tú le pegas una etiqueta a cada uno de los subcomponentes que lleva un QR con su referencia y aquí, porque no se ve tú con el móvil, vas leyendo ese qry te va vinculando ese componente, ese subconjunto montado al árbol que tienes."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:20:13",
+      "end": "00:20:14",
+      "text": "En la aplicación."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:20:14",
+      "end": "00:20:32",
+      "text": "Correcto, y él aquí lo que está permitiendo es registrar una entrada porque incluso lo puedes hacer manualmente. Vale, entonces esto es exactamente lo que yo os decía. Cuando tú puedes programar recibir una entrada, la entrada la puedo recibir vía una señal escaneada, un mensaje de voz, un clic de un botón."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:20:19",
+      "end": "00:20:19",
+      "text": "Check."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:20:25",
+      "end": "00:20:25",
+      "text": "Tú."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:20:32",
+      "end": "00:20:47",
+      "text": "O directamente un nada y yo, pero directamente o darle un botón. Vale, está muy bien, esto está muy bien. Vamos, vamos atrás o esto todavía prospera más. Hay más pantallas de."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:20:46",
+      "end": "00:21:05",
+      "text": "No, esto al final lo que vas es leyendo cada uno de los componentes que lleva ese bulto. Cuando acabas de leer todos los componentes que lleva el bulto te aparece un mensaje de bulto completado y pasas al bulto 2 haces lo mismo con el bulto con lo que está definido en ese bulto. Si cuando acabas te dice Kitty ha completado, entonces ya has completado todo el árbol básicamente."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:20:56",
+      "end": "00:20:56",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:20:58",
+      "end": "00:20:58",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:21:02",
+      "end": "00:21:09",
+      "text": "Vale, pero déjame, déjame a Joan, que prefiero preguntarle a él que se ponga el micro Joan."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:21:10",
+      "end": "00:21:11",
+      "text": "Pregunta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:21:11",
+      "end": "00:21:32",
+      "text": "Vale, Joan, y en dónde alimentas los componentes o la estructura del producto kit pequeño, por ejemplo, que tiene varios bultos y cada bulto tiene varios semi elaborados. Por favor, enséñanos cómo genero yo eso. Así asimilemos que kit pequeño podría ser una estación de montaje."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:21:21",
+      "end": "00:21:21",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:21:32",
+      "end": "00:21:44",
+      "text": "¿Que se llama kit pequeño? Vale, entonces yo cómo le digo lo que quiero que lleve. ¿Viene de lo lees desde Sage, desde el origen o qué es lo que haces? Cuéntamelo o enseña."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:21:43",
+      "end": "00:21:48",
+      "text": "Nosotros eso lo esos 3 productos los leemos a través de un Excel."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:21:49",
+      "end": "00:21:54",
+      "text": "Vamos mal, ya empezamos muy mal. O sea, es una dice que Pablo te ha preparado al uso, no entiendo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:21:55",
+      "end": "00:21:58",
+      "text": "Es el que se estaba usando en la estación de Power, entonces nos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:21:59",
+      "end": "00:22:08",
+      "text": "Sí, fatal, muy bien, vale, entonces ese es un Excel que incluye todos sus componentes, sus hijos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:00",
+      "end": "00:22:00",
+      "text": "Hmm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:05",
+      "end": "00:22:06",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:22:10",
+      "end": "00:22:10",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:11",
+      "end": "00:22:12",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:12",
+      "end": "00:22:27",
+      "text": "Vale, con lo cual tú aquí no lo puedes consultar, aquí solamente te lo tienes que creer, ¿verdad? O sea, el usuario de esto cómo sabe que tiene que escanear 7 cosas, ¿me lo podéis decir dónde le?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:22:26",
+      "end": "00:22:29",
+      "text": "Por ejemplo, entra."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:27",
+      "end": "00:22:31",
+      "text": "Claro, cuando tú entras dentro del producto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:30",
+      "end": "00:22:32",
+      "text": "Cuando yo voy a escanear uno."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:32",
+      "end": "00:22:35",
+      "text": "Sí, un trabajo al que sea, da igual."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:35",
+      "end": "00:22:36",
+      "text": "Vale, ahora que pasada."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:36",
+      "end": "00:22:36",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:38",
+      "end": "00:22:46",
+      "text": "Aquí salen todos los componentes que tenemos que escanear, estos que están aquí, cada uno de estos es uno de los componentes que hay."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:46",
+      "end": "00:22:51",
+      "text": "Vale, esto es un kit pequeño que se compone de bulto uno y bulto 2, de acuerdo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:48",
+      "end": "00:22:48",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:22:50",
+      "end": "00:22:58",
+      "text": "Sí, he vuelto uno tiene dentro un m 302 GS todos estos y aquí a la derecha salen las cantidades de cada uno."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:55",
+      "end": "00:22:55",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:56",
+      "end": "00:22:57",
+      "text": "Vale, entonces."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:22:59",
+      "end": "00:23:10",
+      "text": "La señal, la o sea, tú vas a esperar una lectura de el M 302 G cero 5, ¿verdad que sí? Y una y una lectura del siguiente y otra del siguiente."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:03",
+      "end": "00:23:03",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:07",
+      "end": "00:23:08",
+      "text": "sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:11",
+      "end": "00:23:19",
+      "text": "Bueno, las que sean las indicadas, por ejemplo, del M 302 hay cuatro, del otro hay 8, sí, pero sí, básicamente."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:13",
+      "end": "00:23:16",
+      "text": "O sea, aquí eso."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:18",
+      "end": "00:23:21",
+      "text": "¿Pero te da te da igual en qué orden te las escaneo, verdad que sí?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:22",
+      "end": "00:23:22",
+      "text": "Thanks."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:23",
+      "end": "00:23:28",
+      "text": "¿Pero tú podrías decirle que primero me leas la 4:06 uno y luego la 5:079, a que sí?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:29",
+      "end": "00:23:29",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:30",
+      "end": "00:23:36",
+      "text": "Vale, bien, entonces aquí está el árbol, este árbol lo absorbes desde un Excel."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:37",
+      "end": "00:23:40",
+      "text": "Sí, bueno, yo creo que está también mensaje, ¿no?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:38",
+      "end": "00:23:38",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:23:41",
+      "end": "00:23:51",
+      "text": "Vale, no, que está en Sage. Te lo digo porque lo he escrito yo. O sea, eso ya te lo puedo decir. Lo que dime, dime."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:23:42",
+      "end": "00:23:43",
+      "text": "Abby."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:23:46",
+      "end": "00:23:46",
+      "text": "vale."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:23:49",
+      "end": "00:23:50",
+      "text": "Hubby."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:23:51",
+      "end": "00:23:56",
+      "text": "Nos estamos centrando en convertir esta aplicación en lo que queremos que sea y no en lo que es."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:23:57",
+      "end": "00:24:05",
+      "text": "Para mí, opinión mía, no deberíamos convertir esta aplicación en lo que necesitamos porque no es lo mismo. A mi modo de ver, no es lo mismo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:24:03",
+      "end": "00:24:20",
+      "text": "Vale, pero qué te parece, Raúl, si tienes razón, no estoy pretendiendo reconvertir esto, estoy pretendiendo andar en el conocimiento que existe entre las distintas partes de la empresa para que cuando vayamos a afrontar algo nuevo tengamos una visión un poquito más amplia."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:24:21",
+      "end": "00:24:40",
+      "text": "Lo sé, esta aplicación que existía ya porque la que los Santos en su día nos hemos ahora centrado en hacerla buena y que funcione con nuestros requisitos, por ejemplo, para que no te deje sacar la etiqueta del bulto hasta que el sistema confirme que estén todos los componentes, etcétera. Cuando esto esté finalizado, desde luego."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:24:21",
+      "end": "00:24:22",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:24:23",
+      "end": "00:24:24",
+      "text": "Si, si."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:24:31",
+      "end": "00:24:34",
+      "text": "That's what it is."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:24:37",
+      "end": "00:24:38",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:24:40",
+      "end": "00:24:54",
+      "text": "Tenemos estamos orientados a que esto nos servirá para todo tipo de montajes que hagamos en el futuro, ya sea para Power o para lo que sea entonces para eso, pero para el caso concreto, que es montar un embalaje completo de lo que sea, esta aplicación nos servirá."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:24:55",
+      "end": "00:24:57",
+      "text": "Vale, pero."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:24:55",
+      "end": "00:25:01",
+      "text": "Pero para otro tipo de cosas yo no la usaría por porque está configurada de una manera muy concreta, ¿sabes?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:24:58",
+      "end": "00:24:58",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:00",
+      "end": "00:25:18",
+      "text": "Vale, estamos todos de acuerdo en que esta aplicación no nos va a funcionar. Vale, Raúl, porque está y estoy de acuerdo. Es como muy estricta, es como es poco versátil, no tiene la visión global de la utilidad que queremos, pero las personas que nunca hemos visto nada de esto."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:01",
+      "end": "00:25:02",
+      "text": "Thank you."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:25:05",
+      "end": "00:25:06",
+      "text": "Es mi opinión."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:25:10",
+      "end": "00:25:12",
+      "text": "Sí, eso es."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:18",
+      "end": "00:25:25",
+      "text": "Pero lo que yo tengo una tecnología."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:19",
+      "end": "00:25:24",
+      "text": "Si tenemos que aportar algo, necesitamos partir por lo menos de una imagen visual y compartir información."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:25:25",
+      "end": "00:25:25",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:25",
+      "end": "00:25:31",
+      "text": "Estamos de acuerdo, Raúl, no vamos a empezar por estado, pero necesitamos entendernos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:26",
+      "end": "00:25:27",
+      "text": "Pero."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:25:27",
+      "end": "00:25:27",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:32",
+      "end": "00:25:32",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:33",
+      "end": "00:25:49",
+      "text": "Vale, entonces déjame continuar preguntando, ¿tú tienes un Excel, Joan, desde donde se le dice toda la estructura de árbol? Por lo tanto, Pablo, toda la estructura de árbol que hicimos nosotros con HUs, aquí no está aplicando."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:37",
+      "end": "00:25:38",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:25:41",
+      "end": "00:25:41",
+      "text": "A."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:46",
+      "end": "00:25:48",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:49",
+      "end": "00:25:51",
+      "text": "Porque no tiene mucho cambio."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:25:52",
+      "end": "00:26:00",
+      "text": "Toda la estructura de árbol que hicimos nosotros con HU, o sea, no ahora no te no te entendió la última lo que has dicho."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:25:53",
+      "end": "00:25:54",
+      "text": "Con la estructura."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:57",
+      "end": "00:25:57",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:25:59",
+      "end": "00:26:01",
+      "text": "Dentro del dentro del bulto uno."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:02",
+      "end": "00:26:02",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:26:02",
+      "end": "00:26:17",
+      "text": "Lo que inventamos entre Tony, tú y yo es que llevaba X semis, el semi 7, el semi 3 y el semi 5. Sin embargo, yo no estoy leyendo la palabra es semi, sino que estoy viendo códigos antiguos."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:05",
+      "end": "00:26:05",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:07",
+      "end": "00:26:10",
+      "text": "Sí, exactamente, sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:16",
+      "end": "00:26:36",
+      "text": "Exactamente, eso es lo que le estaba explicando hace un rato a Raúl, pero eso es porque un semi tal lleva, me lo invento, cuatro puertas. Si yo le pego una etiqueta a un semi, entiende semi por esas cuatro puertas, ¿cómo garantizo que las cuatro puertas las han metido dentro?"
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:36",
+      "end": "00:26:42",
+      "text": "Entonces yo lo que quiero es colgar cuatro etiquetas, para eso utilizamos los códigos antiguos. entonces en la."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:26:41",
+      "end": "00:26:56",
+      "text": "Pero tú no puedes, tú no puedes ir en contra de lo que tú mismo has inventado. Nosotros, Toni, tú y yo, hemos dicho que en el proceso de assembly del semi 7 leeré y garantizaré que una vez empaquetado, dentro y cuatro puertas."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:51",
+      "end": "00:26:51",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:26:57",
+      "end": "00:26:57",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:26:57",
+      "end": "00:27:08",
+      "text": "Y en el inventario, María Dasí leerá que tiene 7 semis y serán 7 428 puertas, pero a ella le importa una, eso es por."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:05",
+      "end": "00:27:23",
+      "text": "Y eso Y eso es lo que tienes y eso es lo que tienes a nivel virtual. Eso lo tienes igualmente. Lo único que digo es que a la hora de leer el componente en sí o lo haces así o yo, por ejemplo, un semi 7 que lleva me lo invento las cuatro puertas. ¿Cómo garantizo que estoy metiendo las cuatro puertas dentro del bulto? Yo cojo una etiqueta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:10",
+      "end": "00:27:10",
+      "text": "Hello."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:12",
+      "end": "00:27:12",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:22",
+      "end": "00:27:42",
+      "text": "Porque tú te has olvidado, porque no has hecho lo del Celaire y como no has hecho lo del Celaire, te has liado tú solo. Cuando estuvimos hablando y se quedó la última fase, Toni, recuérdalo, tú tenías que junto a Toni hacer la pauta de embalaje del semi 7 donde tú ibas a cerrar el paquete con sus cuatro puertas dentro."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:37",
+      "end": "00:27:38",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:39",
+      "end": "00:27:39",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:42",
+      "end": "00:27:48",
+      "text": "Pero las cuatro no van, pero las cuatro no van dentro del cel aire, cada una va con su propio cel aire, no nos equivoquemos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:42",
+      "end": "00:27:43",
+      "text": "Y con sucos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:45",
+      "end": "00:27:46",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:47",
+      "end": "00:27:49",
+      "text": "De eso nada, de eso nada."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:49",
+      "end": "00:27:50",
+      "text": "Hombre como."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:27:50",
+      "end": "00:27:54",
+      "text": "Si no tiene sentido hacer un semi donde haces cuatro productos separados, hijo mío."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:27:53",
+      "end": "00:28:00",
+      "text": "No, tú haces, tú haces un semi con cuatro productos en el mismo embalaje, pero que van completamente separados."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:00",
+      "end": "00:28:09",
+      "text": "No, señor, cuando Tony monta una unidad del semi 7 y la deja en el almacén, es un paquete cerrado y lleva cuatro puertas, pero a los demás."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:07",
+      "end": "00:28:15",
+      "text": "No, yo no puedo, yo no puedo embalar 6 puertas que lleva uno de los semis, no sé si son 6 o 8 puertas en un mismo cel aire, es que no puedo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:15",
+      "end": "00:28:17",
+      "text": "Pues entonces no hemos hecho nada, hijos."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:28:16",
+      "end": "00:28:16",
+      "text": "Hombre."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:28:17",
+      "end": "00:28:22",
+      "text": "Es un poco absurdo porque si no se rayarían entre sí. Quiero pensar que el aire precisamente es para evitar eso."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:20",
+      "end": "00:28:20",
+      "text": "Caro."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:20",
+      "end": "00:28:20",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:28:23",
+      "end": "00:28:23",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:23",
+      "end": "00:28:33",
+      "text": "No, María, pero tú la puedes, si a nadie te impide que tú le pongas el aire a cada puerta individual. Marieta, lo que dijimos es que las pondríamos como un fardo único. Toni, por favor."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:32",
+      "end": "00:28:35",
+      "text": "Claro, tú las pones como un faro único."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:28:33",
+      "end": "00:28:41",
+      "text": "De hecho, De hecho, están así el semi, el semi se lleva sus 2 puertas y sus 2 módulos que tocan en el palé, o sea, lo que lleva de embalaje."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:35",
+      "end": "00:28:38",
+      "text": "Amén, amén, entonces yo no."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:38",
+      "end": "00:28:38",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:40",
+      "end": "00:28:45",
+      "text": "¿Enfar Enfardados, enfardados, es decir, de la producción salen enfardados, sí o no?"
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:46",
+      "end": "00:28:47",
+      "text": "No."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:28:47",
+      "end": "00:28:48",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:47",
+      "end": "00:28:49",
+      "text": "Pues entonces no hemos hecho lo que dijimos."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:49",
+      "end": "00:28:53",
+      "text": "No, que no, que no puedes, Javi, escucha, yo me."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:28:52",
+      "end": "00:28:55",
+      "text": "Pero entonces no, ya no niego que no puedas, hicimos el tonto."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:28:56",
+      "end": "00:29:08",
+      "text": "No, que no hiciste el tonto. Vamos a ver, tú en un mismo bulto, en un palet pones las 6 puertas, pero cada una va con su celaire individual. O sea, no metes el celaire, van juntas en el mismo palet."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:28:57",
+      "end": "00:28:58",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:29:05",
+      "end": "00:29:11",
+      "text": "Pero van juntas, pero van, pero no juntas, no con escuchadme los 2."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:29:06",
+      "end": "00:29:10",
+      "text": "Sí, claro, tú pones, tú pones el semi va en un va en un palé."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:29:12",
+      "end": "00:29:29",
+      "text": "Juntos inseparables de forma fácil para que en tu almacén, cuando sería que hay 120 semi unos, sea creíble. Es decir, si yo dejo componentes sueltos, no hay garantía. yo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:29:21",
+      "end": "00:29:21",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:29:23",
+      "end": "00:29:23",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:29:28",
+      "end": "00:29:46",
+      "text": "Pero yo no, espera, que igual no has entendido bien. Yo me yo me cojo las 6 puertas por decirte algo, las 6 puertas. Y es que de hecho tengo las tengo las fotos. Si yo tengo las 6 puertas y yo a cada una de ellas la pongo encima del palet y les pongo film."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:29:31",
+      "end": "00:29:32",
+      "text": "Yo creo que no nos estamos entendiendo."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:29:33",
+      "end": "00:29:33",
+      "text": "No."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:29:46",
+      "end": "00:29:54",
+      "text": "A todas ellas, pero yo el cel aire se las pongo individualmente a cada una de ellas. Es que no sé si van en el mismo embalaje, pero cuando llega la."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:29:51",
+      "end": "00:29:54",
+      "text": "Vale, vamos a ver."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:29:56",
+      "end": "00:30:01",
+      "text": "Pablo, vamos a ver, ejemplo semi 3 lo estamos viendo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:01",
+      "end": "00:30:02",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:30:03",
+      "end": "00:30:13",
+      "text": "El operario monta cuatro puertas más 2 puertas, vale, y en esa estación le pones el aire a cada una de ellas para que no se rayen."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:05",
+      "end": "00:30:06",
+      "text": "Y 2, correcto."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:10",
+      "end": "00:30:10",
+      "text": "Two."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:12",
+      "end": "00:30:12",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:30:12",
+      "end": "00:30:12",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:30:13",
+      "end": "00:30:14",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:30:14",
+      "end": "00:30:30",
+      "text": "Vale, o no se lo pone o no se lo pone o no se lo pone, eso era lo de menos, pero cuando ha terminado para declarar la producción de una unidad de semi 3, estos 6 artículos han quedado puestos completamente juntos e inseparables."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:14",
+      "end": "00:30:14",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:30:15",
+      "end": "00:30:17",
+      "text": "no se lo pone."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:16",
+      "end": "00:30:16",
+      "text": "No."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:30",
+      "end": "00:30:31",
+      "text": "Exacto."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:30",
+      "end": "00:30:31",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:30:31",
+      "end": "00:30:35",
+      "text": "Vale, me da igual que concele aire con una bolsa del Carrefour."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:32",
+      "end": "00:30:32",
+      "text": "Exacto."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:35",
+      "end": "00:30:36",
+      "text": "sí, exacto."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:35",
+      "end": "00:30:36",
+      "text": "Correcto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:30:36",
+      "end": "00:30:57",
+      "text": "Bien, esa unidad es indisoluble, no puede ser que queramos luego identificar componente a componente. La etiqueta del semi 3 es única y se genera como un HU en producción al terminar. Y María, cuando cuando dice tengo 7 H7."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:39",
+      "end": "00:30:39",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:30:39",
+      "end": "00:30:39",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:43",
+      "end": "00:30:44",
+      "text": "Exactamente."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:48",
+      "end": "00:30:49",
+      "text": "Exactamente."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:30:52",
+      "end": "00:30:54",
+      "text": "Exactamente, sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:30:57",
+      "end": "00:31:09",
+      "text": "7 semi 3 en el almacén, ella le será muy sencillo ver los palets que sea con 7.7 fardos, por llamarlo de alguna forma."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:31:06",
+      "end": "00:31:06",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:31:08",
+      "end": "00:31:09",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:31:10",
+      "end": "00:31:11",
+      "text": "Sí, sí, eso sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:31:11",
+      "end": "00:31:21",
+      "text": "Ahora eso es así, cuando este fardo lo vais a introducir en el bulto, lo me estáis diciendo que lo desmontáis y separéis."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:31:13",
+      "end": "00:31:13",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:31:16",
+      "end": "00:31:17",
+      "text": "Je, je."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:31:20",
+      "end": "00:31:29",
+      "text": "No lo desmonto, yo tengo el bulto ubicado en la zona de embalado, entonces cojo puerta a puerta porque van independientes una vez lo cojo del bulto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:31:27",
+      "end": "00:31:35",
+      "text": "No me habéis, tú me has dicho, voy a volver, voy a volverlo a preguntar en el almacén, o sea, el operario."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:31:31",
+      "end": "00:31:32",
+      "text": "Yep."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:31:34",
+      "end": "00:31:41",
+      "text": "Es que no os estáis entendiendo, Javi, escúchame, escúchame 1 segundo, escúchame 1 segundo."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:31:36",
+      "end": "00:31:46",
+      "text": "Claro, es que es que el embalaje, el embalaje y dentro de su embalaje no pueden ir juntas, primero que embalas por."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:31:36",
+      "end": "00:31:37",
+      "text": "Ya, pero María."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:31:40",
+      "end": "00:31:40",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:31:44",
+      "end": "00:31:48",
+      "text": "Pero vamos a empezar por producción, Tony, con tu operario, dime."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:31:44",
+      "end": "00:31:45",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:31:46",
+      "end": "00:32:02",
+      "text": "Javi, solo 1 segundo, ese film que tú has dicho que es indivisible cuando tienes el semi 3 con 4 + 2 cacharros, llamadlos como queráis, cuando lo llevan a la zona de embalaje, cortan."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:32:03",
+      "end": "00:32:15",
+      "text": "Ese film abren el paquetito que tú estás diciendo y cogen cada una de las unidades que tú dices que son indivisibles, que no lo son. Ahí lo vuelven a dividir y le ponen su propio cel aire."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:32:15",
+      "end": "00:32:15",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:32:16",
+      "end": "00:32:22",
+      "text": "El paquete que tú llamas indivisible es una entidad única a la hora de inventariar."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:32:23",
+      "end": "00:32:33",
+      "text": "Porque lleva una HU, pero en el producto que se va a Power, o sea, en el embalaje final que se va a Power en el cajón de madera, eso se convierte en 6 pegatinitas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:32:34",
+      "end": "00:32:35",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:32:34",
+      "end": "00:32:36",
+      "text": "Son 2 procesos distintos."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:32:36",
+      "end": "00:32:48",
+      "text": "Se Se Se convierte en 6 porque tampoco pueden meter las 6 juntas. Van a lo largo de todo el embalaje de madera puestas, no son indivisibles dentro de su propio embalaje."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:32:36",
+      "end": "00:32:37",
+      "text": "Si."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:32:40",
+      "end": "00:32:40",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:32:47",
+      "end": "00:33:04",
+      "text": "Claro, tú no puedes coger ese paquete de 4 + 2 y ponerlo tal cual sin haberlo abierto y colocado en su posición inadecuada dentro del cajón de madera. Por eso tienes que embalarlos unitariamente los 6 y ponerle su pegatinita a cada uno de los 6 por separado."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:32:48",
+      "end": "00:32:49",
+      "text": "¿Y eso?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:32:57",
+      "end": "00:32:57",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:33:04",
+      "end": "00:33:05",
+      "text": "Qué lástima."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:04",
+      "end": "00:33:11",
+      "text": "Pero el inventario, el inventario es como tú dices, C mi 3 igual a 6 cosas."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:33:07",
+      "end": "00:33:08",
+      "text": "Sí, sí, eso es así."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:33:07",
+      "end": "00:33:08",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:33:10",
+      "end": "00:33:11",
+      "text": "Exactamente."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:33:11",
+      "end": "00:33:20",
+      "text": "Vale la idea totalmente. Gracias, María. Mira, la idea original hubiese sido no deshacer el paquete."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:12",
+      "end": "00:33:13",
+      "text": "¿Nos hemos entendido?"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:14",
+      "end": "00:33:16",
+      "text": "Vale, de nada."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:20",
+      "end": "00:33:23",
+      "text": "Claro, y tiene todo el sentido del mundo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:33:24",
+      "end": "00:33:26",
+      "text": "Y no reetiquetar 6 veces."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:26",
+      "end": "00:33:27",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:33:32",
+      "end": "00:33:33",
+      "text": "Viable."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:34",
+      "end": "00:33:40",
+      "text": "¿Pero tú puedes a pulso coger eso y trasladarlo dentro del cajón de madera de Power, no? Pues entonces."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:33:34",
+      "end": "00:33:35",
+      "text": "¿Has dicho?"
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:33:39",
+      "end": "00:33:45",
+      "text": "Ya no es que puedas, es que no es dentro del cajón, es divisible."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:42",
+      "end": "00:33:42",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:33:45",
+      "end": "00:33:54",
+      "text": "Si no tienes manera de empaquetarlo en el proceso de montaje como para meterlo de una pieza al contenedor final."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:33:51",
+      "end": "00:33:54",
+      "text": "Claro, exactamente, exactamente."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:33:55",
+      "end": "00:34:01",
+      "text": "Con casi todos pasa lo mismo, o sea, hay que hay que hay que dividirlos para poderlos embalar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:03",
+      "end": "00:34:05",
+      "text": "No, pues no era la idea, Tony."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:34:05",
+      "end": "00:34:06",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:08",
+      "end": "00:34:16",
+      "text": "Otra pregunta, la pegatina que le ponéis en el proceso por último de embalaje no se la hemos podido poner en producción."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:19",
+      "end": "00:34:20",
+      "text": "A cada puertecita."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:34:20",
+      "end": "00:34:20",
+      "text": "A."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:34:21",
+      "end": "00:34:23",
+      "text": "No porque en balas fuera de producción."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:24",
+      "end": "00:34:29",
+      "text": "Pero bueno, la etiqueta tendrá una información que yo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:34:28",
+      "end": "00:34:32",
+      "text": "¿Sí, pero o sea, qué te qué te aporta por entenderlo?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:31",
+      "end": "00:34:35",
+      "text": "No concentrar el trabajo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:34:36",
+      "end": "00:34:44",
+      "text": "A ver, para mí, a nivel de riesgo, prefiero hacerlo en el embalado porque sé lo que estoy metiendo ya y ya lo pincho y lo leo una vez lo meto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:45",
+      "end": "00:34:46",
+      "text": "Yo, pero si bien."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:34:45",
+      "end": "00:34:50",
+      "text": "Más que igual eso lo he hecho 10 días antes o 7 días antes."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:50",
+      "end": "00:34:52",
+      "text": "Pero sí, pero yo lo he hecho con mi pegatina puesta aquí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:34:53",
+      "end": "00:35:08",
+      "text": "O sea, yo este esta pieza no es la que os estoy señalando, esta yo la he ensamblado y le he puesto hace el aire. Vale, yo no le puedo poner su pegatinita en producción ya tranquilamente para que el tío que embala no tenga que imprimir una etiqueta y luego pistolearla."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:08",
+      "end": "00:35:19",
+      "text": "O sea, veis todos menos riesgo el que yo la meta la pegatina en producción a que yo la ponga cuando vaya a ponerla dentro del embalaje, porque así me están diciendo todos que sí, perfecto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:15",
+      "end": "00:35:16",
+      "text": "Garantizado."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:35:17",
+      "end": "00:35:25",
+      "text": "Es, pero esto es lo que hemos, esto es lo que hemos discutido hasta la sociedad, claro, los tuyos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:19",
+      "end": "00:35:19",
+      "text": "Hombre."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:20",
+      "end": "00:35:23",
+      "text": "Pero es porque sabes lo que hay dentro, claro."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:20",
+      "end": "00:35:25",
+      "text": "Perfecto, los ******* 33."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:24",
+      "end": "00:35:26",
+      "text": "¿Hostias, en serio?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:25",
+      "end": "00:35:28",
+      "text": "A ver, lo normal, Pablo, Pablo, si yo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:26",
+      "end": "00:35:26",
+      "text": "Vamos."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:35:26",
+      "end": "00:35:28",
+      "text": "Es solo como discutido 15 veces."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:27",
+      "end": "00:35:27",
+      "text": "Oh."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:28",
+      "end": "00:35:34",
+      "text": "Que lo hagas en producción en vez de cuando vas a embalar, en vez de cuando vas a colocar la pieza dentro del bulto. Perfecto, perfecto, sí."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:35:29",
+      "end": "00:35:30",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:30",
+      "end": "00:35:30",
+      "text": "Pablo, yo."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:30",
+      "end": "00:35:31",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:32",
+      "end": "00:35:39",
+      "text": "No, porque tú no, pero porque tú la lees, Pablo, porque tú después la lees cuando la vas a introducir en el la pondrá en Balquez."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:32",
+      "end": "00:35:33",
+      "text": "Perder."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:35:32",
+      "end": "00:35:33",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:38",
+      "end": "00:35:42",
+      "text": "Y de ideal, ideal, yo prefería hacerlo en producción perfecto."
+    },
+    {
+      "speaker": "Joaquin Pavon",
+      "start": "00:35:41",
+      "end": "00:35:51",
+      "text": "Claro, pero es que eso es lo que se se comentó, no se había comentado algo con la ocasión porque tú sabes lo que de ahí dentro del paquete por un paquete que se conceleide. Yo la verdad es que no sé de qué."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:35:44",
+      "end": "00:35:45",
+      "text": "Perfecto, sí."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:35:50",
+      "end": "00:36:08",
+      "text": "No lo embalas, no lo embalas en producción. Si tú embalas en producción, pierdes un animalada de tiempo embalando cada pieza. No embalas, embalas cuando cuando vas a meter al cajón, la zona por eso es una zona de embalaje y de y de acabar los contenedores ya embalados. Es una zona aparte de la producción."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:35:54",
+      "end": "00:35:54",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:35:58",
+      "end": "00:35:59",
+      "text": "Pero es."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:36:06",
+      "end": "00:36:13",
+      "text": "A todo, A todo esto podemos discutir esto en otra reunión que en la que no necesitemos que tener a los informáticos."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:36:14",
+      "end": "00:36:14",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:36:15",
+      "end": "00:36:25",
+      "text": "Porque podemos estar discutiendo esto 500 veces y el otro día ya discutimos bastante de esto, ya salisteis a revisar el proceso y estábamos todos de acuerdo, con lo cual prosigamos con esta reunión."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:36:16",
+      "end": "00:36:17",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:36:28",
+      "end": "00:36:28",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:36:29",
+      "end": "00:36:30",
+      "text": "Obviando eso."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:36:30",
+      "end": "00:36:31",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:36:33",
+      "end": "00:36:35",
+      "text": "Sigue con la aplicación porfa Joan."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:36:37",
+      "end": "00:36:37",
+      "text": "No tiene más."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:36:38",
+      "end": "00:36:39",
+      "text": "Da igual, vuélveme, vuélvela."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:36:43",
+      "end": "00:36:46",
+      "text": "Es que yo no tengo el este para abrirlo."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:36:50",
+      "end": "00:36:52",
+      "text": "¿Estás, oís a Joan o no?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:36:52",
+      "end": "00:36:53",
+      "text": "No."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "00:36:53",
+      "end": "00:36:54",
+      "text": "No."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:36:56",
+      "end": "00:37:03",
+      "text": "¿Ahora vale que dónde me he quedado? Estaba dentro de uno de estos."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:36:57",
+      "end": "00:36:58",
+      "text": "Ahora sí, ahora sí."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:05",
+      "end": "00:37:06",
+      "text": "Espérate."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:13",
+      "end": "00:37:13",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:13",
+      "end": "00:37:16",
+      "text": "¿Por qué tienes tantos embalajes en H son embalajes en curso?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:37:15",
+      "end": "00:37:27",
+      "text": "Esto esto es una versión, esto es una versión beta. Estamos todavía probándola y no la hemos acabado producción. Vale, por eso estos embalajes son ficticios que se han generado ahora."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:37:29",
+      "end": "00:37:29",
+      "text": "Para pruebas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:29",
+      "end": "00:37:31",
+      "text": "¿Y con qué se trabaja hoy en día?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:37:32",
+      "end": "00:37:34",
+      "text": "Es la misma aplicación, pero la versión anterior."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:34",
+      "end": "00:37:35",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:39",
+      "end": "00:37:41",
+      "text": "Vale, no sé dónde estaba exactamente."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:42",
+      "end": "00:37:43",
+      "text": "Me he quedado, creo que."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:43",
+      "end": "00:37:50",
+      "text": "Pues repítenos el proceso, yo elijo un bulto y puedo ver de lo que se compone si quiero. Si yo cojo un kit grande, por ejemplo, selecciónalo."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:46",
+      "end": "00:37:46",
+      "text": "But."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:37:49",
+      "end": "00:38:09",
+      "text": "Claro, elegimos un kit grande y aquí nos salen todos los bultos que tiene. Todo esto es la información que llega desde el Excel. Cada un Excel es como es y ya está y cada uno tiene sus bultos. Entramos a un bulto el que sea, da igual, podemos entrar al 3 por si esto y nos pone ya directamente en la en el sitio donde entramos ya directamente a vínculos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:53",
+      "end": "00:37:54",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:37:59",
+      "end": "00:38:00",
+      "text": "Vale, y."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:01",
+      "end": "00:38:02",
+      "text": "Cualquiera."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:08",
+      "end": "00:38:18",
+      "text": "¿Para qué es lo que tengo aquí? Yo puedo escanear el componente, uno le tengo que dar al botón para cada componente que tenga dentro del bulto, ¿no, verdad?"
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:38:13",
+      "end": "00:38:13",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:38:18",
+      "end": "00:38:22",
+      "text": "Solo le tienes que dar esta vez y ya entra en este sitio que es el lector de código."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:38:18",
+      "end": "00:38:18",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:20",
+      "end": "00:38:24",
+      "text": "Y ya entra en bucle leyendo, vale, salimos atrás."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:38:23",
+      "end": "00:38:23",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:38:24",
+      "end": "00:38:43",
+      "text": "Actualmente, Javi, lo que se hace, pequeño contexto, primero se imprimen las etiquetas del bulto, las etiquetas grandes se pegan en el bulto y luego entrando a la aplicación se escanea esa etiqueta grande y luego se escanean todas las etiquetas de los componentes para así vincularlos."
+    },
+    {
+      "speaker": "Joan Marti",
+      "start": "00:38:24",
+      "end": "00:38:25",
+      "text": "Alright."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:27",
+      "end": "00:38:27",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:38:43",
+      "end": "00:38:55",
+      "text": "En esta nueva versión no imprimimos la etiqueta de bulto hasta que todos los componentes sean escaneados y vinculados para asegurar que todo está dentro del embalaje cuando se acaba el proceso."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:43",
+      "end": "00:38:44",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:38:56",
+      "end": "00:39:02",
+      "text": "Vale, muy bien, así eso. Mira, eso mataría uno de los problemas que tuvimos. Muy bien hecho, muy bien."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:39:00",
+      "end": "00:39:01",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:39:03",
+      "end": "00:39:06",
+      "text": "Muy bien, vale, vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:39:08",
+      "end": "00:39:12",
+      "text": "Esto es lo que todo lo único que hay, no hay, no hay ninguna otra cosa, ¿vale?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:39:14",
+      "end": "00:39:17",
+      "text": "Y ahora una pregunta en Zoomex."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:39:18",
+      "end": "00:39:38",
+      "text": "Se había creado un sucedáneo de Peak to Voice que, en definitiva, con esta misma filosofía de pistolear un componente concreto que se había cogido o hacer los pasos en un determinado orden, pues garantizaba que todo se hacía bien. ¿Es correcto eso?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:39:40",
+      "end": "00:39:42",
+      "text": "¿Podemos verla ahora esa aplicación Max?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:39:43",
+      "end": "00:39:43",
+      "text": "Uy."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:39:51",
+      "end": "00:39:51",
+      "text": "No."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:39:59",
+      "end": "00:39:59",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:00",
+      "end": "00:40:01",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:03",
+      "end": "00:40:03",
+      "text": "Ahora sí."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:40:04",
+      "end": "00:40:04",
+      "text": "sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:05",
+      "end": "00:40:05",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:07",
+      "end": "00:40:26",
+      "text": "Inicialmente, esta es la aplicación. Aquí iniciamos ponen el número de operario en el mío aquí para probar. La transcripción no será hecho, o sea, él no va a pasar para los próximos pasos, porque como estoy con el micrófono activa en la llamada, eso subscribe."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:27",
+      "end": "00:40:38",
+      "text": "la función de la aplicación del pick to bols, pero yo tendría aquí solamente que decir pin bueno, apues ya había comprobado que está todo correcto."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:39",
+      "end": "00:40:42",
+      "text": "Él me voy a ver si consigo mismo con el micrófono aquí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:44",
+      "end": "00:40:44",
+      "text": "Sí, él."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:40:44",
+      "end": "00:40:58",
+      "text": "No, pero no hace falta, no hace falta aquí. El caso es que tú le muestras en una pantalla, si queremos el texto y una fotografía, correcto, y paralelamente en el auricular se lo está diciendo al trabajador. ¿Es correcto?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:52",
+      "end": "00:40:53",
+      "text": "Exacto, ajá."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:40:59",
+      "end": "00:41:02",
+      "text": "Sí, a ver si cebolla conseguís oír."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:00",
+      "end": "00:41:00",
+      "text": "Seat."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:02",
+      "end": "00:41:03",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:04",
+      "end": "00:41:06",
+      "text": "No, entonces voy a configurar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:05",
+      "end": "00:41:23",
+      "text": "Pero da igual, lo entendemos. Le está diciendo toda la frase que tú has puesto, no colocar en motor 001565230 V puntera hueca. Todo ese texto se lo está diciendo al trabajador por voz de acuerdo y los."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:08",
+      "end": "00:41:09",
+      "text": "I got."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:11",
+      "end": "00:41:11",
+      "text": "Cortana."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:18",
+      "end": "00:41:18",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:21",
+      "end": "00:41:26",
+      "text": "Esa y si le digo bien, bueno, él se pasa al próximo like."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:27",
+      "end": "00:41:47",
+      "text": "Fenomenal, vale, esto tiene exactamente el mismo cariz que el pick to voice que tenemos en cristales. Vale, ¿qué más tienes? Una pregunta, Max, lo mismo que puedo responder, pin bueno, puedo simplemente escanear un componente."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:32",
+      "end": "00:41:32",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:41:44",
+      "end": "00:41:44",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:47",
+      "end": "00:41:52",
+      "text": "Y si la lectura es la esperada, lo entiende igualmente y pasa al siguiente paso."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:53",
+      "end": "00:41:57",
+      "text": "¿Puedo implementar eso? Actualmente nueva tiene esa función."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:41:56",
+      "end": "00:42:15",
+      "text": "Ya, pero no es mucho pedir, no decir imagínate, imagínate que donde pone colocar el motor, en lugar de eso hay una frase que dice, vámonos a la aplicación que está haciendo Joan, inserta la puerta número uno y yo en lugar de decirle, pin bueno."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:41:59",
+      "end": "00:42:01",
+      "text": "Oh, I sweet can see you."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:03",
+      "end": "00:42:04",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:42:15",
+      "end": "00:42:26",
+      "text": "Escaneo un componente, o sea, lo mismo que Joan está haciendo, tu aplicación sería capaz de leer ese código de barras o lo que sea, claro, digamos por."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:20",
+      "end": "00:42:20",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:24",
+      "end": "00:42:28",
+      "text": "También sí puede hacer la vinculación entre las explicaciones."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:42:28",
+      "end": "00:42:40",
+      "text": "Por ejemplo, el pick to voice, cuando tú das de alta una instrucción como sería este, cuando el ingeniero la crea, puede decir respuesta esperada y tiene para elegir por voz."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:35",
+      "end": "00:42:35",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:39",
+      "end": "00:42:40",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:42:41",
+      "end": "00:42:45",
+      "text": "O por lectura de escaneado, vale, eso fue."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:45",
+      "end": "00:42:45",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:42:45",
+      "end": "00:42:57",
+      "text": "Una pregunta, perdonadme, también podría detectar una señal de un PLC, por ejemplo, de un de presencia de pieza en mesa de montaje."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:42:58",
+      "end": "00:43:00",
+      "text": "Amén, con Arduinos."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:42:59",
+      "end": "00:43:02",
+      "text": "¿Cómo poder configurarse se podría, no?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:02",
+      "end": "00:43:03",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:43:03",
+      "end": "00:43:04",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:03",
+      "end": "00:43:05",
+      "text": "También lo consigue así."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:43:05",
+      "end": "00:43:17",
+      "text": "De hecho, De hecho, también claro, el pick to voice de ahí bajo, Pedro, una de las cosas que tiene también es que sabe reconocer que algo ha pasado por un determinado lugar y entonces da pie al siguiente paso, efectivamente."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:43:16",
+      "end": "00:43:19",
+      "text": "Salto, vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:43:21",
+      "end": "00:43:23",
+      "text": "Sigue, sigue, Max."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:22",
+      "end": "00:43:24",
+      "text": "A ver si esto va para adelante, bueno."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:27",
+      "end": "00:43:28",
+      "text": "No, no."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:29",
+      "end": "00:43:30",
+      "text": "En fin."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:31",
+      "end": "00:43:41",
+      "text": "Se iba a pasar para los próximos y ellos los operal tenía que seguir el mismo proceso de decir pingüino, si está todo correctamente, ahí llega el final."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:43:43",
+      "end": "00:44:02",
+      "text": "Vale, eso es un proceso de espera porque estaba cargando los archivos. Toda vez que paso de uno para el otro oigo la instrucción, entonces solo me pasa para la próxima si le digo pin bueno o si le digo bueno o poniendo esa función con una"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:44:03",
+      "end": "00:44:05",
+      "text": "Un escaneado o lo que o lo que sea."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:03",
+      "end": "00:44:08",
+      "text": "Es toda para leer QR, sí, exacto, se puede pasar también para el próximo slide."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:10",
+      "end": "00:44:17",
+      "text": "Vale, además de eso, tenemos los logs de todas las todos los pasos si han sido hechos o no."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:44:10",
+      "end": "00:44:11",
+      "text": "Okay, okay."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:44:18",
+      "end": "00:44:18",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:19",
+      "end": "00:44:39",
+      "text": "Vamos a espera que se cargue. Ahí podemos monitorear de aquí también cual paso ha fallado porque a veces la el sistema no ha oído bien que has dicho bueno y ha pasado por pasar, pero no has revisado la pieza. Entonces aquí vemos y se me hace una verificación, no te deja pasar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:44:21",
+      "end": "00:44:22",
+      "text": "No."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:44:23",
+      "end": "00:44:23",
+      "text": "Dame one."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:44:37",
+      "end": "00:44:37",
+      "text": "K."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:39",
+      "end": "00:44:43",
+      "text": "Para el próximo componente, si no están todos verificados."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:44:44",
+      "end": "00:44:45",
+      "text": "Efectivamente."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:44",
+      "end": "00:44:52",
+      "text": "Aquí no está cargando, probablemente porque como esta es la versión de desarrollo, la versión en que avocándose y todo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:44:53",
+      "end": "00:44:54",
+      "text": "No estará cargado en el sistema."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:44:54",
+      "end": "00:45:07",
+      "text": "Da igual, pero lo entendemos. Además, es literalmente lo que ya tenemos en el 66. Esto es el pick to voice, pero mejorado. Una pregunta, Max, una pregunta."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:45:01",
+      "end": "00:45:02",
+      "text": "Be."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:45:05",
+      "end": "00:45:05",
+      "text": "Uh-huh."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:45:06",
+      "end": "00:45:06",
+      "text": "Hmm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:45:09",
+      "end": "00:45:11",
+      "text": "En esta consola que vemos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:45:09",
+      "end": "00:45:10",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:45:12",
+      "end": "00:45:16",
+      "text": "Esas operaciones, esos pasos que tú nos estás enseñando."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:45:19",
+      "end": "00:45:22",
+      "text": "Ah, se me ha caído el servidor, pero voy a revisar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:45:21",
+      "end": "00:45:22",
+      "text": "You koi?"
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:45:24",
+      "end": "00:45:27",
+      "text": "Y todo esto, cuando tenga todos los pasos, ya te imprime la etiqueta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:45:29",
+      "end": "00:45:29",
+      "text": "Por ejemplo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:45:29",
+      "end": "00:45:29",
+      "text": "B."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:45:34",
+      "end": "00:45:41",
+      "text": "Y el material cuando lo descuenta, cuando le digo OK lo he puesto o lo he pistoleado o cuando hago el albarán."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:45:42",
+      "end": "00:45:45",
+      "text": "A ver, esto no es Wales."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:45:45",
+      "end": "00:45:48",
+      "text": "O sea, no tiene acciones, no está lincado, vale."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:45:46",
+      "end": "00:45:47",
+      "text": "No tiene nada que ver."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:45:47",
+      "end": "00:46:08",
+      "text": "Esto lo que puede es estar lincado, es decir, el pick to voice. Claro, ellos no están haciendo un sistema conectado a Whales, están haciendo un sistema de ayuda al operario. Una vez una vez ejecutado y en marcha, efectivamente, cada PIN bueno, cada PIN bueno se convierte."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:45:51",
+      "end": "00:45:52",
+      "text": "Carol."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:45:53",
+      "end": "00:45:54",
+      "text": "No, pero que ahora no. mhm."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:46:00",
+      "end": "00:46:00",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:46:04",
+      "end": "00:46:04",
+      "text": "Hola."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:46:04",
+      "end": "00:46:04",
+      "text": "Hello!"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:46:08",
+      "end": "00:46:19",
+      "text": "En una llamada a Wales, donde si lo que tocaba en ese momento era montar un determinado componente, pues lo descuenta. Eso es lo que hace hoy en día el P2 Voice."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:46:22",
+      "end": "00:46:43",
+      "text": "Pero vamos, ahora mismo no es la prioridad. Ahora mismo no es la prioridad, porque cuando nosotros montamos power tenemos una orden de fabricación. Entonces es entra la orden de fabricación y cuando termine, por ejemplo, en la declaración de producción, cierra y descuenta todos los todos los componentes. Ahí ya podemos entrar."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:46:22",
+      "end": "00:46:25",
+      "text": "Dentro de veo algunos minutos, ya vuelve a normales."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:46:25",
+      "end": "00:46:26",
+      "text": "No, yeah."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:46:26",
+      "end": "00:46:27",
+      "text": "No shot."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:46:32",
+      "end": "00:46:33",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:46:43",
+      "end": "00:46:48",
+      "text": "¿En si lo hacemos en tiempo real o no, pero primero lo consigues abrir Max o qué?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:46:50",
+      "end": "00:47:00",
+      "text": "Con file todavía es el servidor, me ha dado un error aquí con un archivo corrompido mientras volvía a la sesión de crear nuevos productos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:03",
+      "end": "00:47:05",
+      "text": "Pero en algunos minutos ya estará."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:06",
+      "end": "00:47:08",
+      "text": "Me está cargando, pues aquí todos los módulos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:07",
+      "end": "00:47:13",
+      "text": "Vale, pues mientras carga, mientras carga, vamos a ver más preguntas que nos interesa a todos."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:13",
+      "end": "00:47:14",
+      "text": "Bye."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:14",
+      "end": "00:47:21",
+      "text": "Imagínate un determinado paso de los objetos visto ahí donde queramos que se repita."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:17",
+      "end": "00:47:18",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:23",
+      "end": "00:47:24",
+      "text": "Cada 2 horas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:25",
+      "end": "00:47:31",
+      "text": "Cada 50 piezas, es decir, con una determinada frecuencia se puede llegar a introducir."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:31",
+      "end": "00:47:35",
+      "text": "A ver, espera, explícame otra vez determinada a ver."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:33",
+      "end": "00:47:34",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:35",
+      "end": "00:47:54",
+      "text": "Claro, tú nos has enseñado algún paso ahí, no que tienes que contestar. Pim bueno, nosotros vamos a pretender, vamos a pretender 2 cosas, que algunos de esos pasos no se den en el 100 * 100% de los componentes, es decir, 1.1 determinada frecuencia."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:38",
+      "end": "00:47:39",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:40",
+      "end": "00:47:41",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:43",
+      "end": "00:47:43",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:47:50",
+      "end": "00:47:50",
+      "text": "A."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:51",
+      "end": "00:47:51",
+      "text": "Bye."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:47:54",
+      "end": "00:48:14",
+      "text": "Es decir, yo tengo una mesa o un puesto de trabajo donde yo tengo instrucciones o pasos llamados pasos. Bien, ahora mismo, tal y como está, si yo creo 5 pasos para cada artículo, me vas a obligar a hacer los 5 pasos. Eso es lo que tú ahora mismo estás haciendo. Ahora yo te pregunto, yo quiero que me introduzcas un paso."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:55",
+      "end": "00:47:55",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:47:59",
+      "end": "00:47:59",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:01",
+      "end": "00:48:01",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:05",
+      "end": "00:48:05",
+      "text": "Y."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:10",
+      "end": "00:48:11",
+      "text": "Sí, correcto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:48:14",
+      "end": "00:48:20",
+      "text": "Que solo se haga cada 75 cada 75 artículos. Eso es posible."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:20",
+      "end": "00:48:28",
+      "text": "Es posible, pero utilizando Excel, eso no es viable. Entonces yo cambiaría la opción de utilizar Excel."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:48:26",
+      "end": "00:48:30",
+      "text": "¿Pero qué Excel, qué Excel? ¿A qué te refieres con Excel?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:29",
+      "end": "00:48:49",
+      "text": "Inicialmente esa aplicación ha sido utilizada recogiendo estos datos a las imágenes, a las instrucciones y todo era estaba imputada ya en un Excel. Entonces, para desarrollarlo más rápido lo hicimos así, pero para que sea con cómo va para producción."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:48:49",
+      "end": "00:49:09",
+      "text": "Y eso va a utilizar con más componentes. Con un Excel no sería viable e implementaría un file storage en la aplicación. Podemos interligar eso en todos los demás sistemas y crear instrucciones nuevas y mantenerlas ahí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:09",
+      "end": "00:49:28",
+      "text": "En la propia aplicación registra desigualdad. Si queremos retomar el paso que ya está que esté creado, lo retomamos. Si hay un paso que no ha sido creado, pero lo queremos implementar en un componente que yo creo en la plataforma, lo haría completamente. y."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:29",
+      "end": "00:49:33",
+      "text": "Se podría utilizar la aplicación con ese paso nuevo adicional."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:49:37",
+      "end": "00:49:39",
+      "text": "¿Una pregunta, Max, cómo?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:39",
+      "end": "00:49:39",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:49:40",
+      "end": "00:49:43",
+      "text": "Coge la información ahora el pick to voice de Fox."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:45",
+      "end": "00:49:45",
+      "text": "Default."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:49:45",
+      "end": "00:49:51",
+      "text": "¿Que define, define tu pregunta, yo te la responderé mejor que Max, a lo mejor, qué es lo que estás preguntando exactamente?"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:49:49",
+      "end": "00:49:49",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:49:51",
+      "end": "00:49:51",
+      "text": "No."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:49:52",
+      "end": "00:50:07",
+      "text": "Tú ahora tienes este pick to voice, le das la información en Excel, lo coges en Excel. For no te da secuencias diarias, no te da del mes a nil saca secuencias y tú de ahí vas cogiendo la información de cada cristal lo que tienes que montarle."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:55",
+      "end": "00:49:56",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:49:57",
+      "end": "00:49:58",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:01",
+      "end": "00:50:01",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:50:02",
+      "end": "00:50:02",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:50:09",
+      "end": "00:50:09",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:09",
+      "end": "00:50:12",
+      "text": "O sea, tú ya lo coges de una base de datos que no es una Excel."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:50:12",
+      "end": "00:50:31",
+      "text": "No es que no estás confundiendo lo que él te quiere decir con lo que tú dices en la plataforma actual llamada Pick to Voice. Yo tengo una consola, tengo una consola de administración, que eso hoy en día, en lo que te acaba de enseñar Max, no existe, existe un Excel. en."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:50:17",
+      "end": "00:50:17",
+      "text": "En."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:20",
+      "end": "00:50:21",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:22",
+      "end": "00:50:22",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:25",
+      "end": "00:50:26",
+      "text": "Oh."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:25",
+      "end": "00:50:26",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:30",
+      "end": "00:50:32",
+      "text": "Vale, eso es lo que yo quería decir."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:50:31",
+      "end": "00:50:35",
+      "text": "En la consola, En la consola de Administración de la consola de gestión."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:32",
+      "end": "00:50:35",
+      "text": "¿Qué miremos?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:50:36",
+      "end": "00:50:39",
+      "text": "En la persona de gestión, yo como ingeniero."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:38",
+      "end": "00:50:39",
+      "text": "Tiene mañana de agua."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:50:39",
+      "end": "00:50:40",
+      "text": "A."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:50:40",
+      "end": "00:51:00",
+      "text": "Yo creo, yo creo una estación. ¿Te pasa algo, Emilio? Yo creo una estación, vale, y entonces yo escribo un paso, vale, Pedro, y digo coger conectores y lo que le digo al paso, le digo varias cosas, pero la primera que le digo es la ecuación matemática."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:50",
+      "end": "00:50:50",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:50:52",
+      "end": "00:50:53",
+      "text": "A ver."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:50:55",
+      "end": "00:50:56",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:51:01",
+      "end": "00:51:02",
+      "text": "¿Que es la E o C?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:51:03",
+      "end": "00:51:21",
+      "text": "Vale, esto es un poquito complicado para lo que no estáis familiarizados. Entonces, cuando el coche sea un 1800 turbo diésel de conducción derecha, le escribo la ecuación, vale, es decir, cuando la posición uno de la E o C sea un uno y la posición 18 de la o C sea una zeta y la posición 89 sea una W."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:05",
+      "end": "00:51:05",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:08",
+      "end": "00:51:08",
+      "text": "One."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:09",
+      "end": "00:51:09",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:11",
+      "end": "00:51:11",
+      "text": "E."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:19",
+      "end": "00:51:20",
+      "text": "I want to do."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:51:22",
+      "end": "00:51:42",
+      "text": "Si se da esa condición, pídeme este paso. Entonces, a continuación viene todo lo que tú has visto, le insertas la frase y le insertas la respuesta esperada. Vale, cuando dices pin bueno y pasa al siguiente paso, el ingeniero ha escrito todos los pasos, pero cada paso solo se ejecuta si el vehículo de Ford."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:51:22",
+      "end": "00:51:22",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:25",
+      "end": "00:51:25",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:38",
+      "end": "00:51:38",
+      "text": "Ven."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:42",
+      "end": "00:51:43",
+      "text": "Oh."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:51:42",
+      "end": "00:52:01",
+      "text": "En su e o C, que es lo primero que ha leído el sistema, cumple los parámetros dichos. De esa forma, yo escribo una secuencia de actividades general, o sea, el montaje de un parabrisas puede tener 180 líneas, pero cada una de ellas tiene una ecuación matemática."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:46",
+      "end": "00:51:46",
+      "text": "Hola."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:50",
+      "end": "00:51:50",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:54",
+      "end": "00:51:55",
+      "text": "David."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:51:56",
+      "end": "00:51:57",
+      "text": "Look at the mouse."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:51:57",
+      "end": "00:51:57",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:01",
+      "end": "00:52:01",
+      "text": "Estoy bien."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:52:01",
+      "end": "00:52:20",
+      "text": "Y cuando cuando el cristal es leído y lo vincula la o C del vehículo, que eso sí que te lo da Ford. Entonces, si la de las 180 líneas solo aplican 12, que son las que cumplen con ciertas características, que con que el coche sea de cuatro puertas, de 5 puertas, que sea cromado, que no sea cromado. ¿Me comprendes?"
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:52:12",
+      "end": "00:52:12",
+      "text": "But..."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:12",
+      "end": "00:52:13",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:14",
+      "end": "00:52:15",
+      "text": "De los servicios."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:17",
+      "end": "00:52:18",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:52:20",
+      "end": "00:52:20",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:52:21",
+      "end": "00:52:41",
+      "text": "Es bastante más complejo que lo que estamos haciendo ahora. Entonces, lo que él te ha querido decir es que aquí, por las prisas, no se construye una consola de gestión donde permitir a quien está creando el puesto de trabajo de una forma amigable y amistosa dar de alta una instrucción con su fotografía."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:29",
+      "end": "00:52:30",
+      "text": "Este."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:37",
+      "end": "00:52:37",
+      "text": "Estoy aquí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:52:41",
+      "end": "00:52:55",
+      "text": "En lugar de eso, lo que a Max se le dio por la vía rápida fue un Excel estructurado y él lo que hizo fue replicarlo a un sistema de ayuda visual. No es lo mismo, evidentemente."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:53",
+      "end": "00:52:53",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:52:53",
+      "end": "00:52:54",
+      "text": "But..."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:54",
+      "end": "00:52:54",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:52:57",
+      "end": "00:53:08",
+      "text": "Lo que hagamos debe de tener una estructura integrada que no vaya a Exceles. Tanto el de Joan como lo que hemos visto de Max son herramientas de contención, pero no es lo que quisiéramos tener."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:52:57",
+      "end": "00:52:57",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:53:04",
+      "end": "00:53:04",
+      "text": "No, pero."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:53:06",
+      "end": "00:53:06",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:10",
+      "end": "00:53:11",
+      "text": "¿Lo he explicado bien, no?"
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:53:10",
+      "end": "00:53:12",
+      "text": "Vale, sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:53:12",
+      "end": "00:53:20",
+      "text": "Dice, yo consigo dejar el sistema robusto para recoger datos y almacenar sin utilizar Excel."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:13",
+      "end": "00:53:14",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:20",
+      "end": "00:53:39",
+      "text": "Yo, pero yo me pregunto una cosa y ahora ya os la digo muy en serio, a Pablo, a María, a Chimo, a Max, a todos los que estáis aquí. Si nosotros, con todos los problemas que hemos tenido de Power en 5 meses o en cuatro, desde que se tomó con soliedad lo de hacer una lectura."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:40",
+      "end": "00:53:47",
+      "text": "No hemos sido capaces de ultimar un sistema informático que controle el montaje de power."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:49",
+      "end": "00:53:55",
+      "text": "¿De verdad, de verdad es factible que ahora inventemos una herramienta?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:53:57",
+      "end": "00:54:11",
+      "text": "O sea, se puede confiar en nosotros mismos porque yo no estoy tan seguro de que no seamos un poco cantamañanas, que digamos muchas cosas, pero luego todo se queda en el tintero. O sea, esto ya va por Raúl y compañía. Nos vemos capaces de hacer una herramienta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:54:12",
+      "end": "00:54:19",
+      "text": "Similar a la que hay en ahí bajo en el 66, que de verdad el servicio que queremos aquí arriba."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:54:20",
+      "end": "00:54:22",
+      "text": "¿Y por qué no lo crees?"
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:54:23",
+      "end": "00:54:36",
+      "text": "Mira, porque es lo que te he comentado al principio de mi frase, porque es que ya en cuatro meses entre Pablo y los demás que habéis estado colaborando no hemos hecho un producto que sea fiable."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:32",
+      "end": "00:54:33",
+      "text": "This is a company."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:36",
+      "end": "00:54:37",
+      "text": "Thank you."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:54:37",
+      "end": "00:54:38",
+      "text": "Que ya exista."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:41",
+      "end": "00:54:41",
+      "text": "Thank you."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:42",
+      "end": "00:54:43",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:47",
+      "end": "00:54:52",
+      "text": "I think that's what that's what I do."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:54:52",
+      "end": "00:54:53",
+      "text": "A mí."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:54:55",
+      "end": "00:54:55",
+      "text": "A."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:54:55",
+      "end": "00:54:56",
+      "text": "Última semana y media."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:54:56",
+      "end": "00:54:57",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:54:57",
+      "end": "00:55:03",
+      "text": "A mí, si me preguntas, si me preguntas si soy capaz de crear una aplicación, ciérrate eso, Max."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:54:57",
+      "end": "00:55:02",
+      "text": "A mí siempre las preguntas si soy capaz de de crear una aplicación."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:55:04",
+      "end": "00:55:04",
+      "text": "Ya está."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:55:05",
+      "end": "00:55:15",
+      "text": "Si me preguntas si soy capaz de crearte una aplicación informática capaz de leer algoritmos y leer historias para hacer este tipo de cosas tipo un pick to voice, no, si te soy sincero, no tengo ni **** idea."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:55:15",
+      "end": "00:55:24",
+      "text": "No, a ti no te está preguntando si eres capaz de hacerlo, sino de definirlo, de definirlo. Sí, pero tú estás en la parte del proceso que corresponde."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:55:19",
+      "end": "00:55:21",
+      "text": "No ha dicho que Pablo y todos los que estáis aquí abajo."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:55:23",
+      "end": "00:55:37",
+      "text": "Vale, pero ha dicho que Pablo y todos los que estáis ahí abajo si habéis sido capaces en cuatro o 5 meses, meses de hacer una aplicación lo suficientemente robusta como para. Yo le respondo a Javi que no, yo no soy capaz, no tengo ni idea."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:55:38",
+      "end": "00:55:47",
+      "text": "Y me parece muy humilde y muy sincero. Y te agradezco, Pablo, porque a veces da miedo y luego tenemos que reconocer nuestras propias limitaciones. Aquí es muy importante."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:55:45",
+      "end": "00:55:57",
+      "text": "Yo soy capaz de decirles quiero esto, pero yo no sé detrás lo que hacen para hacerlo. De hecho ni me preocupan cómo lo hacen. Quiero que funcione y punto. Yo no sé si detrás tiene un Excel por lo que has dicho de les has pasado un Excel de no sé qué, yo no les he pasado nada."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:55:53",
+      "end": "00:55:53",
+      "text": "Pita."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:55:58",
+      "end": "00:56:16",
+      "text": "Pero eso estoy diciendo que a ti no te está pidiendo que lo hagas, sino que lo pidas o lo definas. Lo que quería añadir yo a lo que estaba comentando Raúl, no llevamos cuatro meses diseñando esta aplicación. Llevamos cuatro meses peleándonos con Santos para que nos hiciera algo útil y esta pobre gente se ha encontrado lo que se ha encontrado que bebe de un Excel y que tiene que ser."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:56:17",
+      "end": "00:56:19",
+      "text": "Una aplicación hecha."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:56:19",
+      "end": "00:56:19",
+      "text": "Book."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:56:20",
+      "end": "00:56:39",
+      "text": "Estrictamente y o sea súper particular para cada uno de los procesos, que es precisamente lo que nosotros hemos estado queriendo evitar todo este tiempo y no hemos conseguido hasta el momento. Y ahora ellos lo único que he estado intentando hacer es con lo que se han encontrado, dar un mínimo servicio para que podamos trabajar. Pero la idea no es tener este tipo de aplicaciones."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:56:40",
+      "end": "00:56:45",
+      "text": "Vamos de ninguno, creo que ninguno quiere hacer la faena desde cero cada vez que entra una pieza nueva."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:56:46",
+      "end": "00:57:05",
+      "text": "Claro, entonces podríamos podríamos decir que nos atrevemos. Yo lo que tengo miedo de verdad, María, tengo miedo de ser un ingenuo y confiar y luego estar dando un trabajo y que la gente se frustre. Yo prefiero saberlo de antemano y que se me diga."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:56:51",
+      "end": "00:56:51",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:56:56",
+      "end": "00:56:56",
+      "text": "Ya."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "00:57:02",
+      "end": "00:57:03",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:57:05",
+      "end": "00:57:07",
+      "text": "Nosotros ahí no llegamos."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:57:10",
+      "end": "00:57:18",
+      "text": "Pero una pregunta tengo yo, Max es bueno, Max y a Raúl, lo que habéis enseñado de Zoomex."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:19",
+      "end": "00:57:19",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:57:21",
+      "end": "00:57:39",
+      "text": "¿Cómo de difícil? Porque Max tú sí que has visto cómo es el montaje de techos. Habrás visto que en pasos son 5 o 6 y no son mucho más complicados de lo que están ahí. Podemos empezar con la base de datos de Excel y con Pick to Boys en vez de."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:25",
+      "end": "00:57:26",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:30",
+      "end": "00:57:31",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:34",
+      "end": "00:57:35",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:38",
+      "end": "00:57:38",
+      "text": "It."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:57:39",
+      "end": "00:57:50",
+      "text": "Altura y después ir mejorándolo, pero de aquí a 2 semanas a versión punto uno cero del sistema S con los procesos que son, lo vemos."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:57:51",
+      "end": "00:57:52",
+      "text": "De tenerlo preparado."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:51",
+      "end": "00:57:53",
+      "text": "No, pero es que."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:57:53",
+      "end": "00:58:13",
+      "text": "Yo particularmente ni ni quiero poner esa aplicación en desarrollo y utilizar el Excel. Esto está en Excel porque yo he recogido el código que ya estaba cuando lo iniciamos. Ahí tuvieron que utilizar esa aplicación en Zoom Ex, pero después es que no he retrabajado, pues en el refactorado para dejarla más robusta."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:11",
+      "end": "00:58:17",
+      "text": "Claro, pero ahora solo tenemos 2 semanas, perdona Max, solo tenemos 2 semanas para el arranque."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:58:17",
+      "end": "00:58:18",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:18",
+      "end": "00:58:27",
+      "text": "Podemos hacer algo que nos que el operario lo vaya guiando como versión 1.0 y después ya vamos mejorando, pum, pum, pum, pum."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:58:23",
+      "end": "00:58:24",
+      "text": "But."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:58:28",
+      "end": "00:58:37",
+      "text": "Sí, claramente, y todavía más, porque ya tenemos la versión anterior, que bueno, ella está más fácil para hacer la versión 2 más robusta."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:29",
+      "end": "00:58:30",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:33",
+      "end": "00:58:35",
+      "text": "Exacto, o sea, que incluso podemos llegar a un."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:38",
+      "end": "00:58:57",
+      "text": "Vale, pues el yo lo que haría es mañana Jazmin y tú y yo también nos sentamos a ver el proceso 1234, lo que queremos. Vale, nosotros ya tenemos fotos y todo que ya estamos preparando la hoja de procesos."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "00:58:46",
+      "end": "00:58:46",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:58:58",
+      "end": "00:58:58",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:58:59",
+      "end": "00:59:13",
+      "text": "Y el miércoles vamos a montar 5 preseries que podemos estar ahí hablando y comentando para el lunes de la semana que viene, mostrar qué queremos y en las 5 preseries de la semana que viene intentar que el sistema nos ayude."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:59:14",
+      "end": "00:59:16",
+      "text": "Sí, entiendo, mi idea."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:59:15",
+      "end": "00:59:18",
+      "text": "Lo que vamos a necesitar son, perdón."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:59:16",
+      "end": "00:59:21",
+      "text": "Lo vemos muy ajustado en posible posible."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "00:59:19",
+      "end": "00:59:36",
+      "text": "Lo que vamos a necesitar, si la información por vuestra parte está pronto, clara y completa, será ya problema nuestro. Pero sí, lo único que no sea que no sea eso el limitante. Si eso no es el limitante, nosotros nos ponemos a ello."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:59:28",
+      "end": "00:59:32",
+      "text": "La tenemos ya Raúl, tenemos las referencias, a lo mejor hay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:59:28",
+      "end": "00:59:29",
+      "text": "Por eso."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:59:31",
+      "end": "00:59:34",
+      "text": "I've seen in the schools."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "00:59:36",
+      "end": "00:59:47",
+      "text": "Sí, nosotros tenemos los procesos como queremos. ¿Cómo será el puesto de montaje? A lo mejor hay 3 cambios de nivel, no se da hasta qué nivel eso se puede afectar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:59:48",
+      "end": "00:59:57",
+      "text": "Vale, pero yo he dado una estación, vale, la aplicación es que digamos requerimientos Max."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "00:59:58",
+      "end": "00:59:58",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "00:59:58",
+      "end": "01:00:17",
+      "text": "Yo tengo que poder crear una estación por mí mismo y mañana otra, porque hoy crearán la estación Techos y mañana pueden crear la estación Montaje de Puertas o de lo que les dé la gana. Entonces, criterio número uno, que yo pueda crear estación."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:00:18",
+      "end": "01:00:38",
+      "text": "Luego debo de poder evidentemente estructurar los pasos en el orden en el que yo quiera. Eso ha quedado claro que la información estará y luego debo de permitir introducir controles de calidad, que no deja de ser una instrucción más, solamente que tiene la peculiaridad que la puedo querer hacer con distinta frecuencia."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:00:39",
+      "end": "01:00:47",
+      "text": "En lugar de hacerla siempre, yo no la voy a querer hacer hasta que no haya pasado un ciclo o siempre, si la quiero, siempre, siempre."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:00:48",
+      "end": "01:00:49",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:00:48",
+      "end": "01:01:11",
+      "text": "Pero yo quiero poder autocontrolarme. O sea, es fundamental que en un proceso de assemble el sistema férreo me permita introducir pasos que confirmen el estado de la calidad del producto. Por ejemplo, si yo tengo que montarle cuatro tacos, yo puedo introducir un paso que sea monta un taco, monta un taco, monta un taco. Fenomenal."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:01:12",
+      "end": "01:01:31",
+      "text": "Y yo digo, pin bueno, pin bueno, pin bueno, yo quiero. A mí me da la gana decir pásale la galga y me lo haces en 100 * 100% o cada 25. Y entonces esto me debe de obligar, como hacemos en el sistema de cristales, a coger una galga con mis manos y a ponérsela a ver si los cuatro tacos están, ¿no?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:01:27",
+      "end": "01:01:27",
+      "text": "Look up."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:01:28",
+      "end": "01:01:28",
+      "text": "It."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:01:31",
+      "end": "01:01:50",
+      "text": "No sé si me estás comprendiendo más. Lo que nosotros hacemos además en cristales es que a la galga esta de presencia o lo que fuera, le ponemos una pegatina con un código bidi. Por lo tanto, se convierte en un elemento a montar que no montamos. Entonces, cuando le decimos pásale la galga."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:01:33",
+      "end": "01:01:33",
+      "text": "5."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:01:39",
+      "end": "01:01:39",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:01:50",
+      "end": "01:02:09",
+      "text": "El sistema exige primero que leas la galga. De esa forma ya sé que la tengo en la mano, que no he dicho que la he pasado y es mentira y con la galga, como la he leído, me la entiende y luego digo ya pin, bueno, qué quiere decir, la he pasado y funciona muy bien. Los cuatro tacos están, es decir, no sé si me estoy explicando bien."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:01:52",
+      "end": "01:01:52",
+      "text": "A."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:01:57",
+      "end": "01:01:59",
+      "text": "You're welcome."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:00",
+      "end": "01:02:01",
+      "text": "I've been with."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:04",
+      "end": "01:02:04",
+      "text": "No."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:09",
+      "end": "01:02:11",
+      "text": "Sí, está claro."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:02:09",
+      "end": "01:02:10",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:02:11",
+      "end": "01:02:18",
+      "text": "Yo quiero que cada uno de los pasos yo pueda decir la frecuencia con la que se establecerá."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:02:19",
+      "end": "01:02:19",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:19",
+      "end": "01:02:22",
+      "text": "¿Quieres control total total sobre la reputación final?"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:02:21",
+      "end": "01:02:22",
+      "text": "Halo."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:02:23",
+      "end": "01:02:43",
+      "text": "De hecho, tú lo que quieres es una combinación entre la actual configuración del plan de control que tienes en Mapex ahora mismo y lo que viene siendo el pick to voice, porque en Mapex los planes de control, y lo digo por si Max no lo conoce, que supongo que no lo conocerá, está definido justo así."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:23",
+      "end": "01:02:24",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:02:43",
+      "end": "01:03:04",
+      "text": "Tú los planes planes de control de Mapex lo tienes asociado a un producto y lo puedes configurar de manera que te salga cada X piezas o por horas y es configurable a tu gusto solo al inicio o solo al final. Entonces, en ese aspecto es muy versátil y cuando estás hablando de eso, me estoy acordando de lo de Mapex por si quiere mirar e inspirarse."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:48",
+      "end": "01:02:48",
+      "text": "Mm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:51",
+      "end": "01:02:51",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:02:52",
+      "end": "01:02:52",
+      "text": "O."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:01",
+      "end": "01:03:01",
+      "text": "A."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:05",
+      "end": "01:03:10",
+      "text": "Sí, que también puedo conectarlo al picture voice y recoger eso."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:03:06",
+      "end": "01:03:06",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:03:06",
+      "end": "01:03:08",
+      "text": "O si lo o si lo tienes claro, lo tienes claro."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:03:08",
+      "end": "01:03:10",
+      "text": "sí, lo nos apoyamos."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:03:12",
+      "end": "01:03:14",
+      "text": "Entonces habrá varios tipos de paso."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:03:15",
+      "end": "01:03:16",
+      "text": "Los que sean de pieza."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:15",
+      "end": "01:03:21",
+      "text": "Pero hay una pregunta, es interesante, recoger ese dato de Mafix y asociarlo al picture voice."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:03:20",
+      "end": "01:03:30",
+      "text": "No, esto esto lo miraremos, lo miraremos tú y yo, Max. Lo que se refiere es que el modelo que queremos emplear a lo mejor podemos sacar información de cómo lo hace Mapex para hacerlo nosotros."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:31",
+      "end": "01:03:32",
+      "text": "Sending me."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:03:31",
+      "end": "01:03:34",
+      "text": "Eso lo miramos nosotros más o menos."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:03:32",
+      "end": "01:03:52",
+      "text": "O sea, tú vas a tener 2 tipos de pasos, unos que te sean de pasos de proceso que te indiquen cosas a hacer y otros pasos de control, y cada uno tendrá una frecuencia distinta. Unos estarán el 100 * 100% de la de en el 100 * 100% de las piezas en un momento determinado, que solo pasarán al siguiente cuando se le de okey y luego tendrás."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:34",
+      "end": "01:03:35",
+      "text": "Everyone's gonna love."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:03:41",
+      "end": "01:03:42",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:03:43",
+      "end": "01:03:44",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:03:52",
+      "end": "01:03:59",
+      "text": "Pasos es que te surgirán espontáneos durante el proceso porque son controles que a lo mejor es cada 100 piezas o cada hora."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:04:00",
+      "end": "01:04:19",
+      "text": "Vale, y una cosa es que yo necesitaría también aquí en la nave hay disponible ya esos materiales ya separados, sin que estén montados para que yo pueda sacar las fotos y hacer y ya empezar a hacer para ese miedo."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:04:16",
+      "end": "01:04:29",
+      "text": "Sí, aparte, las fotos las tiene Jazmin. Por eso, antes de que tú hagas fotos, sea Jazmin quien mira lo de Jazmin, por si puedes cogerte alguna idea de ella y no tener que hacerla tú."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:04:29",
+      "end": "01:04:48",
+      "text": "que mi idea sería como he visto el otro día de montar. Mi idea es coger todas las piezas, render, render, utilizarlas en 3D y están en 3D. Yo consigo mostrar al operar en la aplicación donde tiene que poner tal pieza."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:04:48",
+      "end": "01:04:50",
+      "text": "¿Exactamente cómo la tiene que poner?"
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:04:51",
+      "end": "01:04:56",
+      "text": "Ya tenemos el no ya estoy, tenemos el 3D de tenemos el 3D del techo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:04:52",
+      "end": "01:04:52",
+      "text": "¿Sabes?"
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "01:04:54",
+      "end": "01:04:55",
+      "text": "sí que hay."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "01:04:57",
+      "end": "01:04:59",
+      "text": "Tienes, yo no tengo el 3D."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:04:58",
+      "end": "01:04:58",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:04:59",
+      "end": "01:05:00",
+      "text": "I know."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:05:00",
+      "end": "01:05:03",
+      "text": "Porque si lo tenéis, es perfecto para."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "01:05:00",
+      "end": "01:05:01",
+      "text": "No."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:05:01",
+      "end": "01:05:04",
+      "text": "vale, pues lo podemos pedir."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:05:03",
+      "end": "01:05:09",
+      "text": "Bueno, esto nos nos sentamos tranquilamente y vemos todas las posibilidades que hay para hacer los pasos."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "01:05:04",
+      "end": "01:05:05",
+      "text": "No."
+    },
+    {
+      "speaker": "Jazmin Naranjo",
+      "start": "01:05:06",
+      "end": "01:05:06",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:05:07",
+      "end": "01:05:08",
+      "text": "Hmm."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:05:08",
+      "end": "01:05:26",
+      "text": "Yo tengo una pregunta barra sugerencia o no sé muy bien lo que precisamente por lo que estaban comentando antes tanto Raúl como Pedro. No quiero volver a hacer una herramienta de contención como la ha llamado Javi, pero sí que es cierto que para hacer todo esto."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:05:12",
+      "end": "01:05:13",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:05:26",
+      "end": "01:05:34",
+      "text": "Para la semana que viene, yo no soy responsable de tu departamento, Raúl, pero no sé si lo ves. No podemos definir una serie de."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:05:32",
+      "end": "01:05:51",
+      "text": "Escúchame, tranquilizaos, por favor, nosotros, o sea, estemos tranquilos. Nosotros definiremos con Pedro y Yasmin claramente los pasos que hay que hacer, los controles. Bueno, nos haremos una idea de todo lo que hay y diseñaremos una herramienta. Es que me estoy oyendo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:05:48",
+      "end": "01:05:48",
+      "text": "Y."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:05:51",
+      "end": "01:05:52",
+      "text": "Doble o triple o no sé."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:05:51",
+      "end": "01:05:52",
+      "text": "Doble, sí."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:05:53",
+      "end": "01:06:00",
+      "text": "No os preocupéis, hasta lo que se llegue, se llegará. Haremos un mínimo producto viable para poder empezar dentro de 2 semanas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:05:58",
+      "end": "01:06:01",
+      "text": "Max mutate, Max Mute."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:06:01",
+      "end": "01:06:01",
+      "text": "YouTube"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:06:01",
+      "end": "01:06:13",
+      "text": "A eso es lo que iba, que se pueda hacer una, a eso es lo que iba, que se podrá hacer primero una aplicación menos que más automatizada y esa irla desarrollando hacia la automatización plena."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:06:03",
+      "end": "01:06:04",
+      "text": "Será Max, vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:06:03",
+      "end": "01:06:03",
+      "text": "Yes."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:06:14",
+      "end": "01:06:27",
+      "text": "Efectivamente, Efectivamente, lo que aseguramos o vamos a asegurar cuando nos sentemos es que para el día que tiene que estar haya un mismo producto viable, por ejemplo, que se pueda empezar a trabajar con él."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:06:15",
+      "end": "01:06:16",
+      "text": "Eso me refería."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:06:28",
+      "end": "01:06:30",
+      "text": "Para todo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:06:29",
+      "end": "01:06:49",
+      "text": "Vale, pues si hay confianza fenomenal. Siguiente petición, es completamente necesario que tanto Toni como Pablo supervisen o exijan o colaboren en estas 2 semanas en lo que se quiera hacer, porque hay una practicidad."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:06:50",
+      "end": "01:07:10",
+      "text": "Que es fundamental tenerla en cuenta a la hora de ejecutar esto. Por ejemplo, la frase de 3 líneas que yo he visto en el montaje del motor de Zoomex, si Tony ve eso, se escojona y os ayuda y os dice, no, perdona, aquí como mucho te dejo 2 palabras, tú escribe lo que quieras y pone en la pantallita lo que quieras."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:07:10",
+      "end": "01:07:23",
+      "text": "Pero al oído tú le dices 2 palabras, porque a quienes no estamos acostumbrados nos puede parecer inviable, pero Toni te va a enseñar Max que llevamos 20 años funcionando así."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:07:24",
+      "end": "01:07:42",
+      "text": "Con 2 palabras, con una clave, que es lo que el operario le permite ir rápido. Vale, porque no olvidemos que hay que ser eficientes. Entonces a mí me gustaría, por favor, que lo que vayáis a hacer Pedro con Max. Yo quiero que lo supervisen tanto Pablo como Toni, como ellos buenamente se quieran organizar."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:07:43",
+      "end": "01:07:58",
+      "text": "Pero yo ahora mismo, a quien confío para que soliciten y exijan lo que se la planta necesita es en ellos, porque hay poca, es poca experiencia. Por lo demás, podemos ser más papistas que el Papa y construir algo que nos sirva. Yo necesito, dime."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:07:50",
+      "end": "01:07:50",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:07:58",
+      "end": "01:07:59",
+      "text": "Antonio, por favor."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:08:00",
+      "end": "01:08:18",
+      "text": "En Toni, pues Toni, Toni es quien mejor sabe lo que quiere porque lo ha vivido en sus carnes y lo vive a diario. Entonces sí que quiero nombrar claramente una persona de referencia que es quien quien supervisará a quien le tenéis que pedir permiso y a quien le tenéis que obedecer."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:08:18",
+      "end": "01:08:28",
+      "text": "Y si hay María ha dicho Toni, tiene que ser Toni y esto no hace de menos a nadie. Esto es que la experiencia de lo que de verdad es eficaz la tiene Toni."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:08:30",
+      "end": "01:08:31",
+      "text": "¿Os parece bien?"
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:08:32",
+      "end": "01:08:32",
+      "text": "Javier."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:08:32",
+      "end": "01:08:33",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:08:33",
+      "end": "01:08:34",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:08:36",
+      "end": "01:08:37",
+      "text": "I see."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:08:41",
+      "end": "01:08:43",
+      "text": "No por nada porque quiero a Pablo en otros frentes."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:08:44",
+      "end": "01:09:04",
+      "text": "Vale una cosa, recordar lo que yo he empezado diciendo, seamos versátiles, a mí me da la gana. Yo soy chimo y me da la gana crear una estación que se llame Control de Calidad Incoming porque me la suda. Y entonces yo tengo que poder decir qué controles le voy a hacer a algún producto en esa estación. Ya está, se son."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:09:04",
+      "end": "01:09:26",
+      "text": "Instrucciones, es decir, yo abro la estación de incoming de puertas y oye, pues si me pues me da la gana, pues me estarás preguntando por mis 3 cositas y yo haré ahí 50 unidades, las que chimo me diga y declaré 50 euros o 50 según el proceso. Lo mismo me da que le esté diciendo como instrucción, supervisa, supervisa, supervisa estas 5 características."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:09:26",
+      "end": "01:09:33",
+      "text": "A que me estés diciendo atornilla, es lo mismo al final, pero permitámoslo, vale que no se nos olvide eso, Toni."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:09:33",
+      "end": "01:09:33",
+      "text": "Sip."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:09:35",
+      "end": "01:09:48",
+      "text": "Porque luego la guerra de chimo y de todos los demás sobre si hacemos un incoming o se hace más o menos, siempre la podemos tener, pero que la herramienta nos lo permita porque no la no varía mucho lo que ya hay."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:09:36",
+      "end": "01:09:36",
+      "text": "No."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:09:52",
+      "end": "01:09:52",
+      "text": "Sí, de acuerdo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:09:53",
+      "end": "01:09:59",
+      "text": "Y luego, por favor, la estructura, el escandallo del producto, los componentes de un producto."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:10:00",
+      "end": "01:10:07",
+      "text": "Y esto se lo digo a los informáticos, la próxima vez que alguien os dé un Excel lo mandáis a *****, ni prisas ni prisos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:10:09",
+      "end": "01:10:28",
+      "text": "Es decir, los productos tienen su escandallo original en Sage y cualquier sistema o bebe de Sage o no existe para que lo tengamos claro, incluido lo que vamos a hacer ahora en las próximas 2 semanas. Si yo quiero constatar que esto contenga 7 componentes, si no los has dado de alta en la estructura de Sage, yo no los voy a leer."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:10:29",
+      "end": "01:10:52",
+      "text": "Lo mismo que la eficiencia, porque la siguiente pregunta será que lo conectemos a un click view o a un power bi o a lo que sea, a constatar la eficiencia del proceso de montaje, ni ni a que a nadie se le ocurra pensar que vamos a tener un Excel donde Pablo va a poner ahí 119 unidades por hora porque no me niego. En el escandallo de Sage está la operación de montaje."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:10:52",
+      "end": "01:10:57",
+      "text": "¿Con una productividad como hace Mapex, estamos todos de acuerdo, verdad?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:10:58",
+      "end": "01:10:58",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:10:58",
+      "end": "01:10:59",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:10:59",
+      "end": "01:11:00",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:11:01",
+      "end": "01:11:02",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:11:03",
+      "end": "01:11:04",
+      "text": "Vale, entonces."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:11:05",
+      "end": "01:11:24",
+      "text": "Ahora un poco por lo que Pedro decía, lo vamos a hacer todo para dentro de 2 semanas, pero yo quiero que sepas, Max, que ahí os están engañando. Es cierto lo que dicen porque Pedro está pensando en el montaje de techos, que es un producto totalmente nuevo, pero los demás."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:11:24",
+      "end": "01:11:30",
+      "text": "Por lo menos yo y yo creo que Pablo también estamos pensando en lo que más nos preocupa y es el montaje del kit."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:11:33",
+      "end": "01:11:54",
+      "text": "Nosotros queremos que esta aplicación informática aplique a todos los montajes de la empresa. Entonces vamos a correr, vamos a estar pensando en el techo, fenomenal, pero tú Max, tienes que tener, tienes que comprender que lo que estás haciendo es creando un sistema modular, que yo cree una estación o una mesa y le permita asignarle operaciones."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:11:39",
+      "end": "01:11:39",
+      "text": "Hi."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:11:41",
+      "end": "01:11:42",
+      "text": "Ahh."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:11:41",
+      "end": "01:11:42",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:11:54",
+      "end": "01:11:57",
+      "text": "Porque esto tiene que funcionar con el kit acústico."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:11:58",
+      "end": "01:12:02",
+      "text": "Yo haré la estructura para que podamos escalar la producción."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:12:10",
+      "end": "01:12:10",
+      "text": "Well, you."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:12:10",
+      "end": "01:12:19",
+      "text": "Y si lo hacemos bien, si lo Max, si sabes que teníamos en marcha centinela, no donde queríamos captar inicio y fin del trabajador."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:12:11",
+      "end": "01:12:12",
+      "text": "Really?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:12:17",
+      "end": "01:12:17",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:12:20",
+      "end": "01:12:39",
+      "text": "entonces piensa piensa que en esta herramienta que vas a hacer pues ya te permita te permitirá capturar presencia durante unas determinadas horas de las personas vale de esas personas ya entonces esto ya estructurémoslo pues"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:12:36",
+      "end": "01:12:36",
+      "text": "Bye."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:12:39",
+      "end": "01:12:57",
+      "text": "Que no tiene mucho más porque al final recoges cuatro datos, no de hora de inicio y a la final, pero es importante tenerlo en cuenta porque más pronto que tarde estamos obligados a terminar de construir un centinela que nos recoja la presencia de los trabajadores y la concentre en un único punto, ¿vale?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:12:58",
+      "end": "01:12:58",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:12:58",
+      "end": "01:13:00",
+      "text": "Right, right, yeah."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:12:59",
+      "end": "01:13:15",
+      "text": "¿Por qué te vengo yo a decir esto? Porque a veces es importante, pues tener ese criterio de decir, da igual que yo no haya producido 7 piezas, yo voy a permitir registrar desde que he empezado hasta que he terminado en este puesto."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:13:02",
+      "end": "01:13:02",
+      "text": "Um."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:17",
+      "end": "01:13:17",
+      "text": "Mhm."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:13:17",
+      "end": "01:13:39",
+      "text": "No te estoy complicando la vida, solamente quiero que sepas que no está de más si el sistema este no es que me permita simplemente decir paso uno, paso 2, paso 3, sino que al final yo ponga el cronómetro en marcha al inicio y el cronómetro en marcha al final, y en el periodo del medio igual durante un 30% del tiempo."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:20",
+      "end": "01:13:21",
+      "text": "La superficie."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:27",
+      "end": "01:13:27",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:29",
+      "end": "01:13:29",
+      "text": "Dime."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:13:39",
+      "end": "01:13:42",
+      "text": "Yo no he estado trabajando, estaba ordenando el puesto."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:43",
+      "end": "01:13:43",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:13:44",
+      "end": "01:13:46",
+      "text": "Pero yo quiero la estación encendida."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:13:47",
+      "end": "01:14:05",
+      "text": "Quiero la estación que quiero que la estación sepa que yo llegué a este puesto de trabajo porque Toni me envió a las 6:00 de la mañana y me he terminado a las 9:00 de la mañana. A lo mejor solo he estado montando piezas hora y media, pero yo he estado aquí de 6 de la mañana a 9. Esto nos interesa de todas todas, no es muy importante."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:13:47",
+      "end": "01:13:47",
+      "text": "Bye."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:14:05",
+      "end": "01:14:11",
+      "text": "Porque al final centinela tiene que acabar haciéndolo, pero si ya lo tenemos en mente, pues mejor."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:14:09",
+      "end": "01:14:09",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:14:12",
+      "end": "01:14:13",
+      "text": "Vale, perfecto, sí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:14:14",
+      "end": "01:14:18",
+      "text": "De acuerdo, yo hago pensado en esa estructura."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:14:23",
+      "end": "01:14:26",
+      "text": "Eso implica que entonces el operario debe indicar qué actividad está haciendo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:14:27",
+      "end": "01:14:48",
+      "text": "No, María, porque la recoge él. Yo lo que sí que implica es que yo tenga conciencia de que entro y salgo de la estación, independientemente de que no esté montando. Es muy sutil lo que te estoy diciendo. Es decir, a mí Tony me envía a las 6:00 de la mañana a la estación de Power de Techos. Entonces yo tengo que yo a mí el sistema tiene que facilitarme con claridad que yo diga."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:14:28",
+      "end": "01:14:28",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:14:48",
+      "end": "01:15:07",
+      "text": "Aquí estoy, vale, ahora yo me pongo a montar, vale, y el sistema me va guiando, pero en un momento determinado yo dejo de ensamblar porque Toni me dice, oye, Nano, inspecciona estas cositas. Entonces yo dejo de montar esta parada la operación, pero yo estoy consumiendo tiempo dentro de la misma estación."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:14:49",
+      "end": "01:14:49",
+      "text": "Oh."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:14:53",
+      "end": "01:14:53",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:15:08",
+      "end": "01:15:22",
+      "text": "Entonces nos interesa que el sistema me permita, aunque yo no esté trabajando, que la estación esté encendida, véase una máquina de Mapex porque yo he dicho, y acabo de llegar, me logo en la estación, me logo y aunque no monte, no me deslogo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:15:24",
+      "end": "01:15:44",
+      "text": "Entonces, cuando yo me deslogo, diga o cuando digo ya he terminado y le doy fin, el sistema habrá recogido por activa, por activa, por plan activo, todo mi secuencia de actividad y por omisión todo el tiempo que no ha habido actividad, pero la máquina estaba encendida y yo he estado logueado. ¿Me comprendéis?"
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:15:45",
+      "end": "01:15:45",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:15:48",
+      "end": "01:15:49",
+      "text": "María, ¿me has entendido?"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:15:49",
+      "end": "01:15:52",
+      "text": "Te he entendido, no sé cómo lo hará, pero te he entendido."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:15:52",
+      "end": "01:16:00",
+      "text": "Pues no tiene más que tener un botón de me meto y me salgo. María, claro, Marieta."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:15:55",
+      "end": "01:16:05",
+      "text": "Lo mismo que lo mismo que tenías en cualquier estación de secuencia, un código con darte de alta en una estación y salir de la estación."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:15:55",
+      "end": "01:16:05",
+      "text": "Y porque lo mismo que tenías en cualquier estación de secuencia, un código con darte de alta en unas estaciones y salir de la estación."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:04",
+      "end": "01:16:13",
+      "text": "Pero si te quedas, sí, pero si te quedas logueado, que eso es lo que he entendido, aunque no estés trabajando, la máquina entiende que estás ahí, que estás ahí."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:16:13",
+      "end": "01:16:15",
+      "text": "¿Es lo que hace por tiempo de actividad, no?"
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:16:13",
+      "end": "01:16:17",
+      "text": "O te lo o te lo veas a otra o sigues ahí, claro."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:16:13",
+      "end": "01:16:14",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:16:16",
+      "end": "01:16:19",
+      "text": "Claro, o te desbloqueas directamente, ya está."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:16:17",
+      "end": "01:16:19",
+      "text": "Claro, o tener lo que es directamente."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:16:17",
+      "end": "01:16:18",
+      "text": "No hay más."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:16:19",
+      "end": "01:16:20",
+      "text": "Battle."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:16:20",
+      "end": "01:16:21",
+      "text": "Bueno, no divaguemos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:16:20",
+      "end": "01:16:24",
+      "text": "Como hacías en secuencia, no divaguemos, exacto, María."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:16:20",
+      "end": "01:16:21",
+      "text": "¿Cómo hacías?"
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:22",
+      "end": "01:16:22",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:16:23",
+      "end": "01:16:27",
+      "text": "No, pues si lo hace en secuencia, si no hace falta dibujar, lo hace en secuencia."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:23",
+      "end": "01:16:24",
+      "text": "So."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:16:23",
+      "end": "01:16:26",
+      "text": "No, pero si lo hacen en secuencia, así con lo cual te digo, lo hacen."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:16:26",
+      "end": "01:16:26",
+      "text": "No."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:26",
+      "end": "01:16:34",
+      "text": "Claro, pero que no, o sea, yo con la explicación de Javi, he entendido que no se desloguea de esa estación de la estación uno para pasar a las 2:00."
+    },
+    {
+      "speaker": "Pablo Rovira",
+      "start": "01:16:34",
+      "end": "01:16:36",
+      "text": "Tiene que deslovearse."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:16:35",
+      "end": "01:16:36",
+      "text": "Tiene que de sobres."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:16:35",
+      "end": "01:16:56",
+      "text": "Bueno, pues corrige a Javi, porque Javi no es nadie para decir si se loguea o se desloguea. Lo que he pretendido decir es: chicos, a los informáticos, vamos a no cojamos, solamente hago instrucción y no hago instrucción, ya que estamos en el puesto de trabajo. Vamos a recoger la presencia íntegra de los trabajadores."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:36",
+      "end": "01:16:36",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:37",
+      "end": "01:16:38",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:16:43",
+      "end": "01:16:44",
+      "text": "Tener la cuenta."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:16:44",
+      "end": "01:16:46",
+      "text": "Cojamos presencia."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:16:56",
+      "end": "01:17:03",
+      "text": "Porque nos va a hacer falta, porque ya sabemos que centinela lo quiere. Centinela quiere toda la actividad de las personas, por lo tanto, aunque sea."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:02",
+      "end": "01:17:03",
+      "text": "Sí, is."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:04",
+      "end": "01:17:06",
+      "text": "Aunque sabes si está barriendo."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:17:06",
+      "end": "01:17:07",
+      "text": "Battle."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:07",
+      "end": "01:17:27",
+      "text": "Claro, pero ahí voy yo. Si entonces tú quieres la presencia desde que entra barre el puesto de trabajo y media hora después se pone a montar, tendrás que saber que la primera media hora del turno ha estado barriendo. Le tendrás que decir que está barriendo porque si no luego dirá que la productividad es nefasta y realmente si no has recogido bien la información te estás automintiendo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:17:07",
+      "end": "01:17:08",
+      "text": "Ajá."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:17:19",
+      "end": "01:17:22",
+      "text": "En su puesto, sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:17:25",
+      "end": "01:17:25",
+      "text": "Carol."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:27",
+      "end": "01:17:29",
+      "text": "Es lo que quiero llegar a decir."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:17:27",
+      "end": "01:17:46",
+      "text": "Pero María, mira que os gusta María, mira que os gusta a todos meteros en sitios donde aún no habéis profundizado. Claro, tal cual lo has dicho Marieta, que tiene Mapex motivos de paro. Entonces yo llego a la estación y me logueo y entonces la estación tiene un botón que es justifica un paro y le doy al botón grande y me salen."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:17:27",
+      "end": "01:17:29",
+      "text": "Sí, pero lo logueado ahí."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:17:30",
+      "end": "01:17:30",
+      "text": "Y a ver."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:17:30",
+      "end": "01:17:31",
+      "text": "Pablo."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:33",
+      "end": "01:17:34",
+      "text": "Claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:35",
+      "end": "01:17:36",
+      "text": "Yeah."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:38",
+      "end": "01:17:39",
+      "text": "Ahí voy."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:17:38",
+      "end": "01:17:41",
+      "text": "Claro, eso también lo tiene, claro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:42",
+      "end": "01:17:42",
+      "text": "Two."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:17:47",
+      "end": "01:18:07",
+      "text": "Cuatro tipos de paro, barrer, escuchar a mi jefe y ordenar el puesto, no los paros que inicialmente hayamos creado. Entonces, pues efectivamente, el chico va al puesto, no está montando, pero Tony le dice, haz esto al otro y el chico le da el botón de paro y dice durante media hora, pues justifico este paro."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:17:52",
+      "end": "01:17:52",
+      "text": "Uh-huh."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:18:07",
+      "end": "01:18:13",
+      "text": "Y eso lo utilizamos como disponibilidad, o sea, no es muy complejo, pero no es difícil, María."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:12",
+      "end": "01:18:24",
+      "text": "No es No es complejo, pero si tú le explicas eso al chico de informática tal cual lo has dicho, vamos a acabar en que va a estar montando un kit en toda la mañana logueado 8 horas y nos va a llevar a confusión."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:25",
+      "end": "01:18:36",
+      "text": "Entonces he puesto el matiz de que si eso lo incluye perfecto, siempre y cuando seamos capaces de separar horas productivas de horas de otras cosas."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:18:36",
+      "end": "01:18:42",
+      "text": "Correcto, sí, María, así es justo eso."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:18:36",
+      "end": "01:18:37",
+      "text": "Lo tenemos en cuenta."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:37",
+      "end": "01:18:39",
+      "text": "Vale, gracias."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:43",
+      "end": "01:18:43",
+      "text": "So."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:18:43",
+      "end": "01:18:44",
+      "text": "Ya está."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:52",
+      "end": "01:18:56",
+      "text": "Acabamos de construir un mapas 2.0, no sé si os dais cuenta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:18:56",
+      "end": "01:18:57",
+      "text": "Más que eso."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:18:56",
+      "end": "01:18:58",
+      "text": "Ahora sí, en 1 minuto."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:18:58",
+      "end": "01:18:58",
+      "text": "claro."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:01",
+      "end": "01:19:02",
+      "text": "Sí, más como Mapex."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:19:05",
+      "end": "01:19:13",
+      "text": "Es un Mapex pick to voice que escucha, me encanta y es donde desearía ir a parar, pero."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:19:14",
+      "end": "01:19:15",
+      "text": "Vamos a ir por partes."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:19:20",
+      "end": "01:19:21",
+      "text": "Vale, lo tenemos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:22",
+      "end": "01:19:28",
+      "text": "Sí, a esto alguien tendría que escribir un RS o algo, Raúl, o sea, un."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:19:23",
+      "end": "01:19:23",
+      "text": "Sí, bueno."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:19:28",
+      "end": "01:19:43",
+      "text": "Nos encargamos, Javi, no te preocupes, nos ponemos a ello, nos encargamos y lo hacemos como ya nos has enseñado y se hacen todos los proyectos por pasos, primero análisis, luego se se proyecta, se planifica, se hace, se evalúa, como todos."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:30",
+      "end": "01:19:30",
+      "text": "No."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:34",
+      "end": "01:19:35",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:43",
+      "end": "01:19:43",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:19:43",
+      "end": "01:19:45",
+      "text": "Además, lo tiene grabado."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:19:45",
+      "end": "01:20:05",
+      "text": "Vale, y el trabajo, el trabajo de Joan que ahora mismo estamos ultimando para afianzar la expedición es bueno, lo terminamos y que funcione porque para el kit acústico entendemos que nos va a llevar cierto tiempo acabar la aplicación esta."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:19:45",
+      "end": "01:19:46",
+      "text": "Exacto."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:19:45",
+      "end": "01:19:46",
+      "text": "Sí."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:19:59",
+      "end": "01:20:00",
+      "text": "Bing."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:20:06",
+      "end": "01:20:10",
+      "text": "¿Entonces seguimos con el trabajo de Joan en marcha o cómo lo ves, cómo lo veis?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:20:09",
+      "end": "01:20:10",
+      "text": "sí."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:20:12",
+      "end": "01:20:12",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:20:12",
+      "end": "01:20:14",
+      "text": "Eso hoy en día es necesario."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:20:14",
+      "end": "01:20:15",
+      "text": "City."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:20:15",
+      "end": "01:20:16",
+      "text": "claro, por eso lo digo, Tony."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:20:16",
+      "end": "01:20:18",
+      "text": "Hoy en día es necesario."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:20:20",
+      "end": "01:20:23",
+      "text": "Que no hemos tenido los problemas en embalajes. y."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:20:25",
+      "end": "01:20:26",
+      "text": "Y en poner cosas que no veíamos."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:20:36",
+      "end": "01:20:49",
+      "text": "Pues entiendo que estamos finalizando la reunión, pero Raúl y Max nos sentamos nosotros 10 minutos, vemos qué información necesitáis por nuestra parte, así nos dividimos el trabajo."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:20:51",
+      "end": "01:20:53",
+      "text": "Vale, yo bueno."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:20:52",
+      "end": "01:20:53",
+      "text": "¿Venís a mis aposentos?"
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:20:54",
+      "end": "01:20:56",
+      "text": "Vale, sí, me parece bien."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:20:57",
+      "end": "01:21:00",
+      "text": "Tony, ¿estás invitado a venir?"
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:21:00",
+      "end": "01:21:02",
+      "text": "Vale, de acuerdo, gracias."
+    },
+    {
+      "speaker": "Pedro Sanchis Gascon",
+      "start": "01:21:01",
+      "end": "01:21:03",
+      "text": "Para supervisarnos, entra en la barra."
+    },
+    {
+      "speaker": "Antonio Medina",
+      "start": "01:21:04",
+      "end": "01:21:04",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:07",
+      "end": "01:21:10",
+      "text": "Entonces, María Pablo, lo desvinculamos completamente de esto."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:21:09",
+      "end": "01:21:09",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:14",
+      "end": "01:21:15",
+      "text": "Marieta."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:14",
+      "end": "01:21:18",
+      "text": "Me suena que la respuesta que esperas es que no."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:21:19",
+      "end": "01:21:21",
+      "text": "I am very much."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:21",
+      "end": "01:21:21",
+      "text": "Okay."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:22",
+      "end": "01:21:25",
+      "text": "No, solo quiero tenerlo claro, por no."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:21:23",
+      "end": "01:21:24",
+      "text": "Madre, yeah."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:24",
+      "end": "01:21:27",
+      "text": "Como diría mi madre, te conozco como si te hubiera parido."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:21:27",
+      "end": "01:21:27",
+      "text": "No."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:21:27",
+      "end": "01:21:27",
+      "text": "Ja."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:27",
+      "end": "01:21:28",
+      "text": "Así que me conoces."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:29",
+      "end": "01:21:29",
+      "text": "No."
+    },
+    {
+      "speaker": "Raul Liébana",
+      "start": "01:21:29",
+      "end": "01:21:29",
+      "text": "O."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:30",
+      "end": "01:21:33",
+      "text": "¿Por qué no quieres hacerlo? Pregunta."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:31",
+      "end": "01:21:31",
+      "text": "Vale."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:33",
+      "end": "01:21:33",
+      "text": "M."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:33",
+      "end": "01:21:35",
+      "text": "Te pregunto por qué no quieres hacerlo."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:35",
+      "end": "01:21:39",
+      "text": "No está bien, está bien."
+    },
+    {
+      "speaker": "Max Junior",
+      "start": "01:21:37",
+      "end": "01:21:38",
+      "text": "Hola."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:40",
+      "end": "01:21:40",
+      "text": "bien."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:40",
+      "end": "01:21:46",
+      "text": "Está, o sea, está Toni, no estamos dejando a Pedro con su gente sola. Pablo está aquí, no se va a ningún sitio."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:41",
+      "end": "01:21:42",
+      "text": "Está Tony."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:44",
+      "end": "01:21:45",
+      "text": "Este."
+    },
+    {
+      "speaker": "Javier Gonzalez",
+      "start": "01:21:47",
+      "end": "01:21:53",
+      "text": "Está Tony, Tony, domina Hus, Isabel Wales y Isabel de todo esto, vale."
+    },
+    {
+      "speaker": "Maria Espasa",
+      "start": "01:21:49",
+      "end": "01:21:50",
+      "text": "Claro que sí."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+PASO;TIPO;MENSAJE;VOZ;RESPUESTA;FOTOS
+1;VOZ;Colocar en motor (01565) 230v  Puntera hueca (01443) en el cable de Toma Tierra.      Comprobar que los terminales estan bien clipados.      Pasar cable del motor por el pasamuros triple. **  Se debe pasar por el agujero del  medio**;Clipado y cable por pasamuros;PIN BUENO;P1.png
+2;VOZ;Recoger el cable del motor alrededor de la caja de conexiones del motor, tal y como se ve en la foto. Se tiene que untar el eje el motor con grasa Molykote (10872).;Grasa y montar eje;PIN BUENO;P2.png
+3;VOZ;Comprobar con el util UC-203 el  correcto centrado de los motores.;Comprobar centrado;PIN BUENO;P3.png
+4;VOZ;Montar reductor sobre motor, encarando el hueco de la chaveta del reductor, con la chaveta del motor, Reductor (10946) Deshechar los tornillos de la bolsa. Ver posición del reductor con respecto a la Caja-Condesador del motor.;Montar reductor ;PIN BUENO;P4.png
+5;SISTEMA;Descontar material: Reductor, Molykote (10872);N/A;N/A;N/A
+6;VOZ;Montar reductor sobre motor, encarando el hueco de la chaveta del reductor, con la chaveta del motor, Reductor (10946) Tornillos DIN 912 (00077, Gaveta 12). Ver posicion del reductor con respecto a la Caja-Condesador del motor.;Colocar tornillos;PIN BUENO;P4.png
+7;SISTEMA;Descontar material: Tornillo 912 M-8x40 (00088), Chaveta 8x7x40 (00324),Arandela piñón (02342) y Arandela 127 D8 (00297);N/A;N/A;N/A
+8;VOZ;Soplar piñon del eje.Cuidado al soplar, separarselo del cuerpo, no acercarselo a la cara ya que el eje suele tener viruta y aceite.;Soplar piñon;PIN BUENO;P5.png
+9;VOZ;Montar  Eje Reductor Z-10 (09298)  Tornillo 912 M-8x40 (00088, Gaveta 9)   Chaveta 8x7x40 (00324, Gaveta 7) Arandela piñon (02342, Gaveta 6) Arandela 127 D8 (00297, Gaveta 10) Loctite 243 como se muestra en imagen;Montar tornillo, chaveta y arandelas;PIN BUENO;P6.png
+10;VOZ;No golpear el eje debe de entrar con la mano. Utilizar maquina neumatica.;Montar y apretar con pistola neumatica;PIN BUENO;P7.png
+14;VOZ;Una vez finalizados, dejar los motores en el carro para su transporte. Identificar con una etiqueta de código de producto.;Etiqueta y dejar en carro;PIN BUENO;P7.png
+15;SISTEMA;Descontar material: motor (01565) 230v , etiqueta.;N/A;N/A;N/A
