@@ -1,19 +1,30 @@
 import { Storage } from "@google-cloud/storage";
 
-const credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-  ? JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
-  : undefined;
-
-const storage = new Storage({
-  projectId: process.env.GOOGLE_CLOUD_PROJECT,
-  ...(credentials && { credentials }),
-});
-
 const BUCKET = process.env.GCS_BUCKET!;
 const TENANT = process.env.GCS_TENANT || "p2v";
 
+let _storage: Storage | null = null;
+
+function getStorage(): Storage {
+  if (!_storage) {
+    let credentials: Record<string, unknown> | undefined;
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      try {
+        credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+      } catch {
+        // ADC local usará as credenciais padrão do ambiente
+      }
+    }
+    _storage = new Storage({
+      projectId: process.env.GOOGLE_CLOUD_PROJECT,
+      ...(credentials && { credentials }),
+    });
+  }
+  return _storage;
+}
+
 function bucket() {
-  return storage.bucket(BUCKET);
+  return getStorage().bucket(BUCKET);
 }
 
 function tenantPath(path: string): string {
