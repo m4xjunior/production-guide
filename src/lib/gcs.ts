@@ -122,3 +122,41 @@ export async function fileExists(gcsPath: string): Promise<boolean> {
   const [exists] = await file.exists();
   return exists;
 }
+
+// ─── Batch Signed URLs ─────────────────────────────────────────────────────
+/**
+ * Converte uma URL pública do GCS (`https://storage.googleapis.com/BUCKET/tenants/...`)
+ * numa signed URL de `expiresInMinutes` minutos.
+ * Se a URL não pertencer ao bucket configurado, retorna a URL original intacta.
+ */
+export async function signPublicUrl(
+  publicUrl: string,
+  expiresInMinutes = 60 * 24 * 7, // 7 dias
+): Promise<string> {
+  const prefix = `https://storage.googleapis.com/${BUCKET}/`;
+  if (!publicUrl.startsWith(prefix)) return publicUrl;
+
+  const gcsObjectPath = publicUrl.slice(prefix.length);
+  const file = bucket().file(gcsObjectPath);
+  const [url] = await file.getSignedUrl({
+    action: "read",
+    expires: Date.now() + expiresInMinutes * 60 * 1000,
+    version: "v4",
+  });
+  return url;
+}
+
+/**
+ * Assina em paralelo uma lista de URLs públicas do GCS.
+ * Retorna null para entradas null/undefined; retorna original em caso de erro.
+ */
+export async function signPublicUrls(
+  urls: (string | null | undefined)[],
+  expiresInMinutes = 60 * 24 * 7,
+): Promise<(string | null)[]> {
+  return Promise.all(
+    urls.map((url) =>
+      url ? signPublicUrl(url, expiresInMinutes).catch(() => url) : Promise.resolve(null),
+    ),
+  );
+}
