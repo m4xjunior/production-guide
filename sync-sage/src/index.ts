@@ -1,3 +1,4 @@
+import "dotenv/config";
 import sql from "mssql";
 import { PrismaClient } from "../../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
