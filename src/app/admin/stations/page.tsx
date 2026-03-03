@@ -246,7 +246,7 @@ export default function StationsPage() {
           value={formName}
           onChange={(e) => setFormName(e.target.value)}
           placeholder="Ej: Estacion 1 - Montaje base"
-          className="border-zinc-300"
+          className="border-border"
           autoFocus
         />
       </div>
@@ -258,7 +258,7 @@ export default function StationsPage() {
           onChange={(e) => setFormDescription(e.target.value)}
           placeholder="Descripcion de la estacion..."
           rows={3}
-          className="border-zinc-300"
+          className="border-border"
         />
       </div>
       <div className="space-y-2">
@@ -268,7 +268,7 @@ export default function StationsPage() {
           value={formProductCode}
           onChange={(e) => setFormProductCode(e.target.value)}
           placeholder="Ej: PROD-001"
-          className="border-zinc-300"
+          className="border-border"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -277,7 +277,7 @@ export default function StationsPage() {
           checked={formIsActive}
           onCheckedChange={setFormIsActive}
         />
-        <Label htmlFor="station-active" className="text-zinc-700">
+        <Label htmlFor="station-active" className="text-foreground">
           Estacion activa
         </Label>
       </div>
@@ -290,8 +290,8 @@ export default function StationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Estaciones</h1>
-          <p className="text-zinc-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Estaciones</h1>
+          <p className="text-muted-foreground mt-1">
             Gestiona las estaciones de trabajo y sus configuraciones
           </p>
         </div>
@@ -301,7 +301,7 @@ export default function StationsPage() {
             size="sm"
             onClick={fetchStations}
             disabled={loading}
-            className="border-zinc-300"
+            className="border-border"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Actualizar
@@ -309,7 +309,7 @@ export default function StationsPage() {
           <Button
             size="sm"
             onClick={openCreate}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-[#8B1A1A] hover:bg-[#A52525]"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nueva estacion
@@ -319,27 +319,27 @@ export default function StationsPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Buscar por nombre, codigo o descripcion..."
-          className="pl-9 border-zinc-300"
+          className="pl-9 border-border"
         />
       </div>
 
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
         </div>
       ) : filteredStations.length === 0 ? (
-        <Card className="border-zinc-200">
+        <Card className="border-border">
           <CardContent className="py-16 text-center">
-            <Factory className="h-12 w-12 text-zinc-300 mx-auto mb-3" />
+            <Factory className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
             {searchQuery ? (
               <>
-                <p className="text-lg text-zinc-500">
+                <p className="text-lg text-muted-foreground">
                   No se encontraron estaciones para &quot;{searchQuery}&quot;
                 </p>
                 <Button
@@ -352,11 +352,11 @@ export default function StationsPage() {
               </>
             ) : (
               <>
-                <p className="text-lg text-zinc-500">
+                <p className="text-lg text-muted-foreground">
                   No hay estaciones creadas todavia.
                 </p>
                 <Button
-                  className="mt-4 bg-blue-600 hover:bg-blue-700"
+                  className="mt-4 bg-[#8B1A1A] hover:bg-[#A52525]"
                   onClick={openCreate}
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -367,29 +367,29 @@ export default function StationsPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-zinc-200">
+        <Card className="border-border">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent bg-zinc-50/50">
-                <TableHead className="text-zinc-500 font-semibold">Nombre</TableHead>
-                <TableHead className="text-zinc-500 font-semibold">Codigo producto</TableHead>
-                <TableHead className="text-zinc-500 font-semibold text-center">Pasos</TableHead>
-                <TableHead className="text-zinc-500 font-semibold">Estado</TableHead>
-                <TableHead className="text-zinc-500 font-semibold text-right">Acciones</TableHead>
+              <TableRow className="hover:bg-transparent bg-accent/50">
+                <TableHead className="text-muted-foreground font-semibold">Nombre</TableHead>
+                <TableHead className="text-muted-foreground font-semibold">Codigo producto</TableHead>
+                <TableHead className="text-muted-foreground font-semibold text-center">Pasos</TableHead>
+                <TableHead className="text-muted-foreground font-semibold">Estado</TableHead>
+                <TableHead className="text-muted-foreground font-semibold text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredStations.map((station) => (
-                <TableRow key={station.id} className="group hover:bg-zinc-50/80">
+                <TableRow key={station.id} className="group hover:bg-accent">
                   <TableCell>
                     <Link
                       href={`/admin/stations/${station.id}`}
-                      className="font-medium text-zinc-900 hover:text-blue-600 transition-colors"
+                      className="font-medium text-foreground hover:text-[#A52525] transition-colors"
                     >
                       {station.name}
                     </Link>
                     {station.description && (
-                      <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
+                      <p className="text-xs text-muted-foreground/60 mt-0.5 line-clamp-1">
                         {station.description}
                       </p>
                     )}
@@ -400,11 +400,11 @@ export default function StationsPage() {
                         {station.productCode}
                       </Badge>
                     ) : (
-                      <span className="text-zinc-300">-</span>
+                      <span className="text-muted-foreground/40">-</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="tabular-nums text-zinc-600">
+                    <span className="tabular-nums text-muted-foreground">
                       {station._count?.steps ?? 0}
                     </span>
                   </TableCell>
@@ -450,7 +450,7 @@ export default function StationsPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => openDelete(station)}
-                            className="text-red-600 focus:text-red-600"
+                            className="text-destructive focus:text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Eliminar
@@ -468,7 +468,7 @@ export default function StationsPage() {
 
       {/* Summary */}
       {!loading && filteredStations.length > 0 && (
-        <p className="text-xs text-zinc-400 text-right">
+        <p className="text-xs text-muted-foreground/60 text-right">
           Mostrando {filteredStations.length} de {stations.length} estaciones
         </p>
       )}
@@ -487,14 +487,14 @@ export default function StationsPage() {
             <Button
               variant="outline"
               onClick={() => setShowCreateDialog(false)}
-              className="border-zinc-300"
+              className="border-border"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleCreate}
               disabled={saving || !formName.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Crear estacion
@@ -517,14 +517,14 @@ export default function StationsPage() {
             <Button
               variant="outline"
               onClick={() => setShowEditDialog(false)}
-              className="border-zinc-300"
+              className="border-border"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleEdit}
               disabled={saving || !formName.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Guardar cambios
@@ -544,10 +544,10 @@ export default function StationsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-zinc-300">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="border-border">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Eliminar estacion

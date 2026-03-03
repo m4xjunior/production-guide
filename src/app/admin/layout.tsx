@@ -127,10 +127,7 @@ export default function AdminLayout({
       setPassword(inputPassword);
       setIsAuthenticated(true);
     } catch {
-      // Network error -- allow login for local dev
-      setAdminPassword(inputPassword);
-      setPassword(inputPassword);
-      setIsAuthenticated(true);
+      setError("Error de red. No se pudo validar la contrasena.");
     } finally {
       setLoading(false);
     }
@@ -146,8 +143,8 @@ export default function AdminLayout({
   // ─── Loading state ────────────────────────────────────
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
       </div>
     );
   }
@@ -155,22 +152,22 @@ export default function AdminLayout({
   // ─── Login gate ───────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-4">
-        <Card className="w-full max-w-md border-zinc-200 shadow-lg">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md border-border shadow-lg">
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-3 rounded-full bg-blue-50 p-4 w-fit">
-              <Lock className="h-8 w-8 text-blue-600" />
+            <div className="mx-auto mb-3 rounded-full bg-[#8B1A1A]/10 p-4 w-fit">
+              <Lock className="h-8 w-8 text-[#8B1A1A]" />
             </div>
-            <CardTitle className="text-2xl font-bold text-zinc-900">
+            <CardTitle className="text-2xl font-bold text-foreground">
               Panel de Administracion
             </CardTitle>
-            <CardDescription className="text-zinc-500">
+            <CardDescription className="text-muted-foreground">
               Introduce la contrasena de administrador para acceder al sistema de gestion
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 pt-2">
             <div className="space-y-2">
-              <Label htmlFor="admin-password" className="text-zinc-700">
+              <Label htmlFor="admin-password" className="text-foreground">
                 Contrasena
               </Label>
               <Input
@@ -183,23 +180,23 @@ export default function AdminLayout({
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                 placeholder="Contrasena de administrador"
-                className="h-12 text-base border-zinc-300 focus-visible:ring-blue-500"
+                className="h-12 text-base border-border focus-visible:ring-[#8B1A1A]"
                 autoFocus
               />
               {error && (
-                <p className="text-sm text-red-600 font-medium">{error}</p>
+                <p className="text-sm text-destructive font-medium">{error}</p>
               )}
             </div>
             <Button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700"
+              className="w-full h-12 text-base bg-[#8B1A1A] hover:bg-[#A52525]"
             >
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Acceder
             </Button>
             <div className="text-center pt-1">
-              <Button variant="link" className="text-zinc-500" asChild>
+              <Button variant="link" className="text-muted-foreground" asChild>
                 <Link href="/">Volver a la aplicacion</Link>
               </Button>
             </div>
@@ -212,36 +209,32 @@ export default function AdminLayout({
   // ─── Authenticated layout ─────────────────────────────
   return (
     <AdminAuthContext.Provider value={{ password, logout: handleLogout }}>
-      <div className="min-h-screen bg-zinc-50 flex">
+      <div className="min-h-screen bg-background flex">
         {/* ─── Sidebar ─────────────────────────────────── */}
         <aside
           className={`
-            fixed top-0 left-0 z-40 h-screen bg-white border-r border-zinc-200
+            fixed top-0 left-0 z-40 h-screen bg-card border-r border-border
             flex flex-col transition-all duration-200
             ${sidebarCollapsed ? "w-16" : "w-60"}
           `}
         >
           {/* Logo area */}
-          <div className="h-16 flex items-center px-4 border-b border-zinc-200 shrink-0">
+          <div className="h-16 flex items-center px-4 border-b border-border shrink-0">
             {!sidebarCollapsed && (
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                  <Factory className="h-4 w-4 text-white" />
-                </div>
+                <img src="/logo-kh.png" alt="KH" className="h-8 w-auto" />
                 <div>
-                  <h1 className="text-sm font-bold text-zinc-900 leading-tight">
+                  <h1 className="text-sm font-bold text-foreground leading-tight">
                     SAO Admin
                   </h1>
-                  <p className="text-[10px] text-zinc-400 leading-tight">
+                  <p className="text-[10px] text-muted-foreground leading-tight">
                     Sistema de Ayuda al Operario
                   </p>
                 </div>
               </div>
             )}
             {sidebarCollapsed && (
-              <div className="h-8 w-8 mx-auto rounded-lg bg-blue-600 flex items-center justify-center">
-                <Factory className="h-4 w-4 text-white" />
-              </div>
+              <img src="/logo-kh.png" alt="KH" className="h-8 w-auto mx-auto" />
             )}
           </div>
 
@@ -261,14 +254,14 @@ export default function AdminLayout({
                     transition-colors
                     ${
                       isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                        ? "bg-[#8B1A1A]/10 text-[#A52525]"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     }
                     ${sidebarCollapsed ? "justify-center" : ""}
                   `}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
-                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-blue-600" : ""}`} />
+                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#8B1A1A]" : ""}`} />
                   {!sidebarCollapsed && <span>{item.label}</span>}
                 </Link>
               );
@@ -276,12 +269,12 @@ export default function AdminLayout({
           </nav>
 
           {/* Bottom actions */}
-          <div className="border-t border-zinc-200 p-2 space-y-1 shrink-0">
+          <div className="border-t border-border p-2 space-y-1 shrink-0">
             <Link
               href="/"
               className={`
-                flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-500
-                hover:bg-zinc-100 hover:text-zinc-700 transition-colors
+                flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground
+                hover:bg-accent hover:text-foreground transition-colors
                 ${sidebarCollapsed ? "justify-center" : ""}
               `}
               title={sidebarCollapsed ? "Ver app operario" : undefined}
@@ -292,8 +285,8 @@ export default function AdminLayout({
             <button
               onClick={handleLogout}
               className={`
-                flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-500
-                hover:bg-red-50 hover:text-red-600 transition-colors w-full
+                flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground
+                hover:bg-destructive/10 hover:text-destructive transition-colors w-full
                 ${sidebarCollapsed ? "justify-center" : ""}
               `}
               title={sidebarCollapsed ? "Cerrar sesion" : undefined}
@@ -306,7 +299,7 @@ export default function AdminLayout({
 
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="flex items-center justify-center w-full px-3 py-2 rounded-lg text-sm text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors"
+              className="flex items-center justify-center w-full px-3 py-2 rounded-lg text-sm text-muted-foreground/60 hover:bg-accent hover:text-muted-foreground transition-colors"
               title={sidebarCollapsed ? "Expandir" : "Colapsar"}
             >
               {sidebarCollapsed ? (
@@ -329,13 +322,13 @@ export default function AdminLayout({
           `}
         >
           {/* Top bar */}
-          <header className="sticky top-0 z-30 h-16 bg-white border-b border-zinc-200 flex items-center px-6">
+          <header className="sticky top-0 z-30 h-16 bg-card border-b border-border flex items-center px-6">
             <div className="flex items-center justify-between w-full">
               <div>
                 {/* Breadcrumb area -- filled by page content */}
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
                   <div className="h-2 w-2 rounded-full bg-emerald-500" />
                   Conectado
                 </div>

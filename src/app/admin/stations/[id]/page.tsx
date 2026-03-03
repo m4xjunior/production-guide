@@ -64,9 +64,9 @@ import { useToast } from "@/hooks/use-toast";
 // ─── Step type/response maps for display ─────────────────
 
 const TIPO_CONFIG = {
-  VOZ: { label: "Voz", icon: Mic, color: "bg-blue-100 text-blue-700" },
-  SISTEMA: { label: "Sistema", icon: Monitor, color: "bg-zinc-100 text-zinc-700" },
-  QC: { label: "Control de calidad", icon: Shield, color: "bg-amber-100 text-amber-700" },
+  VOZ: { label: "Voz", icon: Mic, color: "bg-[#8B1A1A]/10 text-[#A52525]" },
+  SISTEMA: { label: "Sistema", icon: Monitor, color: "bg-accent text-foreground" },
+  QC: { label: "Control de calidad", icon: Shield, color: "bg-amber-500/10 text-amber-400" },
 };
 
 const RESPONSE_CONFIG = {
@@ -338,7 +338,7 @@ export default function StationEditorPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
       </div>
     );
   }
@@ -346,9 +346,9 @@ export default function StationEditorPage() {
   if (!station) {
     return (
       <div className="text-center py-20">
-        <p className="text-lg text-zinc-500">Estacion no encontrada.</p>
+        <p className="text-lg text-muted-foreground">Estacion no encontrada.</p>
         <Link href="/admin/stations">
-          <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
+          <Button className="mt-4 bg-[#8B1A1A] hover:bg-[#A52525]">
             Volver a estaciones
           </Button>
         </Link>
@@ -363,13 +363,13 @@ export default function StationEditorPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Link href="/admin/stations">
-            <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-700">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4 mr-1" />
               Estaciones
             </Button>
           </Link>
-          <span className="text-zinc-300">/</span>
-          <h1 className="text-xl font-bold text-zinc-900">{station.name}</h1>
+          <span className="text-muted-foreground/40">/</span>
+          <h1 className="text-xl font-bold text-foreground">{station.name}</h1>
           <Badge
             variant={station.isActive ? "success" : "secondary"}
             className="text-xs"
@@ -378,7 +378,7 @@ export default function StationEditorPage() {
           </Badge>
         </div>
         <Link href={`/?station=${stationId}`} target="_blank">
-          <Button variant="outline" size="sm" className="border-zinc-300">
+          <Button variant="outline" size="sm" className="border-border">
             <Eye className="h-4 w-4 mr-2" />
             Vista operario
           </Button>
@@ -386,27 +386,27 @@ export default function StationEditorPage() {
       </div>
 
       {/* ─── Station Info Card ───────────────────────── */}
-      <Card className="border-zinc-200">
+      <Card className="border-border">
         <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold text-zinc-900">
+          <CardTitle className="text-base font-semibold text-foreground">
             Datos de la estacion
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name" className="text-zinc-700">
+              <Label htmlFor="edit-name" className="text-foreground">
                 Nombre *
               </Label>
               <Input
                 id="edit-name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className="border-zinc-300"
+                className="border-border"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-code" className="text-zinc-700">
+              <Label htmlFor="edit-code" className="text-foreground">
                 Codigo de producto
               </Label>
               <Input
@@ -414,12 +414,12 @@ export default function StationEditorPage() {
                 value={formProductCode}
                 onChange={(e) => setFormProductCode(e.target.value)}
                 placeholder="Ej: PROD-001"
-                className="border-zinc-300"
+                className="border-border"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-desc" className="text-zinc-700">
+            <Label htmlFor="edit-desc" className="text-foreground">
               Descripcion
             </Label>
             <Textarea
@@ -427,7 +427,7 @@ export default function StationEditorPage() {
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
               rows={2}
-              className="border-zinc-300"
+              className="border-border"
             />
           </div>
           <div className="flex items-center justify-between pt-2">
@@ -437,14 +437,14 @@ export default function StationEditorPage() {
                 onCheckedChange={setFormIsActive}
                 id="edit-active"
               />
-              <Label htmlFor="edit-active" className="text-zinc-700">
+              <Label htmlFor="edit-active" className="text-foreground">
                 Estacion activa
               </Label>
             </div>
             <Button
               onClick={handleSaveStation}
               disabled={savingStation || !formName.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
               {savingStation ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -457,7 +457,7 @@ export default function StationEditorPage() {
         </CardContent>
       </Card>
 
-      <Separator className="bg-zinc-200" />
+      <Separator className="bg-border" />
 
       <Tabs defaultValue="pasos" className="space-y-4">
         <TabsList>
@@ -470,10 +470,10 @@ export default function StationEditorPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Pasos de la estacion
             </h2>
-            <p className="text-sm text-zinc-500 mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {steps.length === 0
                 ? "Anade pasos para definir el flujo de trabajo"
                 : `${steps.length} paso${steps.length !== 1 ? "s" : ""} configurado${steps.length !== 1 ? "s" : ""}`}
@@ -481,7 +481,7 @@ export default function StationEditorPage() {
           </div>
           <Button
             onClick={openAddStep}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-[#8B1A1A] hover:bg-[#A52525]"
           >
             <Plus className="h-4 w-4 mr-2" />
             Anadir paso
@@ -489,17 +489,17 @@ export default function StationEditorPage() {
         </div>
 
         {steps.length === 0 ? (
-          <Card className="border-2 border-dashed border-zinc-200">
+          <Card className="border-2 border-dashed border-border">
             <CardContent className="py-14 text-center">
-              <div className="mx-auto w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center mb-3">
-                <Plus className="h-5 w-5 text-zinc-400" />
+              <div className="mx-auto w-12 h-12 rounded-full bg-accent flex items-center justify-center mb-3">
+                <Plus className="h-5 w-5 text-muted-foreground/60" />
               </div>
-              <p className="text-zinc-500 mb-4">
+              <p className="text-muted-foreground mb-4">
                 No hay pasos configurados para esta estacion.
               </p>
               <Button
                 onClick={openAddStep}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-[#8B1A1A] hover:bg-[#A52525]"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Anadir primer paso
@@ -517,14 +517,14 @@ export default function StationEditorPage() {
               return (
                 <Card
                   key={step.id}
-                  className="border-zinc-200 group hover:border-zinc-300 transition-colors"
+                  className="border-border group hover:border-border transition-colors"
                 >
                   <CardContent className="py-3 px-4">
                     <div className="flex items-center gap-3">
                       {/* Drag handle / order */}
                       <div className="flex items-center gap-1">
-                        <GripVertical className="h-4 w-4 text-zinc-300" />
-                        <span className="text-xs font-mono text-zinc-400 w-6 text-center">
+                        <GripVertical className="h-4 w-4 text-muted-foreground/40" />
+                        <span className="text-xs font-mono text-muted-foreground/60 w-6 text-center">
                           {index + 1}
                         </span>
                       </div>
@@ -551,13 +551,13 @@ export default function StationEditorPage() {
                       )}
 
                       {/* Message preview */}
-                      <p className="flex-1 text-sm text-zinc-600 truncate min-w-0">
+                      <p className="flex-1 text-sm text-muted-foreground truncate min-w-0">
                         {step.mensaje}
                       </p>
 
                       {/* Photo indicator */}
                       {step.photoUrl && (
-                        <div className="h-6 w-6 rounded border border-zinc-200 overflow-hidden shrink-0">
+                        <div className="h-6 w-6 rounded border border-border overflow-hidden shrink-0">
                           <img
                             src={step.photoUrl}
                             alt=""
@@ -604,7 +604,7 @@ export default function StationEditorPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => openDeleteStep(step)}
-                          className="h-7 w-7 p-0 text-red-500 hover:text-red-600"
+                          className="h-7 w-7 p-0 text-destructive hover:text-destructive/90"
                           title="Eliminar paso"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -643,14 +643,14 @@ export default function StationEditorPage() {
             {/* Row 1: tipo + responseType */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-zinc-700">Tipo de paso</Label>
+                <Label className="text-foreground">Tipo de paso</Label>
                 <Select
                   value={stepForm.tipo}
                   onValueChange={(v) =>
                     setStepForm((prev) => ({ ...prev, tipo: v as Step["tipo"] }))
                   }
                 >
-                  <SelectTrigger className="border-zinc-300">
+                  <SelectTrigger className="border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -668,7 +668,7 @@ export default function StationEditorPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-zinc-700">Tipo de respuesta</Label>
+                <Label className="text-foreground">Tipo de respuesta</Label>
                 <Select
                   value={stepForm.responseType}
                   onValueChange={(v) =>
@@ -678,7 +678,7 @@ export default function StationEditorPage() {
                     }))
                   }
                 >
-                  <SelectTrigger className="border-zinc-300">
+                  <SelectTrigger className="border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -701,7 +701,7 @@ export default function StationEditorPage() {
 
             {/* Mensaje */}
             <div className="space-y-2">
-              <Label className="text-zinc-700">
+              <Label className="text-foreground">
                 Mensaje (instruccion mostrada al operario) *
               </Label>
               <Textarea
@@ -711,13 +711,13 @@ export default function StationEditorPage() {
                 }
                 placeholder="Instruccion que vera el operario en pantalla..."
                 rows={4}
-                className="text-base border-zinc-300"
+                className="text-base border-border"
               />
             </div>
 
             {/* Voz */}
             <div className="space-y-2">
-              <Label className="text-zinc-700">
+              <Label className="text-foreground">
                 Texto de voz (lo que el sistema lee en voz alta)
               </Label>
               <Input
@@ -726,16 +726,16 @@ export default function StationEditorPage() {
                   setStepForm((prev) => ({ ...prev, voz: e.target.value }))
                 }
                 placeholder="Si se deja vacio, se usara el mensaje como texto de voz"
-                className="border-zinc-300"
+                className="border-border"
               />
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-muted-foreground/60">
                 Opcional. Si se deja vacio, el sistema leera el mensaje principal.
               </p>
             </div>
 
             {/* Respuesta esperada */}
             <div className="space-y-2">
-              <Label className="text-zinc-700">Respuesta esperada</Label>
+              <Label className="text-foreground">Respuesta esperada</Label>
               <Input
                 value={stepForm.respuesta}
                 onChange={(e) =>
@@ -748,9 +748,9 @@ export default function StationEditorPage() {
                     ? "Codigo de barras esperado"
                     : "Dejar vacio para boton/auto"
                 }
-                className="border-zinc-300"
+                className="border-border"
               />
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-muted-foreground/60">
                 {stepForm.responseType === "voice" &&
                   "La palabra o frase que el operario debe decir para avanzar."}
                 {stepForm.responseType === "scan" &&
@@ -764,7 +764,7 @@ export default function StationEditorPage() {
 
             {/* Image — Drag-and-drop */}
             <div className="space-y-2">
-              <Label className="text-zinc-700">Imagen de referencia</Label>
+              <Label className="text-foreground">Imagen de referencia</Label>
               <MediaDropzone
                 value={stepForm.photoUrl}
                 onChange={(url) =>
@@ -775,7 +775,7 @@ export default function StationEditorPage() {
               />
             </div>
 
-            <Separator className="bg-zinc-200" />
+            <Separator className="bg-border" />
 
             {/* QC section */}
             <div className="space-y-3">
@@ -787,13 +787,13 @@ export default function StationEditorPage() {
                   }
                   id="step-qc"
                 />
-                <Label htmlFor="step-qc" className="text-zinc-700 font-medium">
+                <Label htmlFor="step-qc" className="text-foreground font-medium">
                   Paso de control de calidad (QC)
                 </Label>
               </div>
               {stepForm.isQc && (
                 <div className="ml-12 space-y-2">
-                  <Label className="text-zinc-600">
+                  <Label className="text-muted-foreground">
                     Frecuencia de verificacion (cada N unidades)
                   </Label>
                   <Input
@@ -807,9 +807,9 @@ export default function StationEditorPage() {
                       }))
                     }
                     placeholder="Ej: 10 (cada 10 unidades)"
-                    className="w-48 border-zinc-300"
+                    className="w-48 border-border"
                   />
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-muted-foreground/60">
                     Este paso solo se mostrara cada N unidades producidas.
                   </p>
                 </div>
@@ -821,14 +821,14 @@ export default function StationEditorPage() {
             <Button
               variant="outline"
               onClick={() => setShowStepDialog(false)}
-              className="border-zinc-300"
+              className="border-border"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSaveStep}
               disabled={savingStep || !stepForm.mensaje.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#8B1A1A] hover:bg-[#A52525]"
             >
               {savingStep && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editingStep ? "Guardar cambios" : "Anadir paso"}
@@ -851,12 +851,12 @@ export default function StationEditorPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-zinc-300">
+            <AlertDialogCancel className="border-border">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteStep}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {savingStep && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Eliminar paso
