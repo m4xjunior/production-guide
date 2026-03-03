@@ -12,6 +12,7 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    const tenantId = request.headers.get("x-tenant-id");
     const body = await request.json();
     const allowed = [
       "ttsVoiceId", "ttsSpeed", "ttsStability", "ttsSimilarity",
@@ -25,16 +26,19 @@ export async function PUT(request: NextRequest) {
       where: { id: "global" },
       data: { ...data, updatedBy: "admin" },
     });
-    await prisma.auditLog.create({
-      data: {
-        action: "UPDATE_GLOBAL_SETTINGS",
-        entityType: "GlobalSettings",
-        entityId: "global",
-        oldValue: current as object,
-        newValue: settings as object,
-        performedBy: "admin",
-      },
-    });
+    if (tenantId) {
+      await prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: "UPDATE_GLOBAL_SETTINGS",
+          entityType: "GlobalSettings",
+          entityId: "global",
+          oldValue: current as object,
+          newValue: settings as object,
+          performedBy: "admin",
+        },
+      });
+    }
     return NextResponse.json({ settings });
   } catch (error) {
     console.error("Error al actualizar configuración global:", error);

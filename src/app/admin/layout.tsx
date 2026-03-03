@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Menu,
   X,
+  Mic,
 } from "lucide-react";
 import { PwaContainer } from "@/components/devkit";
 
@@ -60,6 +61,12 @@ const NAV_ITEMS = [
     label: "Reportes",
     href: "/admin/reports",
     icon: BarChart3,
+    exact: false,
+  },
+  {
+    label: "Comandos de Voz",
+    href: "/admin/voice-commands",
+    icon: Mic,
     exact: false,
   },
   {

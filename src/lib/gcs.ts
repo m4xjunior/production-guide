@@ -31,6 +31,17 @@ function tenantPath(path: string): string {
   return `tenants/${TENANT}/${path}`;
 }
 
+/**
+ * Constrói um path GCS com isolamento por tenant.
+ *
+ * @example
+ * buildGcsPath("kh", "stations", stationId, "steps", stepId, "photo.jpg")
+ * // → "tenants/kh/stations/<id>/steps/<id>/photo.jpg"
+ */
+export function buildGcsPath(tenantSlug: string, ...segments: string[]): string {
+  return `tenants/${tenantSlug}/${segments.join("/")}`;
+}
+
 // ─── Upload ────────────────────────────────────────────────
 export async function uploadFile(
   localPath: string,

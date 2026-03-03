@@ -30,6 +30,11 @@ import { StepTransition } from "@/components/StepTransition";
 import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
 import { resolveNextStep } from "@/lib/resolveNextStep";
+
+export type ExtendedStep = Step & {
+  videoUrl?: string | null;
+  synonyms?: string[];
+};
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
 import { StepAssemblyViewer } from "@/components/StepAssemblyViewer";
@@ -50,15 +55,15 @@ import {
 } from "lucide-react";
 
 interface ProductionStepProps {
-  step: Step;
-  steps: Step[];
+  step: ExtendedStep;
+  steps: ExtendedStep[];
   currentIndex: number;
   totalSteps: number;
   operatorNumber: string;
   sessionId: string;
-  stationId: string;
-  completedUnits: number;
-  onStepCompleted: (nextStep?: Step | null) => void;
+  stationId?: string;
+  completedUnits?: number;
+  onStepCompleted: (nextStep?: ExtendedStep | null) => void;
   onPreviousStep: () => void;
   onNextStep: () => void;
   onBackToStations: () => void;
@@ -74,8 +79,8 @@ export function ProductionStep({
   totalSteps,
   operatorNumber,
   sessionId,
-  stationId,
-  completedUnits,
+  stationId = "",
+  completedUnits = 0,
   onStepCompleted,
   onPreviousStep,
   onNextStep,
@@ -109,6 +114,7 @@ export function ProductionStep({
     process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const swipeTouchStartY = useRef<number | null>(null);
 
   const { speak, stop: stopSpeech, isSpeaking } = useTextToSpeech();
 
@@ -402,6 +408,20 @@ export function ProductionStep({
     setErrorConfirmed(false);
   }, [step.id]);
 
+  const handleSwipeTouchStart = (e: React.TouchEvent) => {
+    swipeTouchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleSwipeTouchEnd = (e: React.TouchEvent) => {
+    if (swipeTouchStartY.current === null) return;
+    const deltaY = swipeTouchStartY.current - e.changedTouches[0].clientY;
+    swipeTouchStartY.current = null;
+    // Swipe up >= 80px confirma o passo (só para pasos de botão)
+    if (deltaY >= 80 && step.responseType === "button") {
+      handleButtonConfirm();
+    }
+  };
+
   const handleButtonConfirm = () => {
     if (step.isErrorStep && !errorConfirmed) {
       setErrorConfirmed(true);
@@ -604,8 +624,12 @@ export function ProductionStep({
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-4 md:p-8">
+      {/* Main content — swipe up para confirmar paso de botón */}
+      <div
+        className="flex-1 p-4 md:p-8"
+        onTouchStart={handleSwipeTouchStart}
+        onTouchEnd={handleSwipeTouchEnd}
+      >
         <div className="max-w-5xl mx-auto">
           <StepTransition stepKey={step.id} direction={direction}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -777,14 +801,21 @@ export function ProductionStep({
               {/* Right: Visual guidance */}
               <div className="flex items-start justify-center">
                 <div className="w-full space-y-4">
-                  {step.modelUrl && (
+                  {step.videoUrl ? (
+                    <video
+                      src={step.videoUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full aspect-video rounded-xl object-cover"
+                    />
+                  ) : step.modelUrl ? (
                     <StepAssemblyViewer
                       sourceUrl={step.modelUrl}
                       stepLabel={`Montaje 3D · Paso ${currentIndex + 1}`}
                     />
-                  )}
-
-                  {step.photoUrl ? (
+                  ) : step.photoUrl ? (
                     <div className="w-full rounded-xl overflow-hidden border border-border bg-card shadow-sm">
                       <img
                         src={step.photoUrl}
@@ -794,10 +825,6 @@ export function ProductionStep({
                           (e.target as HTMLImageElement).src = "/file.svg";
                         }}
                       />
-                    </div>
-                  ) : !step.modelUrl ? (
-                    <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
-                      <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
                     </div>
                   ) : null}
                 </div>

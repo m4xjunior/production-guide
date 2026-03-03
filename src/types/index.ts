@@ -42,6 +42,8 @@ export interface Step {
   photoUrl: string | null;
   vozAudioUrl: string | null;
   modelUrl: string | null;
+  videoUrl: string | null;
+  synonyms: string[];
   isQc: boolean;
   qcFrequency: number | null;
   isErrorStep: boolean;

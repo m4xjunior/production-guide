@@ -19,6 +19,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const tenantId = request.headers.get("x-tenant-id");
     const { id } = await params;
     const body = await request.json();
     const allowed = ["ttsVoiceId", "fontSize", "backgroundColor", "accentColor", "autoAdvanceDelay"];
@@ -29,16 +30,19 @@ export async function PUT(
       create: { stationId: id, ...data, updatedBy: "admin" },
       update: { ...data, updatedBy: "admin" },
     });
-    await prisma.auditLog.create({
-      data: {
-        action: "UPDATE_STATION_SETTINGS",
-        entityType: "StationSettings",
-        entityId: id,
-        oldValue: (current as object) ?? {},
-        newValue: settings as object,
-        performedBy: "admin",
-      },
-    });
+    if (tenantId) {
+      await prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: "UPDATE_STATION_SETTINGS",
+          entityType: "StationSettings",
+          entityId: id,
+          oldValue: (current as object) ?? {},
+          newValue: settings as object,
+          performedBy: "admin",
+        },
+      });
+    }
     return NextResponse.json({ settings });
   } catch (error) {
     console.error("Error al actualizar configuración de estación:", error);

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "DATABASE_URL=${DATABASE_URL:-postgresql://build:build@localhost/build} prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "import:techo-ciclonico": "tsx scripts/import-techo-ciclonico.ts",
@@ -48,6 +48,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -56,6 +57,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "fdir": "^6.5.0",
+    "jsdom": "^28.1.0",
     "prisma": "^7.4.2",
     "rollup": "^4.59.0",
     "shadcn": "^3.8.5",
