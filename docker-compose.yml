@@ -1,4 +1,8 @@
+version: "3.9"
+
 services:
+  # Local PostgreSQL — used in development only
+  # In production, Neon PostgreSQL is used via DATABASE_URL env var
   postgres:
     image: postgres:15-alpine
     container_name: p2v-postgres
@@ -16,6 +20,34 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - sao-internal
+
+  # Sage Operator Sync — syncs operators from Sage SQL Server to Neon PostgreSQL
+  sync-sage:
+    build:
+      context: ./sync-sage
+      dockerfile: Dockerfile
+    env_file: ./sync-sage/.env
+    restart: unless-stopped
+    networks:
+      - sao-internal
+
+  # Whisper Transcription Server — local speech-to-text via WebSocket
+  transcription-server:
+    build:
+      context: ./transcription-server
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8765"
+    env_file: ./transcription-server/.env
+    restart: unless-stopped
+    networks:
+      - sao-internal
+
+networks:
+  sao-internal:
+    driver: bridge
 
 volumes:
   p2v_pgdata:
