@@ -14,7 +14,6 @@ type ElevenSessionResponse =
   | {
       provider: "elevenlabs";
       signedUrl: string;
-      agentId: string;
     }
   | {
       provider: "fallback";
@@ -156,7 +155,6 @@ export async function POST(request: NextRequest) {
     const response: ElevenSessionResponse = {
       provider: "elevenlabs",
       signedUrl: signedUrlData.signed_url,
-      agentId,
     };
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
