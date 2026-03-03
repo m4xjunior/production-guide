@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 type Vec3Like = {
   x?: number;
@@ -29,8 +27,6 @@ interface StepAssemblyViewerProps {
   className?: string;
   stepLabel?: string;
 }
-
-const BASE_BACKGROUND = "#f5f5f4";
 
 function easeInOutSine(value: number): number {
   return -(Math.cos(Math.PI * value) - 1) / 2;
@@ -106,8 +102,6 @@ export function StepAssemblyViewer({
   const [overlayLabel, setOverlayLabel] = useState<string>("Guia visual");
   const [overlayInstruction, setOverlayInstruction] = useState<string>("");
 
-  const sceneBackground = useMemo(() => new THREE.Color(BASE_BACKGROUND), []);
-
   useEffect(() => {
     let disposed = false;
     let animationFrameId = 0;
@@ -123,13 +117,12 @@ export function StepAssemblyViewer({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(sceneBackground, 1);
+    renderer.setClearColor(0x000000, 0);
 
     mount.innerHTML = "";
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = sceneBackground;
 
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 200);
     camera.position.set(2.4, 2, 2.4);
@@ -307,37 +300,33 @@ export function StepAssemblyViewer({
       renderer.dispose();
       mount.innerHTML = "";
     };
-  }, [sceneBackground, sourceUrl]);
+  }, [sourceUrl]);
 
   return (
-    <Card className={cn("border-border overflow-hidden", className)}>
-      <CardContent className="p-0">
-        <div className="relative aspect-video bg-muted/30">
-          <div ref={mountRef} className="absolute inset-0" />
+    <div className={`relative aspect-video${className ? ` ${className}` : ""}`}>
+      <div ref={mountRef} className="absolute inset-0" />
 
-          <div className="absolute top-2 left-2 bg-background/85 border border-border rounded px-2 py-1 text-xs font-semibold text-foreground">
-            {stepLabel ?? overlayLabel}
-          </div>
+      <div className="absolute top-2 left-2 bg-background/85 border border-border rounded px-2 py-1 text-xs font-semibold text-foreground">
+        {stepLabel ?? overlayLabel}
+      </div>
 
-          {overlayInstruction && (
-            <div className="absolute left-2 right-2 bottom-2 bg-background/85 border border-border rounded px-2 py-1 text-xs text-foreground">
-              {overlayInstruction}
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-              <p className="text-sm text-muted-foreground">Cargando animacion 3D...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
+      {overlayInstruction && (
+        <div className="absolute left-2 right-2 bottom-2 bg-background/85 border border-border rounded px-2 py-1 text-xs text-foreground">
+          {overlayInstruction}
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+          <p className="text-sm text-muted-foreground">Cargando animacion 3D...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+    </div>
   );
 }
