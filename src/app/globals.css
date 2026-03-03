@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+* {
+  touch-action: manipulation;
+}
+
 :root {
   --radius: 0.625rem;
   --background: #111113;

@@ -114,6 +114,7 @@ export function ProductionStep({
     process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const { speak, stop: stopSpeech, isSpeaking } = useTextToSpeech();
 
@@ -581,13 +582,13 @@ export function ProductionStep({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleToggleMute} title={isMuted ? "Activar sonido" : "Silenciar"}>
+            <Button variant="ghost" className="h-14 min-h-[56px] px-4" onClick={handleToggleMute} title={isMuted ? "Activar sonido" : "Silenciar"}>
               {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={onRestart} title="Reiniciar">
+            <Button variant="ghost" className="h-14 min-h-[56px] px-4" onClick={onRestart} title="Reiniciar">
               <RotateCcw className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={onLogout} title="Cerrar sesion">
+            <Button variant="ghost" className="h-14 min-h-[56px] px-4" onClick={onLogout} title="Cerrar sesion">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -610,7 +611,19 @@ export function ProductionStep({
       </div>
 
       {/* Main content */}
-      <div className="flex-1 p-4 md:p-8">
+      <div
+        className="flex-1 p-4 md:p-8"
+        onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
+        onTouchEnd={(e) => {
+          if (touchStartY.current === null) return;
+          const dy = touchStartY.current - e.changedTouches[0].clientY;
+          if (dy > 80) {
+            touchStartY.current = null;
+            handleButtonConfirm();
+          }
+          touchStartY.current = null;
+        }}
+      >
         <div className="max-w-5xl mx-auto">
           <StepTransition stepKey={step.id} direction={direction}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -700,15 +713,19 @@ export function ProductionStep({
                       />
                     )}
                     {!isVoiceListening && (
-                      <Button
-                        variant="success"
-                        size="touch"
-                        className="w-full text-xl font-bold"
-                        onClick={handleButtonConfirm}
-                      >
-                        <CheckCircle2 className="h-6 w-6 mr-2" />
-                        Confirmar paso
-                      </Button>
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="success"
+                          className="w-full h-16 min-h-[64px] text-xl font-bold"
+                          onClick={handleButtonConfirm}
+                        >
+                          <CheckCircle2 className="h-6 w-6 mr-2" />
+                          Confirmar paso
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center mt-1 md:hidden">
+                          Desliza arriba para confirmar
+                        </p>
+                      </div>
                     )}
                   </>
                 )}
@@ -724,15 +741,19 @@ export function ProductionStep({
 
                 {/* Button confirmation */}
                 {step.responseType === "button" && (
-                  <Button
-                    variant="success"
-                    size="touch"
-                    className="w-full text-xl font-bold voice-button"
-                    onClick={handleButtonConfirm}
-                  >
-                    <CheckCircle2 className="h-6 w-6 mr-2" />
-                    {step.isErrorStep && !errorConfirmed ? "Confirmar que el error fue resuelto" : "Confirmar"}
-                  </Button>
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="success"
+                      className="w-full h-16 min-h-[64px] text-xl font-bold voice-button"
+                      onClick={handleButtonConfirm}
+                    >
+                      <CheckCircle2 className="h-6 w-6 mr-2" />
+                      {step.isErrorStep && !errorConfirmed ? "Confirmar que el error fue resuelto" : "Confirmar"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center mt-1 md:hidden">
+                      Desliza arriba para confirmar
+                    </p>
+                  </div>
                 )}
 
                 {/* Auto-advance */}
@@ -749,10 +770,9 @@ export function ProductionStep({
                 {step.vozAudioUrl && (
                   <Button
                     variant="outline"
-                    size="lg"
                     onClick={handleRepeatVoice}
                     disabled={isSpeaking}
-                    className="w-full"
+                    className="w-full h-14 min-h-[56px] text-lg"
                   >
                     {isSpeaking ? (
                       <>
@@ -817,10 +837,10 @@ export function ProductionStep({
 
       {/* Bottom navigation */}
       <div className="border-t border-border bg-card px-4 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           <Button
             variant="outline"
-            size="touch"
+            className="h-14 min-h-[56px] px-6 text-lg rounded-lg"
             onClick={handlePreviousStep}
             disabled={isFirstStep}
           >
@@ -831,8 +851,7 @@ export function ProductionStep({
           {/* Stop button — center */}
           <Button
             variant="outline"
-            size="sm"
-            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+            className="h-14 min-h-[56px] px-6 text-lg rounded-lg border-destructive/50 text-destructive hover:bg-destructive/10"
             onClick={() => setShowStopDialog(true)}
           >
             <Square className="h-4 w-4 mr-1.5" />
@@ -863,7 +882,7 @@ export function ProductionStep({
 
           <Button
             variant="outline"
-            size="touch"
+            className="h-14 min-h-[56px] px-6 text-lg rounded-lg"
             onClick={handleNextStep}
             disabled={isLastStep}
           >
@@ -902,10 +921,10 @@ export function ProductionStep({
               rows={3}
             />
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="h-14 min-h-[56px] px-6 text-lg">Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 h-14 min-h-[56px] px-6 text-lg"
               onClick={handleRegisterStop}
               disabled={isRegisteringStop}
             >
