@@ -42,23 +42,23 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="w-full max-w-md shadow-2xl border-border">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto mb-2">
             <img
               src="/logo-kh.png"
-              alt="Logo"
-              className="h-16 w-auto mx-auto"
+              alt="KH Know How"
+              className="h-20 w-auto mx-auto"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
           </div>
-          <CardTitle className="text-2xl font-bold">
-            SAO - Sistema de Ayuda al Operario
+          <CardTitle className="text-3xl font-bold tracking-tight">
+            SAO
           </CardTitle>
           <CardDescription className="text-base">
-            Introduce tu numero de operario para comenzar
+            Sistema de Ayuda al Operario
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -68,7 +68,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               value={operatorNumber}
               readOnly
               placeholder="_ _ _ _"
-              className="text-center text-4xl font-mono tracking-[0.5em] h-16 bg-muted/50"
+              className="text-center text-4xl font-mono tracking-[0.5em] h-16 bg-muted border-border"
             />
             {operatorNumber.length > 0 && (
               <button
@@ -95,7 +95,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
                 key={digit}
                 variant="outline"
                 size="touch"
-                className="text-2xl font-bold aspect-square"
+                className="text-2xl font-bold aspect-square hover:bg-accent hover:border-[#8B1A1A]/50"
                 onClick={() => handleNumpadPress(String(digit))}
               >
                 {digit}
@@ -104,7 +104,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             <Button
               variant="outline"
               size="touch"
-              className="text-lg"
+              className="text-lg hover:bg-accent hover:border-[#8B1A1A]/50"
               onClick={handleDelete}
             >
               <Delete className="h-6 w-6" />
@@ -112,7 +112,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             <Button
               variant="outline"
               size="touch"
-              className="text-2xl font-bold aspect-square"
+              className="text-2xl font-bold aspect-square hover:bg-accent hover:border-[#8B1A1A]/50"
               onClick={() => handleNumpadPress("0")}
             >
               0
@@ -120,7 +120,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             <Button
               variant="default"
               size="touch"
-              className="text-lg font-bold"
+              className="text-lg font-bold bg-[#8B1A1A] hover:bg-[#A52525] text-white"
               onClick={handleSubmit}
               disabled={operatorNumber.length !== 4}
             >
@@ -133,11 +133,12 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             onClick={handleSubmit}
             disabled={operatorNumber.length !== 4}
             size="xl"
-            className="w-full text-lg font-semibold"
+            className="w-full text-lg font-semibold bg-[#8B1A1A] hover:bg-[#A52525] text-white"
           >
             <LogIn className="mr-2 h-5 w-5" />
             Entrar
           </Button>
+          <p className="text-center text-xs text-muted-foreground/50 mt-4">KH | Know How</p>
         </CardContent>
       </Card>
 

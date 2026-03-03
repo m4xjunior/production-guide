@@ -366,9 +366,12 @@ export function ProductionStep({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
-      <div className="border-b bg-card px-4 py-3">
+      <div className="border-b border-border bg-card px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <img src="/logo-kh.png" alt="KH" className="h-8 w-auto" />
+            <span className="text-sm font-bold text-foreground tracking-wide">SAO</span>
+            <Separator orientation="vertical" className="h-6" />
             <Button variant="ghost" size="sm" onClick={onBackToStations}>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Estaciones
@@ -548,7 +551,7 @@ export function ProductionStep({
               {/* Right: Image */}
               <div className="flex items-start justify-center">
                 {step.photoUrl ? (
-                  <div className="w-full rounded-xl overflow-hidden border bg-white shadow-sm">
+                  <div className="w-full rounded-xl overflow-hidden border border-border bg-card shadow-sm">
                     <img
                       src={step.photoUrl}
                       alt={`Referencia paso ${currentIndex + 1}`}
@@ -614,6 +617,11 @@ export function ProductionStep({
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-border bg-card px-4 py-1.5 text-center">
+        <span className="text-xs text-muted-foreground/40">KH | Know How</span>
       </div>
 
       <SuccessFeedback visible={showSuccess} />
