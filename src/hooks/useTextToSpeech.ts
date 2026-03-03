@@ -161,11 +161,17 @@ export const useTextToSpeech = () => {
   }, []);
 
   const unlockAudio = useCallback(() => {
-    if (synthRef.current && synthRef.current.paused) {
-      const utterance = new SpeechSynthesisUtterance("");
-      utterance.volume = 0;
-      synthRef.current.speak(utterance);
-    }
+    if (!synthRef.current) return;
+    // Cancel any stuck/pending speech first
+    synthRef.current.cancel();
+    // Play a near-silent utterance to unlock the audio context.
+    // This works for both "paused" and "pending" states on mobile/PWA,
+    // which the previous `synthRef.current.paused` check missed.
+    const utterance = new SpeechSynthesisUtterance(" ");
+    utterance.volume = 0.01;
+    utterance.rate = 2;
+    utterance.lang = "es-ES";
+    synthRef.current.speak(utterance);
   }, []);
 
   return {

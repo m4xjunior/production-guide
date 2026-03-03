@@ -20,7 +20,7 @@ export const OperatorInputAnimated: React.FC<OperatorInputAnimatedProps> = ({
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-dvh relative">
       {/* Red Theme Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
         <DotGridBackground
@@ -33,7 +33,7 @@ export const OperatorInputAnimated: React.FC<OperatorInputAnimatedProps> = ({
       {/* Header */}
       <Header />
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
+      <div className="flex items-center justify-center min-h-[calc(100dvh-80px)] p-4 pb-safe overflow-y-auto">
         <div className="relative z-10 max-w-lg w-full">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-8 animate-fadeInDown">

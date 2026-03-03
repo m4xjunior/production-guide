@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { StarBorderButton } from "./StarBorderButton";
+import { AdminPanel } from "./devkit";
 
 interface ProductUploadModalProps {
   isOpen: boolean;
@@ -100,54 +101,14 @@ export const ProductUploadModal: React.FC<ProductUploadModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-white/10 w-full max-w-2xl">
-        {/* Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </div>
-              <span>Crear Nuevo Producto</span>
-            </h2>
-            <button
-              onClick={handleClose}
-              disabled={isUploading}
-              className="text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
+    <AdminPanel
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Crear Nuevo Producto"
+      icon="➕"
+      disableClose={isUploading}
+    >
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Product ID Input */}
@@ -255,7 +216,6 @@ export const ProductUploadModal: React.FC<ProductUploadModalProps> = ({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </AdminPanel>
   );
 };

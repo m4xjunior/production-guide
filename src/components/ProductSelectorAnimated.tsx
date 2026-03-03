@@ -94,7 +94,7 @@ export const ProductSelectorAnimated: React.FC<
 
   if (loading) {
     return (
-      <div className="min-h-screen relative">
+      <div className="min-h-dvh relative">
         {/* Loading Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
           <DotGridBackground
@@ -113,7 +113,7 @@ export const ProductSelectorAnimated: React.FC<
           onBackClick={onBackClick}
         />
 
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+        <div className="flex items-center justify-center min-h-[calc(100dvh-80px)]">
           <div className="relative text-center z-10">
             <div className="animate-spin rounded-full h-32 w-32 border-b-4 border-white mx-auto mb-4"></div>
             <p className="text-white text-xl font-semibold voice-optimized">
@@ -137,7 +137,7 @@ export const ProductSelectorAnimated: React.FC<
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-dvh relative">
       {/* Red Theme Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
         <DotGridBackground
@@ -155,7 +155,7 @@ export const ProductSelectorAnimated: React.FC<
         onBackClick={onBackClick}
       />
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-6">
+      <div className="flex items-center justify-center min-h-[calc(100dvh-80px)] p-6">
         <div className="relative z-10 max-w-6xl w-full">
           <div className="text-center mb-16">
             <h1 className="text-6xl font-bold text-white mb-6 animate-fadeInDown high-contrast-text">

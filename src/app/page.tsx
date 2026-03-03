@@ -13,6 +13,7 @@ import {
 } from "@/utils/checkpoint";
 import { LogsModal } from "@/components/LogsModal";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { AudioUnlockOverlay } from "@/components/devkit";
 
 type AppState = "operator-input" | "product-selection" | "production";
 
@@ -27,6 +28,9 @@ export default function Home() {
     null,
   );
   const [showLogsModal, setShowLogsModal] = useState(false);
+  // audioUnlocked: false until the user taps the AudioUnlockOverlay.
+  // This ensures the audio context and mic permission are ready before voice features start.
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const { unlockAudio } = useTextToSpeech();
 
   // Load checkpoint on mount
@@ -281,9 +285,19 @@ export default function Home() {
     }
   };
 
+  // Show the audio unlock overlay on first visit (before any app state is rendered)
+  if (!audioUnlocked) {
+    return (
+      <AudioUnlockOverlay
+        unlockAudio={unlockAudio}
+        onUnlocked={() => setAudioUnlocked(true)}
+      />
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative">
+      <div className="min-h-dvh flex items-center justify-center relative">
         {/* Loading Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
           <DotGridBackground

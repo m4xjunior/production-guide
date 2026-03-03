@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { StarBorderButton } from "./StarBorderButton";
 import { ProductionLog } from "@/types/ProductionLog";
 import { useTransition, animated } from "react-spring";
+import { AdminPanel } from "./devkit";
 
 interface LogsModalProps {
   isOpen: boolean;
@@ -131,57 +132,16 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
     keys: (log) => log.id,
   });
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-white/10 w-full max-w-6xl max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m-6-4h6m-7 4h.01M5 16h.01M5 20h.01M9 20h.01M13 20h.01M17 20h.01M21 20h.01M21 16h.01M21 12h.01M21 8h.01M21 4h.01M17 4h.01M13 4h.01M9 4h.01M5 4h.01M5 8h.01M5 12h.01"
-                  />
-                </svg>
-              </div>
-              <span>Logs de Producción</span>
-              <span className="text-sm bg-blue-500/20 px-2 py-1 rounded-full text-blue-300">
-                {filteredLogs.length} registros
-              </span>
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          {/* Controls */}
-          <div className="mt-4 flex flex-wrap gap-4 items-center">
+    <AdminPanel
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Logs de Producción (${filteredLogs.length})`}
+      icon="📋"
+    >
+      <div className="p-5">
+        {/* Controls */}
+        <div className="mb-4 flex flex-wrap gap-3 items-center">
             <div className="flex-1 min-w-64">
               <input
                 type="text"
@@ -239,7 +199,7 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="min-h-[200px]">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -339,7 +299,6 @@ export const LogsModal: React.FC<LogsModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </AdminPanel>
   );
 };

@@ -5,9 +5,9 @@ import { Step } from "@/types/Step";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import Image from "next/image";
 import { DotGridBackground } from "./DotGridBackground";
 import { Header } from "./Header";
+import { PwaContainer, PicToVoiceCard, VoiceCommandPanel, VoiceStatusIndicator } from "./devkit";
 
 interface ProductionStepImprovedProps {
   step: Step;
@@ -254,7 +254,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
 
   if (step.tipo === "SISTEMA") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-yellow-900 to-slate-900 relative">
+      <div className="h-dvh bg-gradient-to-br from-slate-900 via-yellow-900 to-slate-900 relative flex flex-col pb-safe">
         {/* Background Pattern */}
         <DotGridBackground
           dotColor="rgba(255, 255, 255, 0.08)"
@@ -277,7 +277,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
           onShowLogs={onShowLogs}
         />
 
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
+        <div className="flex items-center justify-center flex-1 p-4 overflow-y-auto">
           <div className="max-w-4xl w-full bg-black/20 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/10">
             <div className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-l-4 border-yellow-500 rounded-lg p-6 mb-6">
               <div className="flex items-start space-x-4">
@@ -333,7 +333,7 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 relative flex flex-col">
+    <PwaContainer gradient="bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
       {/* Background Pattern */}
       <DotGridBackground
         dotColor="rgba(255, 255, 255, 0.08)"
@@ -356,32 +356,40 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
         onShowLogs={onShowLogs}
       />
 
-      <div className="flex-1 flex flex-col p-4 overflow-hidden">
+      <div className="flex-1 flex flex-col p-4 overflow-y-auto overscroll-contain">
         {/* Main Content */}
         <div className="flex-1 grid lg:grid-cols-3 gap-6 min-h-0">
           {/* Instructions Panel - Taking 2 columns */}
           <div className="lg:col-span-2 flex flex-col space-y-4 min-h-0">
             {/* Instructions Card */}
             <div className="bg-black/20 backdrop-blur-md rounded-2xl shadow-lg p-6 border border-white/10 flex-1 min-h-0">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-7 h-7 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg
+                      className="w-7 h-7 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-3xl font-bold text-red-300">
+                    INSTRUCCIONES
+                  </h3>
                 </div>
-                <h3 className="text-3xl font-bold text-red-300">
-                  INSTRUCCIONES
-                </h3>
+                {/* Live voice status badge */}
+                <VoiceStatusIndicator
+                  isListening={isContinuousListening || isListening}
+                  isSpeaking={isSpeaking}
+                  compact
+                />
               </div>
               <div className="bg-red-500/10 rounded-lg p-6 border border-red-500/20 flex-1 overflow-y-auto">
                 <p
@@ -448,130 +456,19 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
               )}
             </div>
 
-            {/* Voice Controls */}
-            {(isContinuousSupported || isSupported) && (
-              <div className="bg-black/20 backdrop-blur-md rounded-2xl shadow-lg p-6 border border-white/10">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {/* Continuous Listening Button */}
-                  <button
-                    onClick={toggleContinuousMode}
-                    className={`group relative h-16 rounded-xl font-semibold text-lg overflow-hidden transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 ${
-                      useContinuousMode
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white focus:ring-green-300"
-                        : "bg-gradient-to-r from-blue-600 to-blue-700 text-white focus:ring-blue-300 hover:from-blue-700 hover:to-blue-800"
-                    }`}
-                  >
-                    {/* Glare Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rotate-45 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                    </div>
-
-                    <span className="relative z-10 flex items-center justify-center space-x-3">
-                      <span className="text-3xl">
-                        {useContinuousMode ? "🔴" : "🟢"}
-                      </span>
-                      <span>
-                        {useContinuousMode
-                          ? "Parar Escucha"
-                          : "Escucha Continua"}
-                      </span>
-                    </span>
-                  </button>
-
-                  {/* Manual Listening Button */}
-                  <button
-                    onClick={handleVoiceInput}
-                    className={`group relative h-16 rounded-xl font-semibold text-lg overflow-hidden transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 ${
-                      isListening
-                        ? "bg-gradient-to-r from-red-700 to-red-800 text-white focus:ring-red-300"
-                        : "bg-gradient-to-r from-red-600 to-red-700 text-white focus:ring-red-300 hover:from-red-700 hover:to-red-800"
-                    }`}
-                  >
-                    {/* Glare Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent rotate-45 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                    </div>
-
-                    <span className="relative z-10 flex items-center justify-center space-x-3">
-                      <span className="text-3xl">🎤</span>
-                      <span>
-                        {isListening ? "Parar Grabación" : "Escucha Manual"}
-                      </span>
-                    </span>
-                  </button>
-                </div>
-
-                {/* Status Display */}
-                {(transcript || lastHeard || isContinuousListening) && (
-                  <div className="space-y-3">
-                    {isContinuousListening && (
-                      <div className="bg-green-500/20 border border-green-500/40 rounded-lg p-4">
-                        <p className="text-green-300 font-medium text-lg flex items-center space-x-2">
-                          <span>🟢</span>
-                          <span>Escuchando continuamente...</span>
-                        </p>
-                        {lastHeard && (
-                          <p className="text-white mt-2">
-                            Último escuchado: &quot;{lastHeard}&quot;
-                          </p>
-                        )}
-                      </div>
-                    )}
-                    {transcript && (
-                      <div
-                        className={`rounded-lg p-4 transition-all duration-300 ${
-                          isValidResponse === true
-                            ? "bg-green-500/20 border border-green-500/40"
-                            : isValidResponse === false
-                              ? "bg-red-500/20 border border-red-500/40"
-                              : "bg-gray-500/20 border border-gray-500/40"
-                        }`}
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div
-                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                              isValidResponse === true
-                                ? "bg-green-500"
-                                : isValidResponse === false
-                                  ? "bg-red-500"
-                                  : "bg-gray-500"
-                            }`}
-                          >
-                            {isValidResponse === true
-                              ? "✓"
-                              : isValidResponse === false
-                                ? "✗"
-                                : "?"}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-300 mb-1">
-                              Escucha manual:
-                            </p>
-                            <p className="text-white text-lg">
-                              &quot;{transcript}&quot;
-                            </p>
-                            {isValidResponse === true && (
-                              <p className="text-green-400 font-medium mt-2 flex items-center space-x-2">
-                                <span>✅</span>
-                                <span>¡Respuesta correcta! Avanzando...</span>
-                              </p>
-                            )}
-                            {isValidResponse === false && (
-                              <p className="text-red-400 font-medium mt-2 flex items-center space-x-2">
-                                <span>❌</span>
-                                <span>
-                                  Respuesta incorreta. Intente nuevamente.
-                                </span>
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Voice Controls — devkit */}
+            <VoiceCommandPanel
+              isListening={isListening}
+              isContinuousListening={isContinuousListening}
+              onToggleContinuous={toggleContinuousMode}
+              onManualListen={handleVoiceInput}
+              expectedResponse={step.respuesta}
+              lastHeard={lastHeard}
+              isSupported={isSupported}
+              isContinuousSupported={isContinuousSupported}
+              transcript={transcript}
+              isValidResponse={isValidResponse}
+            />
 
             {/* Manual Input */}
             <div className="bg-black/20 backdrop-blur-md rounded-xl shadow-lg p-3 border border-white/10">
@@ -602,73 +499,25 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
             </div>
           </div>
 
-          {/* Image Panel */}
-          <div className="bg-black/20 backdrop-blur-md rounded-xl shadow-lg p-3 border border-white/10 flex flex-col min-h-0">
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-purple-300">
-                Referencia Visual
-              </h3>
-            </div>
-
-            {step.fotos && step.fotos !== "N/A" ? (
-              <div className="flex-1 flex flex-col min-h-0 h-full">
-                <div className="relative flex-1 bg-gray-800/50 rounded-lg overflow-hidden mb-2">
-                  <Image
-                    key={step.fotos}
-                    src={`/products/${productId}/${step.fotos}`}
-                    alt={`Paso ${step.paso}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-                <div className="text-center mb-2">
-                  <span className="text-gray-400 text-xs">
-                    Imagen: {step.fotos}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-gray-500 mb-2">
-                <svg
-                  className="w-12 h-12 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <p className="text-sm">Sin imagen</p>
-              </div>
-            )}
+          {/* Pic-to-Voice Panel — devkit */}
+          <div className="flex flex-col gap-3">
+            <PicToVoiceCard
+              imagePath={step.fotos && step.fotos !== "N/A" ? `/products/${productId}/${step.fotos}` : ""}
+              imageAlt={`Paso ${step.paso}`}
+              voiceText={step.voz && step.voz !== "N/A" ? step.voz : ""}
+              onRepeatVoice={() => speak(step.voz)}
+              isSpeaking={isSpeaking}
+              isListening={isContinuousListening || isListening}
+              lastHeard={lastHeard}
+              isTTSSupported={isTTSSupported}
+            />
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-2 border-t border-white/10">
+            <div className="flex justify-between items-center p-3 bg-black/20 backdrop-blur-md rounded-xl border border-white/10">
               <button
                 onClick={onPreviousStep}
                 disabled={stepNumber <= 1}
-                className="flex items-center space-x-1 px-3 py-1 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded text-sm transition-all disabled:cursor-not-allowed"
+                className="flex items-center space-x-1 px-3 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-sm transition-all disabled:cursor-not-allowed active:scale-95"
               >
                 <svg
                   className="w-4 h-4"
@@ -686,14 +535,14 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
                 <span>Anterior</span>
               </button>
 
-              <div className="text-white text-xs">
+              <div className="text-white text-xs font-medium">
                 {stepNumber}/{totalSteps}
               </div>
 
               <button
                 onClick={onNextStep}
                 disabled={stepNumber >= totalSteps}
-                className="flex items-center space-x-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded text-sm transition-all disabled:cursor-not-allowed"
+                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-sm transition-all disabled:cursor-not-allowed active:scale-95"
               >
                 <span>Próximo</span>
                 <svg
@@ -714,6 +563,6 @@ export const ProductionStepImproved: React.FC<ProductionStepImprovedProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </PwaContainer>
   );
 };
