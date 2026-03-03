@@ -66,6 +66,9 @@ sync-sage/dist/
 # Claude plans (local only)
 .claude/
 
+# Git worktrees
+.worktrees/
+
 # Misc
 .env.production
 check-steps.ts
