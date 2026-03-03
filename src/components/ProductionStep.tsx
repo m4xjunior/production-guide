@@ -10,6 +10,8 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
 import { useWhisperSTT } from "@/hooks/useWhisperSTT";
+import { StepTransition } from "@/components/StepTransition";
+import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
 import {
   ArrowLeft,
@@ -59,6 +61,8 @@ export function ProductionStep({
   const [isMuted, setIsMuted] = useState(false);
   const [useWhisper, setUseWhisper] = useState(false);
   const [whisperUrl, setWhisperUrl] = useState("ws://localhost:8765");
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
+  const [showSuccess, setShowSuccess] = useState(false);
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -66,6 +70,9 @@ export function ProductionStep({
 
   const handleVoiceMatch = useCallback(() => {
     logStepCompletion(step.respuesta || "voz");
+    setDirection("forward");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 900);
     onStepCompleted();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step.respuesta, onStepCompleted]);
@@ -159,6 +166,9 @@ export function ProductionStep({
           if (prev !== null && prev <= 1) {
             clearInterval(autoTimerRef.current!);
             logStepCompletion("auto");
+            setDirection("forward");
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 900);
             onStepCompleted();
             return null;
           }
@@ -203,11 +213,17 @@ export function ProductionStep({
 
   const handleButtonConfirm = () => {
     logStepCompletion("confirmado");
+    setDirection("forward");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 900);
     onStepCompleted();
   };
 
   const handleScanComplete = (code: string) => {
     logStepCompletion(code);
+    setDirection("forward");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 900);
     onStepCompleted();
   };
 
@@ -220,6 +236,16 @@ export function ProductionStep({
     if (step.vozAudioUrl) {
       speak(step.vozAudioUrl);
     }
+  };
+
+  const handlePreviousStep = () => {
+    setDirection("backward");
+    onPreviousStep();
+  };
+
+  const handleNextStep = () => {
+    setDirection("forward");
+    onNextStep();
   };
 
   const progressPercent = ((currentIndex + 1) / totalSteps) * 100;
@@ -281,139 +307,138 @@ export function ProductionStep({
       {/* Main content */}
       <div className="flex-1 p-4 md:p-8">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Instruction */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant={badgeInfo.variant}>{badgeInfo.label}</Badge>
-                {step.isQc && (
-                  <Badge variant="warning">QC</Badge>
-                )}
-                {step.responseType === "voice" && (isListening || (useWhisper && whisperSTT.isListening)) && (
-                  <Badge variant="default" className="voice-listening">
-                    <Mic className="h-3 w-3 mr-1" />
-                    Escuchando...
-                  </Badge>
-                )}
-                {useWhisper && whisperSTT.isConnected && (
-                  <span className="text-xs text-green-600">● Whisper</span>
-                )}
-              </div>
-
-              <Card className="border-2">
-                <CardContent className="p-6 md:p-8">
-                  <p className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed voice-optimized">
-                    {step.mensaje}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Voice feedback */}
-              {step.responseType === "voice" && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {(isListening || (useWhisper && whisperSTT.isListening)) ? (
-                      <>
-                        <Mic className="h-4 w-4 text-primary animate-pulse" />
-                        <span>Escuchando... Di: <strong className="text-foreground">&quot;{step.respuesta}&quot;</strong></span>
-                        {useWhisper && whisperSTT.isConnected && (
-                          <span className="text-xs text-green-600 ml-1">● Whisper</span>
-                        )}
-                      </>
-                    ) : (speechSupported || useWhisper) ? (
-                      <>
-                        <MicOff className="h-4 w-4" />
-                        <span>Microfono pausado</span>
-                      </>
-                    ) : (
-                      <span>Reconocimiento de voz no disponible</span>
-                    )}
-                  </div>
-                  {(useWhisper ? whisperSTT.lastHeard : lastHeard) && (
-                    <p className="text-sm text-muted-foreground italic">
-                      Ultimo escuchado: &quot;{useWhisper ? whisperSTT.lastHeard : lastHeard}&quot;
-                    </p>
+          <StepTransition stepKey={step.id} direction={direction}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Instruction */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant={badgeInfo.variant}>{badgeInfo.label}</Badge>
+                  {step.isQc && (
+                    <Badge variant="warning">QC</Badge>
                   )}
-                  {/* Manual advance button for voice steps */}
+                  {step.responseType === "voice" && (isListening || (useWhisper && whisperSTT.isListening)) && (
+                    <Badge variant="default" className="voice-listening">
+                      <Mic className="h-3 w-3 mr-1" />
+                      Escuchando...
+                    </Badge>
+                  )}
+                  {useWhisper && whisperSTT.isConnected && (
+                    <span className="text-xs text-green-600">● Whisper</span>
+                  )}
+                </div>
+
+                <Card className="border-2">
+                  <CardContent className="p-6 md:p-8">
+                    <p className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed voice-optimized">
+                      {step.mensaje}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Voice feedback */}
+                {step.responseType === "voice" && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      {isListening ? (
+                        <>
+                          <Mic className="h-4 w-4 text-primary animate-pulse" />
+                          <span>Escuchando... Di: <strong className="text-foreground">&quot;{step.respuesta}&quot;</strong></span>
+                        </>
+                      ) : speechSupported ? (
+                        <>
+                          <MicOff className="h-4 w-4" />
+                          <span>Microfono pausado</span>
+                        </>
+                      ) : (
+                        <span>Reconocimiento de voz no disponible</span>
+                      )}
+                    </div>
+                    {lastHeard && (
+                      <p className="text-sm text-muted-foreground italic">
+                        Ultimo escuchado: &quot;{lastHeard}&quot;
+                      </p>
+                    )}
+                    {/* Manual advance button for voice steps */}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={handleButtonConfirm}
+                      className="w-full"
+                    >
+                      <CheckCircle2 className="h-5 w-5 mr-2" />
+                      Confirmar manualmente
+                    </Button>
+                  </div>
+                )}
+
+                {/* Scan input */}
+                {step.responseType === "scan" && (
+                  <BarcodeScanner
+                    expectedCode={step.respuesta}
+                    onScanComplete={handleScanComplete}
+                    stepId={step.id}
+                  />
+                )}
+
+                {/* Button confirmation */}
+                {step.responseType === "button" && (
+                  <Button
+                    variant="success"
+                    size="touch"
+                    className="w-full text-xl font-bold voice-button"
+                    onClick={handleButtonConfirm}
+                  >
+                    <CheckCircle2 className="h-6 w-6 mr-2" />
+                    Confirmar
+                  </Button>
+                )}
+
+                {/* Auto-advance */}
+                {(step.responseType === "auto" || step.tipo === "SISTEMA") && autoAdvanceCountdown !== null && (
+                  <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <span className="text-lg">
+                      Avanzando automaticamente en {autoAdvanceCountdown}s...
+                    </span>
+                  </div>
+                )}
+
+                {/* Repeat audio button */}
+                {step.vozAudioUrl && (
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={handleButtonConfirm}
+                    onClick={handleRepeatVoice}
+                    disabled={isSpeaking}
                     className="w-full"
                   >
-                    <CheckCircle2 className="h-5 w-5 mr-2" />
-                    Confirmar manualmente
+                    <Volume2 className="h-5 w-5 mr-2" />
+                    {isSpeaking ? "Reproduciendo..." : "Repetir instruccion"}
                   </Button>
-                </div>
-              )}
+                )}
+              </div>
 
-              {/* Scan input */}
-              {step.responseType === "scan" && (
-                <BarcodeScanner
-                  expectedCode={step.respuesta}
-                  onScanComplete={handleScanComplete}
-                  stepId={step.id}
-                />
-              )}
-
-              {/* Button confirmation */}
-              {step.responseType === "button" && (
-                <Button
-                  variant="success"
-                  size="touch"
-                  className="w-full text-xl font-bold voice-button"
-                  onClick={handleButtonConfirm}
-                >
-                  <CheckCircle2 className="h-6 w-6 mr-2" />
-                  Confirmar
-                </Button>
-              )}
-
-              {/* Auto-advance */}
-              {(step.responseType === "auto" || step.tipo === "SISTEMA") && autoAdvanceCountdown !== null && (
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  <span className="text-lg">
-                    Avanzando automaticamente en {autoAdvanceCountdown}s...
-                  </span>
-                </div>
-              )}
-
-              {/* Repeat audio button */}
-              {step.vozAudioUrl && (
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handleRepeatVoice}
-                  disabled={isSpeaking}
-                  className="w-full"
-                >
-                  <Volume2 className="h-5 w-5 mr-2" />
-                  {isSpeaking ? "Reproduciendo..." : "Repetir instruccion"}
-                </Button>
-              )}
+              {/* Right: Image */}
+              <div className="flex items-start justify-center">
+                {step.photoUrl ? (
+                  <div className="w-full rounded-xl overflow-hidden border bg-white shadow-sm">
+                    <img
+                      src={step.photoUrl}
+                      alt={`Referencia paso ${currentIndex + 1}`}
+                      className="w-full h-auto object-contain max-h-[60vh]"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/file.svg";
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
+                    <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
+                  </div>
+                )}
+              </div>
             </div>
-
-            {/* Right: Image */}
-            <div className="flex items-start justify-center">
-              {step.photoUrl ? (
-                <div className="w-full rounded-xl overflow-hidden border bg-white shadow-sm">
-                  <img
-                    src={step.photoUrl}
-                    alt={`Referencia paso ${currentIndex + 1}`}
-                    className="w-full h-auto object-contain max-h-[60vh]"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/file.svg";
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
-                  <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
-                </div>
-              )}
-            </div>
-          </div>
+          </StepTransition>
         </div>
       </div>
 
@@ -423,7 +448,7 @@ export function ProductionStep({
           <Button
             variant="outline"
             size="touch"
-            onClick={onPreviousStep}
+            onClick={handlePreviousStep}
             disabled={isFirstStep}
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
@@ -455,7 +480,7 @@ export function ProductionStep({
           <Button
             variant="outline"
             size="touch"
-            onClick={onNextStep}
+            onClick={handleNextStep}
             disabled={isLastStep}
           >
             Siguiente
@@ -463,6 +488,8 @@ export function ProductionStep({
           </Button>
         </div>
       </div>
+
+      <SuccessFeedback visible={showSuccess} />
     </div>
   );
 }
