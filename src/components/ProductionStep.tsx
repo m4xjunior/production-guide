@@ -10,9 +10,15 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
 import { useWhisperSTT } from "@/hooks/useWhisperSTT";
+import {
+  type VoiceProvider,
+  useElevenStepConversation,
+} from "@/hooks/useElevenStepConversation";
 import { StepTransition } from "@/components/StepTransition";
 import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
+import { LiveWaveform } from "@/components/ui/live-waveform";
+import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,7 +27,6 @@ import {
   Volume2,
   VolumeX,
   Mic,
-  MicOff,
   RotateCcw,
   LogOut,
   Loader2,
@@ -61,8 +66,12 @@ export function ProductionStep({
   const [isMuted, setIsMuted] = useState(false);
   const [useWhisper, setUseWhisper] = useState(false);
   const [whisperUrl, setWhisperUrl] = useState("ws://localhost:8765");
+  const [useElevenLive, setUseElevenLive] = useState(true);
+  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>("elevenlabs");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [showSuccess, setShowSuccess] = useState(false);
+  const elevenLiveEnabledByEnv =
+    process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -100,6 +109,39 @@ export function ProductionStep({
     enabled: useWhisper && step.responseType === "voice",
   });
 
+  const startFallbackRecognition = useCallback(() => {
+    if (useWhisper) {
+      void whisperSTT.startListening();
+      return;
+    }
+
+    if (speechSupported) {
+      startContinuousListening();
+    }
+  }, [useWhisper, whisperSTT, speechSupported, startContinuousListening]);
+
+  const stopFallbackRecognition = useCallback(() => {
+    whisperSTT.stopListening();
+    stopContinuousListening();
+  }, [whisperSTT, stopContinuousListening]);
+
+  const elevenStep = useElevenStepConversation({
+    sessionId,
+    stationId: step.stationId,
+    stepId: step.id,
+    expectedResponse: step.respuesta || "",
+    onMatch: () => {
+      stopFallbackRecognition();
+      handleVoiceMatch();
+    },
+    isTTSSpeaking: isSpeaking,
+    enabled: useElevenLive && step.responseType === "voice",
+  });
+
+  useEffect(() => {
+    setVoiceProvider(elevenStep.provider);
+  }, [elevenStep.provider]);
+
   const logStepCompletion = useCallback(async (response: string) => {
     const durationMs = Date.now() - stepStartTime;
     try {
@@ -135,27 +177,43 @@ export function ProductionStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step.id, isMuted]);
 
-  // Start voice recognition for voice steps
+  // Start voice recognition for voice steps (ElevenLabs first, fallback automático)
   useEffect(() => {
     if (step.responseType === "voice" && step.respuesta) {
+      let cancelled = false;
       const timer = setTimeout(() => {
-        if (useWhisper) {
-          void whisperSTT.startListening();
-        } else if (speechSupported) {
-          startContinuousListening();
-        }
+        void (async () => {
+          if (!useElevenLive) {
+            startFallbackRecognition();
+            return;
+          }
+
+          const startedWithEleven = await elevenStep.startListening();
+          if (cancelled) return;
+
+          if (!startedWithEleven) {
+            startFallbackRecognition();
+          }
+        })();
       }, 1000);
+
       return () => {
+        cancelled = true;
         clearTimeout(timer);
-        if (useWhisper) {
-          whisperSTT.stopListening();
-        } else {
-          stopContinuousListening();
-        }
+        void elevenStep.stopListening();
+        stopFallbackRecognition();
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.id, step.responseType, useWhisper]);
+  }, [
+    step.id,
+    step.responseType,
+    step.respuesta,
+    useElevenLive,
+    elevenStep.startListening,
+    elevenStep.stopListening,
+    startFallbackRecognition,
+    stopFallbackRecognition,
+  ]);
 
   // Auto-advance for SISTEMA steps
   useEffect(() => {
@@ -191,25 +249,55 @@ export function ProductionStep({
   useEffect(() => {
     return () => {
       stopSpeech();
-      stopContinuousListening();
-      whisperSTT.stopListening();
+      stopFallbackRecognition();
+      void elevenStep.stopListening();
       if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stopSpeech, stopFallbackRecognition, elevenStep.stopListening]);
 
   // Fetch Whisper config from global settings
   useEffect(() => {
+    setUseElevenLive(elevenLiveEnabledByEnv);
     fetch("/api/config/global")
       .then((r) => r.json())
-      .then((d: { settings?: { useWhisperSTT?: boolean; whisperServerUrl?: string } }) => {
+      .then((
+        d: {
+          settings?: {
+            useWhisperSTT?: boolean;
+            whisperServerUrl?: string;
+            useElevenLiveSTT?: boolean;
+          };
+        },
+      ) => {
         if (d.settings) {
           setUseWhisper(d.settings.useWhisperSTT ?? false);
           setWhisperUrl(d.settings.whisperServerUrl ?? "ws://localhost:8765");
+          if (typeof d.settings.useElevenLiveSTT === "boolean") {
+            setUseElevenLive(d.settings.useElevenLiveSTT);
+          }
         }
       })
       .catch(() => {});
-  }, []);
+  }, [elevenLiveEnabledByEnv]);
+
+  // Se ElevenLabs cair durante o passo, ativa fallback automaticamente.
+  useEffect(() => {
+    if (step.responseType !== "voice" || !step.respuesta) return;
+
+    if (voiceProvider === "fallback") {
+      startFallbackRecognition();
+      return;
+    }
+
+    stopFallbackRecognition();
+  }, [
+    step.id,
+    step.responseType,
+    step.respuesta,
+    voiceProvider,
+    startFallbackRecognition,
+    stopFallbackRecognition,
+  ]);
 
   const handleButtonConfirm = () => {
     logStepCompletion("confirmado");
@@ -259,6 +347,21 @@ export function ProductionStep({
   };
 
   const badgeInfo = tipoBadge[step.tipo] || tipoBadge.VOZ;
+
+  const fallbackEngineLabel = useWhisper ? "Whisper" : "Web Speech API";
+  const isFallbackVoiceListening =
+    isListening || (useWhisper && whisperSTT.isListening);
+  const isVoiceListening =
+    step.responseType === "voice" &&
+    (voiceProvider === "elevenlabs"
+      ? elevenStep.isListening
+      : isFallbackVoiceListening);
+  const lastHeardText =
+    voiceProvider === "elevenlabs"
+      ? elevenStep.lastHeard
+      : useWhisper
+      ? whisperSTT.lastHeard
+      : lastHeard;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -316,14 +419,38 @@ export function ProductionStep({
                   {step.isQc && (
                     <Badge variant="warning">QC</Badge>
                   )}
-                  {step.responseType === "voice" && (isListening || (useWhisper && whisperSTT.isListening)) && (
-                    <Badge variant="default" className="voice-listening">
-                      <Mic className="h-3 w-3 mr-1" />
-                      Escuchando...
+                  {isVoiceListening && (
+                    <Badge variant="default" className="voice-listening flex items-center gap-1.5">
+                      <Mic className="h-3 w-3" />
+                      Escuchando ({voiceProvider === "elevenlabs" ? "Eleven" : "Fallback"})
                     </Badge>
                   )}
-                  {useWhisper && whisperSTT.isConnected && (
-                    <span className="text-xs text-green-600">● Whisper</span>
+                  {isSpeaking && (
+                    <Badge variant="secondary" className="flex items-center gap-1.5 pr-1">
+                      <Volume2 className="h-3 w-3" />
+                      Hablando
+                      <LiveWaveform
+                        processing
+                        height={16}
+                        barWidth={2}
+                        barGap={1}
+                        barRadius={1}
+                        barColor="currentColor"
+                        fadeEdges={false}
+                        className="w-16"
+                      />
+                    </Badge>
+                  )}
+                  {step.responseType === "voice" && voiceProvider === "elevenlabs" && (
+                    <span className="text-xs text-green-600">● ElevenLabs</span>
+                  )}
+                  {step.responseType === "voice" && voiceProvider === "fallback" && (
+                    <span className="text-xs text-amber-700">
+                      ● Fallback ({fallbackEngineLabel})
+                    </span>
+                  )}
+                  {voiceProvider === "fallback" && useWhisper && whisperSTT.isConnected && (
+                    <span className="text-xs text-green-600">● Whisper conectado</span>
                   )}
                 </div>
 
@@ -337,38 +464,19 @@ export function ProductionStep({
 
                 {/* Voice feedback */}
                 {step.responseType === "voice" && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      {isListening ? (
-                        <>
-                          <Mic className="h-4 w-4 text-primary animate-pulse" />
-                          <span>Escuchando... Di: <strong className="text-foreground">&quot;{step.respuesta}&quot;</strong></span>
-                        </>
-                      ) : speechSupported ? (
-                        <>
-                          <MicOff className="h-4 w-4" />
-                          <span>Microfono pausado</span>
-                        </>
-                      ) : (
-                        <span>Reconocimiento de voz no disponible</span>
-                      )}
-                    </div>
-                    {lastHeard && (
-                      <p className="text-sm text-muted-foreground italic">
-                        Ultimo escuchado: &quot;{lastHeard}&quot;
-                      </p>
-                    )}
-                    {/* Manual advance button for voice steps */}
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={handleButtonConfirm}
-                      className="w-full"
-                    >
-                      <CheckCircle2 className="h-5 w-5 mr-2" />
-                      Confirmar manualmente
-                    </Button>
-                  </div>
+                  <StepVoiceElevenPanel
+                    provider={voiceProvider}
+                    status={elevenStep.status}
+                    expectedResponse={step.respuesta || ""}
+                    isListening={isVoiceListening}
+                    isSpeaking={isSpeaking || elevenStep.isSpeaking}
+                    lastHeard={lastHeardText}
+                    error={elevenStep.error}
+                    inputBars={elevenStep.inputBars}
+                    outputBars={elevenStep.outputBars}
+                    fallbackEngineLabel={fallbackEngineLabel}
+                    onManualConfirm={handleButtonConfirm}
+                  />
                 )}
 
                 {/* Scan input */}
@@ -412,8 +520,27 @@ export function ProductionStep({
                     disabled={isSpeaking}
                     className="w-full"
                   >
-                    <Volume2 className="h-5 w-5 mr-2" />
-                    {isSpeaking ? "Reproduciendo..." : "Repetir instruccion"}
+                    {isSpeaking ? (
+                      <>
+                        <Volume2 className="h-5 w-5 mr-2 animate-pulse" />
+                        <span className="mr-2">Reproduciendo</span>
+                        <LiveWaveform
+                          processing
+                          height={24}
+                          barWidth={2}
+                          barGap={1}
+                          barRadius={1}
+                          barColor="currentColor"
+                          fadeEdges={false}
+                          className="w-24"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="h-5 w-5 mr-2" />
+                        Repetir instruccion
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
