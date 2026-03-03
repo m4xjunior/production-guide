@@ -14,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { adminFetch } from "@/lib/admin-api";
 
@@ -44,6 +46,7 @@ interface AuditLog {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<GlobalSettings | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
 
   const loadSettings = () => {
@@ -73,6 +76,28 @@ export default function SettingsPage() {
       loadSettings(); // refresh audit
     } else {
       toast({ title: "Error", description: "No se pudo guardar.", variant: "destructive" });
+    }
+  };
+
+  const handleRegenerateAudio = async (force = false) => {
+    setIsRegenerating(true);
+    try {
+      const res = await adminFetch(`/api/tts/generate-all${force ? "?force=true" : ""}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({
+          title: "Generación completada",
+          description: data.message,
+        });
+      } else {
+        throw new Error(data.error || "Error al regenerar");
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "No se pudo regenerar el audio.", variant: "destructive" });
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -202,6 +227,32 @@ export default function SettingsPage() {
                   max={1}
                   step={0.05}
                 />
+              </div>
+
+              <div className="pt-4 border-t border-[#2A2A2E] space-y-4">
+                <div className="flex flex-col gap-2">
+                  <Label>Mantenimiento de Audio</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Si los operarios no escuchan el audio, intente regenerar los archivos faltantes o forzar la actualización de todos.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => void handleRegenerateAudio(false)}
+                    disabled={isRegenerating}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isRegenerating ? 'animate-spin' : ''}`} />
+                    Generar faltantes
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => void handleRegenerateAudio(true)}
+                    disabled={isRegenerating}
+                  >
+                    Regenerar TODO (Force)
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

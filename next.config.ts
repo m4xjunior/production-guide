@@ -15,4 +15,8 @@ export default withSentryConfig(nextConfig, {
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
   automaticVercelMonitors: true,
+  // instrumentation-client.ts já inicializa o Sentry no cliente (inclui Replay).
+  // Manter false evita que o plugin webpack injete um segundo Sentry.init(),
+  // que causaria "Multiple Sentry Session Replay instances" e travaria o app.
+  autoInstrumentAppDirectory: false,
 });

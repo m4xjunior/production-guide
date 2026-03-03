@@ -26,6 +26,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+.env.vercel
 
 # typescript
 *.tsbuildinfo
@@ -57,3 +58,15 @@ transcription-server/__pycache__/
 sync-sage/.env
 sync-sage/node_modules/
 sync-sage/dist/
+
+# iCloud duplicates ("filename 2.ext")
+*\ 2.*
+*\ 2/
+
+# Claude plans (local only)
+.claude/
+
+# Misc
+.env.production
+check-steps.ts
+run_with_env.py

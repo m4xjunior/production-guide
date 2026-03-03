@@ -27,7 +27,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
       setError("");
       setPressedKey(digit);
       setTimeout(() => setPressedKey(null), 150);
-      if (operatorNumber.length < 4) {
+      if (operatorNumber.length < 6) {
         setOperatorNumber((prev) => prev + digit);
       }
     },
@@ -42,8 +42,8 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (operatorNumber.length !== 4) {
-      setError("El número de operario debe tener 4 dígitos");
+    if (operatorNumber.length === 0) {
+      setError("Introduce tu número de operario");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -59,9 +59,13 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
         body: JSON.stringify({ code: operatorNumber }),
       });
 
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
       const data = await res.json();
 
-      if (data.valid) {
+      if (data.valid && data.name) {
         setOperatorName(data.name);
         setValidated(true);
         setTimeout(() => {
@@ -173,31 +177,23 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               <div className="mt-5 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-[#8B1A1A]/50 to-transparent" />
             </div>
 
-            {/* PIN Display */}
+            {/* Code Display */}
             <div className={`mb-8 ${shake ? "animate-shake" : ""}`}>
-              <div className="flex items-center justify-center gap-5">
-                {[0, 1, 2, 3].map((i) => {
-                  const isFilled = i < operatorNumber.length;
-                  const isNext = i === operatorNumber.length;
-                  return (
-                    <div key={i} className="relative">
-                      {/* Dot */}
-                      <div
-                        className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                          isFilled
-                            ? "bg-[#8B1A1A] scale-110"
-                            : isNext
-                            ? "bg-[#2A2A2E] ring-1 ring-[#8B1A1A]/30"
-                            : "bg-[#1A1A1E] ring-1 ring-[#2A2A2E]"
-                        }`}
-                      />
-                      {/* Glow effect for filled dots */}
-                      {isFilled && (
-                        <div className="absolute inset-0 rounded-full bg-[#8B1A1A] blur-md opacity-40" />
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="flex items-center justify-center">
+                <div
+                  className="h-14 min-w-[180px] px-6 rounded-xl bg-[#0D0D0F] border border-[#2A2A2E] flex items-center justify-center"
+                  style={{ fontFamily: "var(--font-geist-mono), monospace" }}
+                >
+                  {operatorNumber ? (
+                    <span className="text-3xl font-bold tracking-[0.3em] text-[#E8E8E8]">
+                      {operatorNumber}
+                    </span>
+                  ) : (
+                    <span className="text-lg tracking-[0.2em] text-[#3A3A3E]">
+                      N.º operario
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Error message */}
@@ -259,17 +255,17 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               <button
                 onClick={handleSubmit}
                 aria-label="Confirmar número de operario"
-                disabled={operatorNumber.length !== 4 || validating || validated}
+                disabled={operatorNumber.length === 0 || validating || validated}
                 className={`group relative h-16 rounded-xl transition-all duration-100
                   ${
-                    operatorNumber.length === 4
+                    operatorNumber.length > 0
                       ? "bg-[#8B1A1A]/20 border border-[#8B1A1A]/40 hover:bg-[#8B1A1A]/30 hover:border-[#8B1A1A]/60 active:translate-y-[1px]"
                       : "bg-[#141416] border border-[#2A2A2E] opacity-30 cursor-not-allowed"
                   }
                 `}
                 style={{
                   boxShadow:
-                    operatorNumber.length === 4
+                    operatorNumber.length > 0
                       ? `0 2px 0 0 #0A0A0C, 0 0 20px -5px rgba(139,26,26,0.3)`
                       : `0 2px 0 0 #0A0A0C`,
                 }}
@@ -281,17 +277,17 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             {/* Main Enter button */}
             <button
               onClick={handleSubmit}
-              disabled={operatorNumber.length !== 4 || validating || validated}
+              disabled={operatorNumber.length === 0 || validating || validated}
               className={`w-full h-14 rounded-xl font-semibold text-base tracking-[0.15em] uppercase
                 transition-all duration-200 flex items-center justify-center gap-3
                 ${
-                  operatorNumber.length === 4 && !validating && !validated
+                  operatorNumber.length > 0 && !validating && !validated
                     ? "bg-[#8B1A1A] text-white hover:bg-[#A52525] active:translate-y-[1px] cursor-pointer"
                     : "bg-[#1A1A1E] text-[#4A4A4E] border border-[#2A2A2E] cursor-not-allowed"
                 }
               `}
               style={
-                operatorNumber.length === 4 && !validating && !validated
+                operatorNumber.length > 0 && !validating && !validated
                   ? {
                       boxShadow: `
                       0 2px 0 0 #5A0E0E,

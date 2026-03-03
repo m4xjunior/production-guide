@@ -2,30 +2,48 @@ import sql from "mssql";
 import { PrismaClient } from "../../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
+// ── Validação de identifiers SQL (previne injection via env vars) ──
+const IDENTIFIER_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function validateIdentifier(value: string, label: string): string {
+  if (!IDENTIFIER_RE.test(value)) {
+    throw new Error(`Identificador SQL inválido para ${label}: "${value}"`);
+  }
+  return value;
+}
+
 // ── Config ──
+if (!process.env.SAGE_USER || !process.env.SAGE_PASSWORD) {
+  console.error("ERRO: SAGE_USER e SAGE_PASSWORD são obrigatórios");
+  process.exit(1);
+}
+
 const SAGE_CONFIG: sql.config = {
   server: process.env.SAGE_HOST || "localhost",
   port: parseInt(process.env.SAGE_PORT || "1433"),
-  user: process.env.SAGE_USER || "sa",
-  password: process.env.SAGE_PASSWORD || "",
-  database: process.env.SAGE_DATABASE || "SAGE",
+  user: process.env.SAGE_USER,
+  password: process.env.SAGE_PASSWORD,
+  database: process.env.SAGE_DATABASE || "KH",
   options: {
-    encrypt: false,
-    trustServerCertificate: true,
+    // Encriptação configurável via env: true por padrão (produção segura)
+    encrypt: process.env.SAGE_ENCRYPT !== "false",
+    trustServerCertificate: process.env.SAGE_TRUST_CERT === "true",
   },
   connectionTimeout: 10000,
   requestTimeout: 15000,
 };
 
-const SAGE_TABLE = process.env.SAGE_OPERATOR_TABLE || "OPERARIOS";
-const SAGE_CODE_COL = process.env.SAGE_CODE_COLUMN || "CODIGO";
-const SAGE_NAME_COL = process.env.SAGE_NAME_COLUMN || "NOMBRE";
+const SAGE_TABLE = validateIdentifier(process.env.SAGE_OPERATOR_TABLE || "Operario", "SAGE_OPERATOR_TABLE");
+const SAGE_CODE_COL = validateIdentifier(process.env.SAGE_CODE_COLUMN || "id", "SAGE_CODE_COLUMN");
+const SAGE_NAME_COL = validateIdentifier(process.env.SAGE_NAME_COLUMN || "descripcion", "SAGE_NAME_COLUMN");
 const SYNC_INTERVAL = parseInt(process.env.SYNC_INTERVAL || "60") * 1000;
 const SYNC_ONCE = process.env.SYNC_ONCE === "true";
 
 // ── Prisma (Neon) ──
 function createPrisma(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL!;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL é obrigatória");
+  }
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter, log: ["error"] });
 }

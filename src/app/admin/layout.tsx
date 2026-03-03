@@ -102,20 +102,20 @@ export default function AdminLayout({
     setError("");
 
     try {
-      // Validate password against the API
-      const res = await fetch("/api/stations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Admin-Password": inputPassword,
-        },
-        body: JSON.stringify({ _validate: true }),
+      // Validate password against dedicated auth endpoint
+      const res = await fetch("/api/admin/auth", {
+        method: "GET",
+        headers: { "X-Admin-Password": inputPassword },
       });
 
-      // Accept both 200 (OK) and 400 (bad request body but auth passed)
-      // as indicators the password is valid. Only 401/403 means wrong password.
       if (res.status === 401 || res.status === 403) {
         setError("Contrasena incorrecta");
+        setLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setError("No se pudo validar la contrasena");
         setLoading(false);
         return;
       }

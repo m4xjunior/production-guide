@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { downloadBuffer } from "@/lib/gcs";
+import { downloadBuffer, fileExists } from "@/lib/gcs";
 
 /**
  * GET /api/tts/[stepId]
@@ -30,6 +30,13 @@ export async function GET(
     // El vozAudioUrl contiene la URL pública completa.
     // Extraer el path GCS relativo al tenant.
     const gcsPath = `tts/${stepId}.mp3`;
+
+    // Verificar si el archivo existe antes de intentar descargar
+    const exists = await fileExists(gcsPath);
+    if (!exists) {
+      console.error(`Audio file missing in GCS: ${gcsPath}`);
+      return NextResponse.json({ error: "Audio no encontrado en almacenamiento" }, { status: 404 });
+    }
 
     try {
       const buffer = await downloadBuffer(gcsPath);
