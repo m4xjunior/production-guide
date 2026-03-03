@@ -114,6 +114,7 @@ export function ProductionStep({
     process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const swipeTouchStartY = useRef<number | null>(null);
 
   const { speak, stop: stopSpeech, isSpeaking } = useTextToSpeech();
 
@@ -407,6 +408,20 @@ export function ProductionStep({
     setErrorConfirmed(false);
   }, [step.id]);
 
+  const handleSwipeTouchStart = (e: React.TouchEvent) => {
+    swipeTouchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleSwipeTouchEnd = (e: React.TouchEvent) => {
+    if (swipeTouchStartY.current === null) return;
+    const deltaY = swipeTouchStartY.current - e.changedTouches[0].clientY;
+    swipeTouchStartY.current = null;
+    // Swipe up >= 80px confirma o passo (só para pasos de botão)
+    if (deltaY >= 80 && step.responseType === "button") {
+      handleButtonConfirm();
+    }
+  };
+
   const handleButtonConfirm = () => {
     if (step.isErrorStep && !errorConfirmed) {
       setErrorConfirmed(true);
@@ -609,8 +624,12 @@ export function ProductionStep({
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-4 md:p-8">
+      {/* Main content — swipe up para confirmar paso de botón */}
+      <div
+        className="flex-1 p-4 md:p-8"
+        onTouchStart={handleSwipeTouchStart}
+        onTouchEnd={handleSwipeTouchEnd}
+      >
         <div className="max-w-5xl mx-auto">
           <StepTransition stepKey={step.id} direction={direction}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
