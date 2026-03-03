@@ -1,0 +1,301 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { OperatorLogin } from "@/components/OperatorLogin";
+import { StationSelector } from "@/components/StationSelector";
+import { ProductionStep } from "@/components/ProductionStep";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { type Step, type OperatorSession } from "@/types";
+import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+type AppState = "login" | "station-selection" | "production";
+
+export default function Home() {
+  const [appState, setAppState] = useState<AppState>("login");
+  const [operatorNumber, setOperatorNumber] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  const [selectedStationId, setSelectedStationId] = useState("");
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  const { unlockAudio, preload } = useTextToSpeech();
+
+  const loadSteps = useCallback(async (stationId: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/stations/${stationId}/steps`);
+      if (!res.ok) throw new Error("Error al cargar pasos");
+      const data = await res.json();
+      const stepsList = data.steps ?? data;
+      setSteps(stepsList);
+
+      const audioUrls = stepsList
+        .map((s: Step) => s.vozAudioUrl)
+        .filter(Boolean) as string[];
+      if (audioUrls.length > 0) {
+        preload(audioUrls);
+      }
+
+      return stepsList.length > 0;
+    } catch (err) {
+      console.error("Error loading steps:", err);
+      return false;
+    }
+  }, [preload]);
+
+  // Restore session from sessionStorage on mount
+  useEffect(() => {
+    const savedSession = sessionStorage.getItem("p2v_session");
+    if (savedSession) {
+      try {
+        const data = JSON.parse(savedSession);
+        if (data.operatorNumber && data.sessionId && data.stationId) {
+          setOperatorNumber(data.operatorNumber);
+          setSessionId(data.sessionId);
+          setSelectedStationId(data.stationId);
+          setCurrentStepIndex(data.currentStepIndex || 0);
+          loadSteps(data.stationId).then(() => {
+            setAppState("production");
+          });
+        }
+      } catch {
+        sessionStorage.removeItem("p2v_session");
+      }
+    }
+  }, [loadSteps]);
+
+  // Save session state
+  useEffect(() => {
+    if (appState === "production" && sessionId) {
+      sessionStorage.setItem("p2v_session", JSON.stringify({
+        operatorNumber,
+        sessionId,
+        stationId: selectedStationId,
+        currentStepIndex,
+      }));
+    }
+  }, [appState, operatorNumber, sessionId, selectedStationId, currentStepIndex]);
+
+  const handleLogin = useCallback(async (operator: string) => {
+    setOperatorNumber(operator);
+    setAppState("station-selection");
+  }, []);
+
+  const handleStationSelected = useCallback(async (stationId: string) => {
+    // Unlock audio on first user interaction
+    unlockAudio();
+
+    setSelectedStationId(stationId);
+    setLoading(true);
+
+    try {
+      // Create session
+      const sessionRes = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operatorNumber,
+          stationId,
+        }),
+      });
+
+      if (!sessionRes.ok) throw new Error("Error al crear sesion");
+      const sessionData = await sessionRes.json();
+      const session: OperatorSession = sessionData.session ?? sessionData;
+      setSessionId(session.id);
+
+      // Load steps
+      const hasSteps = await loadSteps(stationId);
+      if (hasSteps) {
+        setCurrentStepIndex(0);
+        setAppState("production");
+      } else {
+        alert("La estacion no tiene pasos configurados.");
+      }
+    } catch (err) {
+      console.error("Error starting production:", err);
+      alert("Error al iniciar la produccion. Verifica la conexion.");
+    } finally {
+      setLoading(false);
+    }
+  }, [operatorNumber, unlockAudio]);
+
+  const handleStepCompleted = useCallback(() => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prev) => prev + 1);
+    } else {
+      // Todos los pasos completados — la API step-logs ya incrementó completedUnits
+      // Volver a selección de estación para siguiente unidad
+      sessionStorage.removeItem("p2v_session");
+      setCurrentStepIndex(0);
+      // Recargar pasos para la siguiente unidad (no resetear steps)
+      setAppState("production");
+      // Pequeña pausa visual antes de reiniciar
+      setTimeout(() => {
+        setCurrentStepIndex(0);
+      }, 500);
+    }
+  }, [currentStepIndex, steps.length, sessionId]);
+
+  const handlePreviousStep = useCallback(() => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex((prev) => prev - 1);
+    }
+  }, [currentStepIndex]);
+
+  const handleNextStep = useCallback(() => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prev) => prev + 1);
+    }
+  }, [currentStepIndex, steps.length]);
+
+  const handleBackToStations = useCallback(() => {
+    sessionStorage.removeItem("p2v_session");
+    setSteps([]);
+    setCurrentStepIndex(0);
+    setAppState("station-selection");
+  }, []);
+
+  const handleRestart = useCallback(() => {
+    setShowRestartDialog(true);
+  }, []);
+
+  const confirmRestart = useCallback(() => {
+    setShowRestartDialog(false);
+    setCurrentStepIndex(0);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    setShowLogoutDialog(true);
+  }, []);
+
+  const confirmLogout = useCallback(async () => {
+    setShowLogoutDialog(false);
+
+    // Close session
+    if (sessionId) {
+      try {
+        await fetch(`/api/sessions/${sessionId}/logout`, {
+          method: "PATCH",
+        });
+      } catch (err) {
+        console.error("Error closing session:", err);
+      }
+    }
+
+    sessionStorage.removeItem("p2v_session");
+    setAppState("login");
+    setOperatorNumber("");
+    setSessionId("");
+    setSelectedStationId("");
+    setSteps([]);
+    setCurrentStepIndex(0);
+  }, [sessionId]);
+
+  // Loading screen
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+          <p className="text-xl text-muted-foreground font-medium">
+            Cargando estacion...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login
+  if (appState === "login") {
+    return <OperatorLogin onLogin={handleLogin} />;
+  }
+
+  // Station selection
+  if (appState === "station-selection") {
+    return (
+      <StationSelector
+        operatorNumber={operatorNumber}
+        onStationSelected={handleStationSelected}
+        onBack={() => {
+          setAppState("login");
+          setOperatorNumber("");
+        }}
+      />
+    );
+  }
+
+  // Production
+  if (appState === "production" && steps.length > 0) {
+    const currentStep = steps[currentStepIndex];
+
+    return (
+      <>
+        <ProductionStep
+          step={currentStep}
+          steps={steps}
+          currentIndex={currentStepIndex}
+          totalSteps={steps.length}
+          operatorNumber={operatorNumber}
+          sessionId={sessionId}
+          onStepCompleted={handleStepCompleted}
+          onPreviousStep={handlePreviousStep}
+          onNextStep={handleNextStep}
+          onBackToStations={handleBackToStations}
+          onRestart={handleRestart}
+          onLogout={handleLogout}
+        />
+
+        {/* Restart confirmation */}
+        <AlertDialog open={showRestartDialog} onOpenChange={setShowRestartDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reiniciar proceso</AlertDialogTitle>
+              <AlertDialogDescription>
+                Se volvera al primer paso de esta estacion. El progreso actual no se guardara.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmRestart}>
+                Reiniciar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Logout confirmation */}
+        <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cerrar sesion</AlertDialogTitle>
+              <AlertDialogDescription>
+                Se cerrara tu sesion y se perdera el progreso actual. Tendras que volver a iniciar sesion.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmLogout}>
+                Cerrar sesion
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
+
+  return null;
+}
