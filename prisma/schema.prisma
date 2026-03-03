@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Estaciones de trabajo en la fábrica
+model Station {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   /// "Power Techos - Montaje"
+  description String?  /// "Línea de techos Power Electronics"
+  productCode String?  @map("product_code") /// Código Sage (futuro: referencia ERP)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedBy   String?  @map("updated_by") /// Email del ingeniero
+
+  steps    Step[]
+  sessions OperatorSession[]
+  settings StationSettings?
+
+  @@map("stations")
+}
+
+/// Pasos de cada estación (instrucciones de montaje)
+model Step {
+  id           String  @id @default(uuid()) @db.Uuid
+  stationId    String  @map("station_id") @db.Uuid
+  orderNum     Int     @map("order_num")
+  tipo         String  /// VOZ | SISTEMA | QC
+  mensaje      String  /// Instrucción visual (pantalla)
+  voz          String? /// Texto para TTS
+  responseType String  @default("voice") @map("response_type") /// voice | scan | button | auto
+  respuesta    String? /// Respuesta esperada / código de barras esperado
+  photoUrl     String? @map("photo_url") /// URL GCS o path local
+  vozAudioUrl  String? @map("voz_audio_url") /// URL GCS del audio TTS generado por ElevenLabs
+  modelUrl     String? @map("model_url") /// URL modelo 3D (fase 2)
+  isQc         Boolean @default(false) @map("is_qc") /// ¿Es paso de control calidad?
+  qcFrequency  Int?    @map("qc_frequency") /// Cada N unidades (NULL = siempre)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  stepLogs StepLog[]
+
+  @@unique([stationId, orderNum])
+  @@index([stationId])
+  @@map("steps")
+}
+
+/// Sesiones de operario por estación
+model OperatorSession {
+  id             String    @id @default(uuid()) @db.Uuid
+  operatorNumber String    @map("operator_number")
+  stationId      String    @map("station_id") @db.Uuid
+  loginAt        DateTime  @default(now()) @map("login_at") @db.Timestamptz
+  logoutAt       DateTime? @map("logout_at") @db.Timestamptz
+  completedUnits Int       @default(0) @map("completed_units")
+  isActive       Boolean   @default(true) @map("is_active")
+
+  station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  stepLogs StepLog[]
+
+  @@index([stationId])
+  @@index([operatorNumber])
+  @@index([isActive])
+  @@map("operator_sessions")
+}
+
+/// Log de cada paso completado
+model StepLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  sessionId        String   @map("session_id") @db.Uuid
+  stepId           String   @map("step_id") @db.Uuid
+  completedAt      DateTime @default(now()) @map("completed_at") @db.Timestamptz
+  responseReceived String?  @map("response_received") /// Lo que el operario dijo/escaneó
+  durationMs       Int?     @map("duration_ms") /// Tiempo en este paso
+  wasSkipped       Boolean  @default(false) @map("was_skipped") /// Paso QC saltado por frecuencia
+
+  session OperatorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  step    Step            @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([stepId])
+  @@index([completedAt])
+  @@map("step_logs")
+}
+
+model GlobalSettings {
+  id               String   @id @default("global")
+  ttsVoiceId       String   @default("JBFqnCBsd6RMkjVDRZzb") @map("tts_voice_id")
+  ttsSpeed         Float    @default(1.0) @map("tts_speed")
+  ttsStability     Float    @default(0.7) @map("tts_stability")
+  ttsSimilarity    Float    @default(0.8) @map("tts_similarity")
+  fontSize         Int      @default(16) @map("font_size")
+  theme            String   @default("light")
+  defaultLanguage  String   @default("es") @map("default_language")
+  autoAdvanceDelay Int      @default(3000) @map("auto_advance_delay_ms")
+  enableQcByDefault Boolean @default(false) @map("enable_qc_by_default")
+  whisperServerUrl String   @default("ws://localhost:8765") @map("whisper_server_url")
+  useWhisperSTT    Boolean  @default(false) @map("use_whisper_stt")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  updatedBy        String?  @map("updated_by")
+
+  @@map("global_settings")
+}
+
+model StationSettings {
+  id               String   @id @default(uuid()) @db.Uuid
+  stationId        String   @unique @map("station_id") @db.Uuid
+  station          Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  ttsVoiceId       String?  @map("tts_voice_id")
+  fontSize         Int?     @map("font_size")
+  backgroundColor  String?  @map("background_color")
+  accentColor      String?  @map("accent_color")
+  autoAdvanceDelay Int?     @map("auto_advance_delay_ms")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  updatedBy        String?  @map("updated_by")
+
+  @@map("station_settings")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String?  @map("entity_id")
+  oldValue    Json?    @map("old_value")
+  newValue    Json     @map("new_value")
+  performedBy String   @map("performed_by")
+  performedAt DateTime @default(now()) @map("performed_at")
+
+  @@index([entityType, entityId])
+  @@index([performedAt])
+  @@map("audit_logs")
+}
