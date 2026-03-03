@@ -18,12 +18,17 @@ model Station {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
   updatedBy   String?  @map("updated_by") /// Email del ingeniero
 
-  steps      Step[]
-  sessions   OperatorSession[]
-  settings   StationSettings?
-  references StationReference[]
-  stops      StationStop[]
+  tenantId String @map("tenant_id") @db.Uuid
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
+  steps         Step[]
+  sessions      OperatorSession[]
+  settings      StationSettings?
+  references    StationReference[]
+  stops         StationStop[]
+  voiceCommands VoiceCommand[]
+
+  @@index([tenantId])
   @@map("stations")
 }
 
@@ -45,12 +50,15 @@ model Step {
   isErrorStep  Boolean @default(false) @map("is_error_step") /// ¿Es paso de error (muestra alerta)?
   errorMessage String? @map("error_message") /// Mensaje de error a mostrar
   periodEveryN Int?    @map("period_every_n") /// Repetir cada N unidades (null = siempre)
+  videoUrl     String? @map("video_url")
+  synonyms     String[] @default([])
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   station          Station         @relation(fields: [stationId], references: [id], onDelete: Cascade)
   stepLogs         StepLog[]
   conditions       StepCondition[] @relation("StepConditions")
   conditionsAsNext StepCondition[] @relation("NextStep")
+  voiceCommands    VoiceCommand[]
 
   @@unique([stationId, orderNum])
   @@index([stationId])
@@ -60,22 +68,29 @@ model Step {
 /// Operadores sincronizados desde Sage (read-only desde Sage, sync cada 60s)
 model Operator {
   id           String   @id @default(uuid()) @db.Uuid
-  sageCode     String   @unique @map("sage_code") /// Código del operario en Sage
+  sageCode     String   @map("sage_code") /// Código del operario en Sage
   name         String   /// Nombre completo del operario
   isActive     Boolean  @default(true) @map("is_active")
   lastSyncedAt DateTime @default(now()) @map("last_synced_at") @db.Timestamptz
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
+  tenantId String  @map("tenant_id") @db.Uuid
+  language String  @default("es-ES")
+  tenant   Tenant  @relation(fields: [tenantId], references: [id])
+
   sessions OperatorSession[]
 
+  @@unique([tenantId, sageCode])
+  @@index([tenantId])
   @@map("operators")
 }
 
 /// Sesiones de operario por estación
 model OperatorSession {
   id             String    @id @default(uuid()) @db.Uuid
-  operatorNumber String    @map("operator_number")
+  operatorNumber String    @map("operator_number") /// sageCode del operario (texto, para compatibilidad)
+  operatorId     String?   @map("operator_id") @db.Uuid /// FK al Operator (multi-tenant)
   stationId      String    @map("station_id") @db.Uuid
   loginAt        DateTime  @default(now()) @map("login_at") @db.Timestamptz
   logoutAt       DateTime? @map("logout_at") @db.Timestamptz
@@ -86,12 +101,13 @@ model OperatorSession {
   reference    Reference? @relation(fields: [referenceId], references: [id])
 
   station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  operator Operator? @relation(fields: [operatorNumber], references: [sageCode])
+  operator Operator? @relation(fields: [operatorId], references: [id])
   stepLogs StepLog[]
   stops    StationStop[]
 
   @@index([stationId])
   @@index([operatorNumber])
+  @@index([operatorId])
   @@index([isActive])
   @@map("operator_sessions")
 }
@@ -158,24 +174,31 @@ model AuditLog {
   newValue    Json     @map("new_value")
   performedBy String   @map("performed_by")
   performedAt DateTime @default(now()) @map("performed_at")
+  tenantId    String   @map("tenant_id") @db.Uuid
 
   @@index([entityType, entityId])
   @@index([performedAt])
+  @@index([tenantId])
   @@map("audit_logs")
 }
 
 /// Referencias de producto sincronizadas del Sage
 model Reference {
   id           String   @id @default(uuid()) @db.Uuid
-  sageCode     String   @unique @map("sage_code")
+  sageCode     String   @map("sage_code")
   name         String
   isActive     Boolean  @default(true) @map("is_active")
   lastSyncedAt DateTime @default(now()) @map("last_synced_at") @db.Timestamptz
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  tenantId String @map("tenant_id") @db.Uuid
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
   stations  StationReference[]
   sessions  OperatorSession[]
 
+  @@unique([tenantId, sageCode])
+  @@index([tenantId])
   @@map("references")
 }
 
@@ -220,4 +243,82 @@ model StationStop {
   @@index([stationId])
   @@index([startAt])
   @@map("station_stops")
+}
+
+/// Tenant (fábrica cliente) — root de todos los datos multi-tenant
+model Tenant {
+  id              String    @id @default(uuid()) @db.Uuid
+  slug            String    @unique                       // "kh", "acme"
+  name            String                                  // "KH Know How"
+  logoUrl         String?   @map("logo_url")
+  primaryColor    String?   @map("primary_color")        // "#8B1A1A"
+  accentColor     String?   @map("accent_color")
+  faviconUrl      String?   @map("favicon_url")
+  systemName      String    @default("SAO") @map("system_name")
+  customDomain    String?   @unique @map("custom_domain")
+  ttsVoiceId      String    @default("JBFqnCBsd6RMkjVDRZzb") @map("tts_voice_id")
+  ttsSpeed        Float     @default(1.0) @map("tts_speed")
+  ttsStability    Float     @default(0.7) @map("tts_stability")
+  ttsSimilarity   Float     @default(0.8) @map("tts_similarity")
+  defaultLanguage String    @default("es") @map("default_language")
+  fontSize        Int       @default(16) @map("font_size")
+  theme           String    @default("dark")
+  autoAdvanceDelay Int      @default(3000) @map("auto_advance_delay_ms")
+  features        Json      @default("{\"whisperStt\":false,\"elevenLabsTts\":true,\"qcDefault\":false,\"barcodeScanning\":true}")
+  plan            String    @default("starter")
+  maxStations     Int       @default(10) @map("max_stations")
+  maxOperators    Int       @default(50) @map("max_operators")
+  erpType         String?   @map("erp_type")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  stations      Station[]
+  operators     Operator[]
+  references    Reference[]
+  admins        TenantAdmin[]
+  voiceCommands VoiceCommand[]
+
+  @@map("tenants")
+}
+
+/// Admin de un tenant (reemplaza ADMIN_PASSWORD global)
+model TenantAdmin {
+  id           String    @id @default(uuid()) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  email        String
+  passwordHash String    @map("password_hash")
+  role         String    @default("admin")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@map("tenant_admins")
+}
+
+/// Comandos de voz configurables por tenant (scope: global | station | step)
+model VoiceCommand {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  scope     String                               // "global" | "station" | "step"
+  stationId String?  @map("station_id") @db.Uuid
+  stepId    String?  @map("step_id") @db.Uuid
+  action    String                               // "confirm" | "next" | "prev" | "stop" | "logout" | "repeat" | "help"
+  phrases   String[]                             // ["pin bueno", "bueno", "ok"]
+  isEnabled Boolean  @default(true) @map("is_enabled")
+  language  String   @default("es-ES")
+  sequence  String?
+  context   Json?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  station Station? @relation(fields: [stationId], references: [id])
+  step    Step?    @relation(fields: [stepId], references: [id])
+
+  @@index([tenantId, scope])
+  @@map("voice_commands")
 }
