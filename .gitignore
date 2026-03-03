@@ -37,6 +37,17 @@ next-env.d.ts
 # Prisma generated client
 generated/
 
+# Editor swap files
+*.swp
+*.swo
+
+# Playwright MCP
+.playwright-cli/
+.playwright-mcp/
+
+# Temp
+.tmp/
+
 # Sentry Config File
 .env.sentry-build-plugin
 picktvoice_dump.sql

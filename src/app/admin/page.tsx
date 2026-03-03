@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -35,13 +34,13 @@ interface DashboardStats {
   activeSessions: number;
   unitsToday: number;
 }
+
 function toLocalDateString(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
-
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -137,8 +136,10 @@ export default function AdminDashboardPage() {
     <div className="space-y-8 max-w-5xl">
       {/* Page title */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Panel de control</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          Panel de control
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           Resumen general del sistema de produccion
         </p>
       </div>
@@ -176,7 +177,8 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <Separator />
+      {/* Gradient separator */}
+      <div className="h-px bg-gradient-to-r from-transparent via-[#2A2A2E] to-transparent" />
 
       {/* Quick actions + recent stations */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -189,7 +191,10 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Link href="/admin/stations" className="block">
-              <Button variant="outline" className="w-full justify-between h-11 text-left">
+              <Button
+                variant="outline"
+                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
+              >
                 <span className="flex items-center gap-2">
                   <Factory className="h-4 w-4 text-[#8B1A1A]" />
                   Gestionar estaciones
@@ -198,18 +203,24 @@ export default function AdminDashboardPage() {
               </Button>
             </Link>
             <Link href="/admin/reports" className="block">
-              <Button variant="outline" className="w-full justify-between h-11 text-left">
+              <Button
+                variant="outline"
+                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
+              >
                 <span className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-emerald-400" />
+                  <BarChart3 className="h-4 w-4 text-[#22C55E]" />
                   Ver reportes
                 </span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
               </Button>
             </Link>
             <Link href="/" className="block">
-              <Button variant="outline" className="w-full justify-between h-11 text-left">
+              <Button
+                variant="outline"
+                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
+              >
                 <span className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-amber-400" />
+                  <Activity className="h-4 w-4 text-[#F59E0B]" />
                   Vista del operario
                 </span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
@@ -225,7 +236,7 @@ export default function AdminDashboardPage() {
               Estaciones recientes
             </CardTitle>
             <Link href="/admin/stations">
-              <Button variant="ghost" size="sm" className="text-[#8B1A1A] hover:text-[#A52525]">
+              <Button variant="ghost" size="sm" className="text-[#8B1A1A] hover:text-[#A52525] hover:bg-[#8B1A1A]/5">
                 Ver todas
                 <ArrowRight className="h-3 w-3 ml-1" />
               </Button>
@@ -243,19 +254,30 @@ export default function AdminDashboardPage() {
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Nombre</TableHead>
-                    <TableHead className="text-muted-foreground">Codigo</TableHead>
-                    <TableHead className="text-muted-foreground">Pasos</TableHead>
-                    <TableHead className="text-muted-foreground">Estado</TableHead>
-                    <TableHead className="text-muted-foreground text-right">
+                  <TableRow className="hover:bg-transparent border-b border-border/50">
+                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                      Nombre
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                      Codigo
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                      Pasos
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                      Estado
+                    </TableHead>
+                    <TableHead className="text-muted-foreground text-xs uppercase tracking-wider font-medium text-right">
                       Actualizada
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {recentStations.map((station) => (
-                    <TableRow key={station.id} className="cursor-pointer hover:bg-accent">
+                    <TableRow
+                      key={station.id}
+                      className="cursor-pointer border-b border-border/30 hover:bg-[#8B1A1A]/5 transition-colors duration-150"
+                    >
                       <TableCell>
                         <Link
                           href={`/admin/stations/${station.id}`}
@@ -321,42 +343,69 @@ function StatCard({
 }) {
   const colorMap = {
     blue: {
-      bg: "bg-[#8B1A1A]/10",
+      border: "border-l-[#8B1A1A]",
+      gradientFrom: "from-[#8B1A1A]/15",
+      gradientTo: "to-[#8B1A1A]/5",
       icon: "text-[#8B1A1A]",
       value: "text-[#A52525]",
     },
     emerald: {
-      bg: "bg-emerald-500/10",
-      icon: "text-emerald-400",
-      value: "text-emerald-400",
+      border: "border-l-[#22C55E]",
+      gradientFrom: "from-[#22C55E]/15",
+      gradientTo: "to-[#22C55E]/5",
+      icon: "text-[#22C55E]",
+      value: "text-[#22C55E]",
     },
     amber: {
-      bg: "bg-amber-500/10",
-      icon: "text-amber-400",
-      value: "text-amber-400",
+      border: "border-l-[#F59E0B]",
+      gradientFrom: "from-[#F59E0B]/15",
+      gradientTo: "to-[#F59E0B]/5",
+      icon: "text-[#F59E0B]",
+      value: "text-[#F59E0B]",
     },
   };
 
   const c = colorMap[color];
 
+  // "Operativo" status gets a green pulse glow
+  const isOperativo = isText && value === "Operativo" && color === "emerald";
+
   return (
-    <Card className="border-border">
+    <Card className={`border-border border-l-2 ${c.border} overflow-hidden`}>
       <CardContent className="pt-5 pb-4">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               {label}
             </p>
-            <p
-              className={`mt-1 font-bold ${
-                isText ? "text-lg" : "text-3xl tabular-nums"
-              } ${c.value}`}
-            >
-              {value}
-            </p>
+            {isOperativo ? (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E]/60 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+                </span>
+                <p
+                  className={`font-bold text-lg ${c.value}`}
+                  style={{ fontFamily: "var(--font-geist-mono), monospace" }}
+                >
+                  {value}
+                </p>
+              </div>
+            ) : (
+              <p
+                className={`mt-1 font-bold ${
+                  isText ? "text-lg" : "text-3xl tabular-nums"
+                } ${c.value}`}
+                style={{ fontFamily: "var(--font-geist-mono), monospace" }}
+              >
+                {value}
+              </p>
+            )}
             <p className="text-xs text-muted-foreground/60 mt-0.5">{subtitle}</p>
           </div>
-          <div className={`rounded-lg p-2.5 ${c.bg}`}>
+          <div
+            className={`rounded-lg p-2.5 bg-gradient-to-br ${c.gradientFrom} ${c.gradientTo}`}
+          >
             <Icon className={`h-5 w-5 ${c.icon}`} />
           </div>
         </div>

@@ -6,6 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { adminFetch } from "@/lib/admin-api";
 
@@ -77,7 +85,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Configuraciones Globales</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -91,16 +99,42 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="tts">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="tts">Voz TTS</TabsTrigger>
-          <TabsTrigger value="ui">Interfaz</TabsTrigger>
-          <TabsTrigger value="behavior">Comportamiento</TabsTrigger>
-          <TabsTrigger value="transcription">Transcripcion</TabsTrigger>
-          <TabsTrigger value="audit">Auditoria</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 bg-[#141416]">
+          <TabsTrigger
+            value="tts"
+            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+          >
+            Voz TTS
+          </TabsTrigger>
+          <TabsTrigger
+            value="ui"
+            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+          >
+            Interfaz
+          </TabsTrigger>
+          <TabsTrigger
+            value="behavior"
+            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+          >
+            Comportamiento
+          </TabsTrigger>
+          <TabsTrigger
+            value="transcription"
+            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+          >
+            Transcripcion
+          </TabsTrigger>
+          <TabsTrigger
+            value="audit"
+            className="data-[state=active]:bg-[#1A1A1E] data-[state=active]:text-[#E8E8E8]"
+          >
+            Auditoria
+          </TabsTrigger>
         </TabsList>
 
+        {/* ── Tab: Voz TTS ── */}
         <TabsContent value="tts" className="space-y-4">
-          <Card>
+          <Card className="border-[#2A2A2E]">
             <CardHeader>
               <CardTitle>ElevenLabs — Configuracion de Voz</CardTitle>
             </CardHeader>
@@ -124,14 +158,12 @@ export default function SettingsPage() {
                     {settings.ttsSpeed}x
                   </Badge>
                 </Label>
-                <input
-                  type="range"
+                <Slider
+                  value={[settings.ttsSpeed]}
+                  onValueChange={([v]) => void updateSetting("ttsSpeed", v)}
                   min={0.5}
                   max={2.0}
                   step={0.1}
-                  value={settings.ttsSpeed}
-                  onChange={(e) => void updateSetting("ttsSpeed", parseFloat(e.target.value))}
-                  className="w-full accent-primary"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>0.5x (lento)</span>
@@ -147,16 +179,12 @@ export default function SettingsPage() {
                     {settings.ttsStability}
                   </Badge>
                 </Label>
-                <input
-                  type="range"
+                <Slider
+                  value={[settings.ttsStability]}
+                  onValueChange={([v]) => void updateSetting("ttsStability", v)}
                   min={0}
                   max={1}
                   step={0.05}
-                  value={settings.ttsStability}
-                  onChange={(e) =>
-                    void updateSetting("ttsStability", parseFloat(e.target.value))
-                  }
-                  className="w-full accent-primary"
                 />
               </div>
 
@@ -167,24 +195,21 @@ export default function SettingsPage() {
                     {settings.ttsSimilarity}
                   </Badge>
                 </Label>
-                <input
-                  type="range"
+                <Slider
+                  value={[settings.ttsSimilarity]}
+                  onValueChange={([v]) => void updateSetting("ttsSimilarity", v)}
                   min={0}
                   max={1}
                   step={0.05}
-                  value={settings.ttsSimilarity}
-                  onChange={(e) =>
-                    void updateSetting("ttsSimilarity", parseFloat(e.target.value))
-                  }
-                  className="w-full accent-primary"
                 />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* ── Tab: Interfaz ── */}
         <TabsContent value="ui" className="space-y-4">
-          <Card>
+          <Card className="border-[#2A2A2E]">
             <CardHeader>
               <CardTitle>Interfaz del Operario</CardTitle>
             </CardHeader>
@@ -196,19 +221,15 @@ export default function SettingsPage() {
                     {settings.fontSize}px
                   </Badge>
                 </Label>
-                <input
-                  type="range"
+                <Slider
+                  value={[settings.fontSize]}
+                  onValueChange={([v]) => void updateSetting("fontSize", v)}
                   min={12}
                   max={32}
                   step={1}
-                  value={settings.fontSize}
-                  onChange={(e) =>
-                    void updateSetting("fontSize", parseInt(e.target.value))
-                  }
-                  className="w-full accent-primary"
                 />
                 <div
-                  className="p-3 rounded border bg-muted"
+                  className="p-3 rounded border border-[#2A2A2E] bg-muted"
                   style={{ fontSize: `${settings.fontSize}px` }}
                 >
                   Vista previa: Instruccion de montaje del producto
@@ -217,24 +238,29 @@ export default function SettingsPage() {
 
               <div className="space-y-1.5">
                 <Label>Idioma predeterminado</Label>
-                <select
+                <Select
                   value={settings.defaultLanguage}
-                  onChange={(e) => void updateSetting("defaultLanguage", e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onValueChange={(v) => void updateSetting("defaultLanguage", v)}
                 >
-                  <option value="es">Español</option>
-                  <option value="pt">Português</option>
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="es">Espanol</SelectItem>
+                    <SelectItem value="pt">Portugues</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="fr">Francais</SelectItem>
+                    <SelectItem value="de">Deutsch</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* ── Tab: Comportamiento ── */}
         <TabsContent value="behavior" className="space-y-4">
-          <Card>
+          <Card className="border-[#2A2A2E]">
             <CardHeader>
               <CardTitle>Comportamiento del Sistema</CardTitle>
             </CardHeader>
@@ -246,16 +272,12 @@ export default function SettingsPage() {
                     {settings.autoAdvanceDelay / 1000}s
                   </Badge>
                 </Label>
-                <input
-                  type="range"
+                <Slider
+                  value={[settings.autoAdvanceDelay]}
+                  onValueChange={([v]) => void updateSetting("autoAdvanceDelay", v)}
                   min={1000}
                   max={10000}
                   step={500}
-                  value={settings.autoAdvanceDelay}
-                  onChange={(e) =>
-                    void updateSetting("autoAdvanceDelay", parseInt(e.target.value))
-                  }
-                  className="w-full accent-primary"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>1s</span>
@@ -264,7 +286,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="flex items-center justify-between rounded-lg border border-[#2A2A2E] bg-[#141416] p-4">
                 <div>
                   <p className="text-sm font-medium">QC habilitado por defecto</p>
                   <p className="text-xs text-muted-foreground">
@@ -280,13 +302,14 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        {/* ── Tab: Transcripcion ── */}
         <TabsContent value="transcription" className="space-y-4">
-          <Card>
+          <Card className="border-[#2A2A2E]">
             <CardHeader>
               <CardTitle>Reconocimiento de Voz</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="flex items-center justify-between rounded-lg border border-[#2A2A2E] bg-[#141416] p-4">
                 <div>
                   <p className="text-sm font-medium">Usar Whisper (servidor local)</p>
                   <p className="text-xs text-muted-foreground">
@@ -316,8 +339,9 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        {/* ── Tab: Auditoria ── */}
         <TabsContent value="audit" className="space-y-4">
-          <Card>
+          <Card className="border-[#2A2A2E]">
             <CardHeader>
               <CardTitle>Historial de Cambios</CardTitle>
             </CardHeader>
@@ -329,7 +353,10 @@ export default function SettingsPage() {
               ) : (
                 <div className="space-y-2">
                   {auditLogs.map((log) => (
-                    <div key={log.id} className="flex items-center gap-3 text-sm border rounded-lg p-3">
+                    <div
+                      key={log.id}
+                      className="flex items-center gap-3 text-sm border border-[#2A2A2E] rounded-lg p-3"
+                    >
                       <Badge variant="outline" className="text-xs shrink-0">
                         {log.action}
                       </Badge>

@@ -446,7 +446,7 @@ export function ProductionStep({
                   {isVoiceListening && (
                     <Badge variant="default" className="voice-listening flex items-center gap-1.5">
                       <Mic className="h-3 w-3" />
-                      Escuchando ({voiceProvider === "elevenlabs" ? "Eleven" : "Fallback"})
+                      Escuchando
                     </Badge>
                   )}
                   {isSpeaking && (
@@ -465,16 +465,8 @@ export function ProductionStep({
                       />
                     </Badge>
                   )}
-                  {step.responseType === "voice" && voiceProvider === "elevenlabs" && (
-                    <span className="text-xs text-green-600">● ElevenLabs</span>
-                  )}
-                  {step.responseType === "voice" && voiceProvider === "fallback" && (
-                    <span className="text-xs text-amber-700">
-                      ● Fallback ({fallbackEngineLabel})
-                    </span>
-                  )}
-                  {voiceProvider === "fallback" && useWhisper && isWhisperConnected && (
-                    <span className="text-xs text-green-600">● Whisper conectado</span>
+                  {step.responseType === "voice" && isVoiceListening && (
+                    <span className="text-xs text-green-600">● Reconocimiento activo</span>
                   )}
                 </div>
 
@@ -486,21 +478,36 @@ export function ProductionStep({
                   </CardContent>
                 </Card>
 
-                {/* Voice feedback */}
+                {/* Voice feedback — siempre mostrar boton de confirmar manual */}
                 {step.responseType === "voice" && (
-                  <StepVoiceElevenPanel
-                    provider={voiceProvider}
-                    status={elevenStep.status}
-                    expectedResponse={step.respuesta || ""}
-                    isListening={isVoiceListening}
-                    isSpeaking={isSpeaking || elevenStep.isSpeaking}
-                    lastHeard={lastHeardText}
-                    error={elevenStep.error}
-                    inputBars={elevenStep.inputBars}
-                    outputBars={elevenStep.outputBars}
-                    fallbackEngineLabel={fallbackEngineLabel}
-                    onManualConfirm={handleButtonConfirm}
-                  />
+                  <>
+                    {isVoiceListening && (
+                      <StepVoiceElevenPanel
+                        provider={voiceProvider}
+                        status={elevenStep.status}
+                        expectedResponse={step.respuesta || ""}
+                        isListening={isVoiceListening}
+                        isSpeaking={isSpeaking || elevenStep.isSpeaking}
+                        lastHeard={lastHeardText}
+                        error={elevenStep.error}
+                        inputBars={elevenStep.inputBars}
+                        outputBars={elevenStep.outputBars}
+                        fallbackEngineLabel={fallbackEngineLabel}
+                        onManualConfirm={handleButtonConfirm}
+                      />
+                    )}
+                    {!isVoiceListening && (
+                      <Button
+                        variant="success"
+                        size="touch"
+                        className="w-full text-xl font-bold"
+                        onClick={handleButtonConfirm}
+                      >
+                        <CheckCircle2 className="h-6 w-6 mr-2" />
+                        Confirmar paso
+                      </Button>
+                    )}
+                  </>
                 )}
 
                 {/* Scan input */}

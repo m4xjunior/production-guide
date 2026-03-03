@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Mic, MicOff, Volume2, WifiOff } from "lucide-react";
+import { CheckCircle2, Mic, MicOff, Volume2 } from "lucide-react";
 import { type VoiceProvider } from "@/hooks/useElevenStepConversation";
 import { type Status } from "@elevenlabs/react";
 
@@ -73,17 +73,10 @@ export function StepVoiceElevenPanel({
           <CardTitle className="text-base md:text-lg">
             Comando de voz
           </CardTitle>
-          {usingEleven ? (
-            <Badge variant="default" className="gap-1">
-              <Mic className="h-3.5 w-3.5" />
-              ElevenLabs Live
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="gap-1">
-              <WifiOff className="h-3.5 w-3.5" />
-              Fallback ({fallbackEngineLabel})
-            </Badge>
-          )}
+          <Badge variant={usingEleven ? "default" : "secondary"} className="gap-1">
+            <Mic className="h-3.5 w-3.5" />
+            {isListening ? "Activo" : "En espera"}
+          </Badge>
         </div>
       </CardHeader>
 
@@ -131,7 +124,7 @@ export function StepVoiceElevenPanel({
           )}
 
           <p className="text-xs uppercase tracking-wide">
-            Estado: {usingEleven ? status : "fallback"}
+            Estado: {isListening ? "escuchando" : isSpeaking ? "hablando" : "pausado"}
           </p>
         </div>
 
