@@ -28,20 +28,18 @@ export async function GET(
       orderBy: { orderNum: "asc" },
     });
 
-    // Assinar vozAudioUrl, photoUrl e modelUrl em paralelo para servir do GCS com autenticação
-    const vozUrls = steps.map((s) => s.vozAudioUrl);
+    // Assinar photoUrl e modelUrl; para voz usar proxy /api/tts/{stepId}
     const photoUrls = steps.map((s) => s.photoUrl);
     const modelUrls = steps.map((s) => s.modelUrl);
 
-    const [signedVoz, signedPhoto, signedModels] = await Promise.all([
-      signPublicUrls(vozUrls),
+    const [signedPhoto, signedModels] = await Promise.all([
       signPublicUrls(photoUrls),
       signPublicUrls(modelUrls),
     ]);
 
     const signedSteps = steps.map((s, i) => ({
       ...s,
-      vozAudioUrl: signedVoz[i],
+      vozAudioUrl: s.vozAudioUrl ? `/api/tts/${s.id}` : null,
       photoUrl: signedPhoto[i],
       modelUrl: signedModels[i],
     }));
