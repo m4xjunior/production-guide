@@ -1,7 +1,11 @@
 import { Storage } from "@google-cloud/storage";
 
-const BUCKET = process.env.GCS_BUCKET!;
+const BUCKET = process.env.GCS_BUCKET;
 const TENANT = process.env.GCS_TENANT || "p2v";
+
+function assertBucketConfigured(): asserts BUCKET is string {
+  if (!BUCKET) throw new Error("GCS_BUCKET environment variable is required");
+}
 
 let _storage: Storage | null = null;
 
@@ -24,6 +28,7 @@ function getStorage(): Storage {
 }
 
 function bucket() {
+  assertBucketConfigured();
   return getStorage().bucket(BUCKET);
 }
 

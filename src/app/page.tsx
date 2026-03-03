@@ -66,8 +66,12 @@ export default function Home() {
           setSessionId(data.sessionId);
           setSelectedStationId(data.stationId);
           setCurrentStepIndex(data.currentStepIndex || 0);
-          loadSteps(data.stationId).then(() => {
-            setAppState("production");
+          loadSteps(data.stationId).then((hasSteps) => {
+            if (hasSteps) {
+              setAppState("production");
+            } else {
+              sessionStorage.removeItem("p2v_session");
+            }
           });
         }
       } catch {
@@ -130,24 +134,17 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [operatorNumber, unlockAudio]);
+  }, [operatorNumber, unlockAudio, loadSteps]);
 
   const handleStepCompleted = useCallback(() => {
     if (currentStepIndex < steps.length - 1) {
       setCurrentStepIndex((prev) => prev + 1);
     } else {
-      // Todos los pasos completados — la API step-logs ya incrementó completedUnits
-      // Volver a selección de estación para siguiente unidad
+      // Todos los pasos completados — reiniciar para la siguiente unidad
       sessionStorage.removeItem("p2v_session");
       setCurrentStepIndex(0);
-      // Recargar pasos para la siguiente unidad (no resetear steps)
-      setAppState("production");
-      // Pequeña pausa visual antes de reiniciar
-      setTimeout(() => {
-        setCurrentStepIndex(0);
-      }, 500);
     }
-  }, [currentStepIndex, steps.length, sessionId]);
+  }, [currentStepIndex, steps.length]);
 
   const handlePreviousStep = useCallback(() => {
     if (currentStepIndex > 0) {

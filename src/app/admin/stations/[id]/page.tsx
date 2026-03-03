@@ -91,7 +91,8 @@ const DEFAULT_STEP = {
 
 export default function StationEditorPage() {
   const params = useParams();
-  const stationId = params.id as string;
+  const rawId = params.id;
+  const stationId = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
   const { toast } = useToast();
 
   // Station data
@@ -312,6 +313,7 @@ export default function StationEditorPage() {
     const targetIdx = direction === "up" ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= steps.length) return;
 
+    const previousSteps = [...steps];
     const newSteps = [...steps];
     [newSteps[idx], newSteps[targetIdx]] = [newSteps[targetIdx], newSteps[idx]];
     const reordered = newSteps.map((s, i) => ({ ...s, orderNum: i + 1 }));
@@ -330,6 +332,12 @@ export default function StationEditorPage() {
         });
       } catch (err2) {
         console.error("Error reordering steps:", err2);
+        setSteps(previousSteps);
+        toast({
+          title: "Error",
+          description: "No se pudo reordenar los pasos",
+          variant: "destructive",
+        });
       }
     }
   };

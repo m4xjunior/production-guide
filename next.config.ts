@@ -11,14 +11,10 @@ export default withSentryConfig(nextConfig, {
   org: "lexusfx",
   project: "pic-to-voice",
   silent: !process.env.CI,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
-  webpack: {
-    automaticVercelMonitors: true,
-    autoInstrumentServerFunctions: false,
-    autoInstrumentAppDirectory: false,
-    treeshake: {
-      removeDebugLogging: true,
-    },
-  },
+  automaticVercelMonitors: true,
+  autoInstrumentServerFunctions: false,
+  autoInstrumentAppDirectory: false,
 });

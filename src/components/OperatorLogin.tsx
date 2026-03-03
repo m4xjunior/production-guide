@@ -67,7 +67,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
     <div className="min-h-screen flex items-center justify-center bg-[#0A0A0C] p-4 overflow-hidden relative">
       {/* Industrial background texture */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `repeating-linear-gradient(
             0deg,
@@ -81,7 +81,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
 
       {/* Subtle red ambient glow from top */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full opacity-[0.07]"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full opacity-[0.07] pointer-events-none"
         style={{
           background:
             "radial-gradient(ellipse at center, #8B1A1A 0%, transparent 70%)",
@@ -97,7 +97,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
         {/* Terminal frame */}
         <div className="relative rounded-2xl overflow-hidden">
           {/* Metallic border effect */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-[#2A2A2E] via-[#1A1A1E] to-[#2A2A2E] p-px">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-[#2A2A2E] via-[#1A1A1E] to-[#2A2A2E] p-px pointer-events-none">
             <div className="w-full h-full rounded-2xl bg-[#111113]" />
           </div>
 
@@ -189,6 +189,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               {/* Delete */}
               <button
                 onClick={handleDelete}
+                aria-label="Borrar dígito"
                 className={`group relative h-16 rounded-xl transition-all duration-100
                   bg-[#141416] border border-[#2A2A2E]
                   hover:border-[#3A3A3E] active:translate-y-[1px]
@@ -214,6 +215,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               {/* Enter shortcut on numpad */}
               <button
                 onClick={handleSubmit}
+                aria-label="Confirmar número de operario"
                 disabled={operatorNumber.length !== 4}
                 className={`group relative h-16 rounded-xl transition-all duration-100
                   ${

@@ -33,7 +33,15 @@ export const runtime = "nodejs";
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as SessionRequestBody;
+    let body: SessionRequestBody;
+    try {
+      body = (await request.json()) as SessionRequestBody;
+    } catch {
+      return NextResponse.json(
+        { error: "Cuerpo de solicitud JSON inválido" },
+        { status: 400 },
+      );
+    }
     const { sessionId, stationId, stepId } = body;
 
     if (!isNonEmptyString(sessionId)) {
@@ -124,13 +132,17 @@ export async function POST(request: NextRequest) {
     const url = new URL(ELEVENLABS_SIGNED_URL_ENDPOINT);
     url.searchParams.set("agent_id", agentId);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const signedUrlResponse = await fetch(url.toString(), {
       method: "GET",
       headers: {
         "xi-api-key": apiKey,
       },
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!signedUrlResponse.ok) {
       const response: ElevenSessionResponse = {

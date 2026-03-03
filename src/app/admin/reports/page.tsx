@@ -255,9 +255,10 @@ export default function ReportsPage() {
   };
 
   const downloadCSV = (csvHeaders: string[], rows: string[][], filename: string) => {
+    const escapeCSV = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csv = [
-      csvHeaders.join(","),
-      ...rows.map((r) => r.map((c) => `"${c}"`).join(",")),
+      csvHeaders.map(escapeCSV).join(","),
+      ...rows.map((r) => r.map(escapeCSV).join(",")),
     ].join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -265,7 +266,7 @@ export default function ReportsPage() {
     a.href = url;
     a.download = `${filename}_${dateFrom}_${dateTo}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   };
 
   // ─── Formatters ───────────────────────────────────────

@@ -59,6 +59,72 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// ─── Station Form ─────────────────────────────────────────
+interface StationFormProps {
+  formName: string;
+  setFormName: (v: string) => void;
+  formDescription: string;
+  setFormDescription: (v: string) => void;
+  formProductCode: string;
+  setFormProductCode: (v: string) => void;
+  formIsActive: boolean;
+  setFormIsActive: (v: boolean) => void;
+}
+
+function StationForm({
+  formName, setFormName,
+  formDescription, setFormDescription,
+  formProductCode, setFormProductCode,
+  formIsActive, setFormIsActive,
+}: StationFormProps) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="station-name">Nombre *</Label>
+        <Input
+          id="station-name"
+          value={formName}
+          onChange={(e) => setFormName(e.target.value)}
+          placeholder="Ej: Estacion 1 - Montaje base"
+          className="border-border"
+          autoFocus
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="station-desc">Descripcion</Label>
+        <Textarea
+          id="station-desc"
+          value={formDescription}
+          onChange={(e) => setFormDescription(e.target.value)}
+          placeholder="Descripcion de la estacion..."
+          rows={3}
+          className="border-border"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="station-code">Codigo de producto</Label>
+        <Input
+          id="station-code"
+          value={formProductCode}
+          onChange={(e) => setFormProductCode(e.target.value)}
+          placeholder="Ej: PROD-001"
+          className="border-border"
+        />
+      </div>
+      <div className="flex items-center gap-3">
+        <Switch
+          id="station-active"
+          checked={formIsActive}
+          onCheckedChange={setFormIsActive}
+        />
+        <Label htmlFor="station-active" className="text-foreground">
+          Estacion activa
+        </Label>
+      </div>
+    </div>
+  );
+}
+
 export default function StationsPage() {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -235,54 +301,6 @@ export default function StationsPage() {
       (s.description && s.description.toLowerCase().includes(q))
     );
   });
-
-  // ─── Station Form (shared) ────────────────────────────
-  const StationForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="station-name">Nombre *</Label>
-        <Input
-          id="station-name"
-          value={formName}
-          onChange={(e) => setFormName(e.target.value)}
-          placeholder="Ej: Estacion 1 - Montaje base"
-          className="border-border"
-          autoFocus
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="station-desc">Descripcion</Label>
-        <Textarea
-          id="station-desc"
-          value={formDescription}
-          onChange={(e) => setFormDescription(e.target.value)}
-          placeholder="Descripcion de la estacion..."
-          rows={3}
-          className="border-border"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="station-code">Codigo de producto</Label>
-        <Input
-          id="station-code"
-          value={formProductCode}
-          onChange={(e) => setFormProductCode(e.target.value)}
-          placeholder="Ej: PROD-001"
-          className="border-border"
-        />
-      </div>
-      <div className="flex items-center gap-3">
-        <Switch
-          id="station-active"
-          checked={formIsActive}
-          onCheckedChange={setFormIsActive}
-        />
-        <Label htmlFor="station-active" className="text-foreground">
-          Estacion activa
-        </Label>
-      </div>
-    </div>
-  );
 
   // ─── Render ───────────────────────────────────────────
   return (
@@ -482,7 +500,12 @@ export default function StationsPage() {
               Crea una nueva estacion de trabajo. Podras agregar pasos despues de crearla.
             </DialogDescription>
           </DialogHeader>
-          <StationForm />
+          <StationForm
+            formName={formName} setFormName={setFormName}
+            formDescription={formDescription} setFormDescription={setFormDescription}
+            formProductCode={formProductCode} setFormProductCode={setFormProductCode}
+            formIsActive={formIsActive} setFormIsActive={setFormIsActive}
+          />
           <DialogFooter>
             <Button
               variant="outline"
@@ -512,7 +535,12 @@ export default function StationsPage() {
               Modifica los datos de la estacion &quot;{selectedStation?.name}&quot;.
             </DialogDescription>
           </DialogHeader>
-          <StationForm />
+          <StationForm
+            formName={formName} setFormName={setFormName}
+            formDescription={formDescription} setFormDescription={setFormDescription}
+            formProductCode={formProductCode} setFormProductCode={setFormProductCode}
+            formIsActive={formIsActive} setFormIsActive={setFormIsActive}
+          />
           <DialogFooter>
             <Button
               variant="outline"
