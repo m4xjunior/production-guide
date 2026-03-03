@@ -148,7 +148,7 @@ export async function signPublicUrl(
 
 /**
  * Assina em paralelo uma lista de URLs públicas do GCS.
- * Retorna null para entradas null/undefined; retorna original em caso de erro.
+ * Retorna null para entradas null/undefined ou se a assinatura falhar.
  */
 export async function signPublicUrls(
   urls: (string | null | undefined)[],
@@ -156,7 +156,12 @@ export async function signPublicUrls(
 ): Promise<(string | null)[]> {
   return Promise.all(
     urls.map((url) =>
-      url ? signPublicUrl(url, expiresInMinutes).catch(() => url) : Promise.resolve(null),
+      url
+        ? signPublicUrl(url, expiresInMinutes).catch((err) => {
+            console.error("[GCS signPublicUrl] falha ao assinar URL:", err);
+            return null;
+          })
+        : Promise.resolve(null),
     ),
   );
 }
