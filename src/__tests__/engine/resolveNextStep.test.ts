@@ -20,6 +20,8 @@ function makeStep(
     photoUrl: null,
     vozAudioUrl: null,
     modelUrl: null,
+    videoUrl: null,
+    synonyms: [],
     isQc: false,
     qcFrequency: null,
     isErrorStep: false,

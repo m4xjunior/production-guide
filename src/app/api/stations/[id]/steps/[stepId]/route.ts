@@ -38,6 +38,8 @@ export async function PUT(
       isErrorStep,
       errorMessage,
       periodEveryN,
+      videoUrl,
+      synonyms,
     } = body;
 
     const step = await prisma.step.update({
@@ -50,6 +52,8 @@ export async function PUT(
         ...(respuesta !== undefined && { respuesta }),
         ...(photoUrl !== undefined && { photoUrl }),
         ...(modelUrl !== undefined && { modelUrl }),
+        ...(videoUrl !== undefined && { videoUrl }),
+        ...(synonyms !== undefined && { synonyms }),
         ...(isQc !== undefined && { isQc }),
         ...(qcFrequency !== undefined && { qcFrequency }),
         ...(orderNum !== undefined && { orderNum }),
