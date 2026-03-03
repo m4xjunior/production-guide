@@ -50,6 +50,21 @@ model Step {
   @@map("steps")
 }
 
+/// Operadores sincronizados desde Sage (read-only desde Sage, sync cada 60s)
+model Operator {
+  id           String   @id @default(uuid()) @db.Uuid
+  sageCode     String   @unique @map("sage_code") /// Código del operario en Sage
+  name         String   /// Nombre completo del operario
+  isActive     Boolean  @default(true) @map("is_active")
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  sessions OperatorSession[]
+
+  @@map("operators")
+}
+
 /// Sesiones de operario por estación
 model OperatorSession {
   id             String    @id @default(uuid()) @db.Uuid
@@ -61,6 +76,7 @@ model OperatorSession {
   isActive       Boolean   @default(true) @map("is_active")
 
   station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  operator Operator? @relation(fields: [operatorNumber], references: [sageCode])
   stepLogs StepLog[]
 
   @@index([stationId])
