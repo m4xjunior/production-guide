@@ -59,6 +59,7 @@ export function StepEditor({
   const [formResponseType, setFormResponseType] = useState(step.responseType);
   const [formRespuesta, setFormRespuesta] = useState(step.respuesta || "");
   const [formPhotoUrl, setFormPhotoUrl] = useState(step.photoUrl || "");
+  const [formModelUrl, setFormModelUrl] = useState(step.modelUrl || "");
   const [formIsQc, setFormIsQc] = useState(step.isQc);
   const [formQcFrequency, setFormQcFrequency] = useState(step.qcFrequency?.toString() || "");
 
@@ -77,6 +78,7 @@ export function StepEditor({
         responseType: formResponseType,
         respuesta: formRespuesta || null,
         photoUrl: formPhotoUrl || null,
+        modelUrl: formModelUrl || null,
         isQc: formIsQc,
         qcFrequency: formQcFrequency ? parseInt(formQcFrequency) : null,
       };
@@ -302,6 +304,15 @@ export function StepEditor({
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Guia 3D (URL)</Label>
+          <Input
+            value={formModelUrl}
+            onChange={(e) => setFormModelUrl(e.target.value)}
+            placeholder="URL GLB/GLTF o JSON de animacion"
+          />
         </div>
 
         <div className="flex items-center gap-6">

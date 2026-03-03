@@ -111,6 +111,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
           responseType: "button",
           respuesta: null,
           photoUrl: null,
+          modelUrl: null,
           isQc: false,
           qcFrequency: null,
         }),

@@ -58,6 +58,7 @@ import {
   ScanBarcode,
   MousePointerClick,
   Play,
+  Cuboid,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -85,6 +86,7 @@ const DEFAULT_STEP = {
   responseType: "button" as Step["responseType"],
   respuesta: "",
   photoUrl: "",
+  modelUrl: "",
   isQc: false,
   qcFrequency: "",
 };
@@ -207,6 +209,7 @@ export default function StationEditorPage() {
       responseType: step.responseType,
       respuesta: step.respuesta || "",
       photoUrl: step.photoUrl || "",
+      modelUrl: step.modelUrl || "",
       isQc: step.isQc,
       qcFrequency: step.qcFrequency?.toString() || "",
     });
@@ -238,6 +241,7 @@ export default function StationEditorPage() {
         responseType: stepForm.responseType,
         respuesta: stepForm.respuesta.trim() || null,
         photoUrl: stepForm.photoUrl.trim() || null,
+        modelUrl: stepForm.modelUrl.trim() || null,
         isQc: stepForm.isQc,
         qcFrequency: stepForm.qcFrequency ? parseInt(stepForm.qcFrequency) : null,
       };
@@ -577,6 +581,13 @@ export default function StationEditorPage() {
                         </div>
                       )}
 
+                      {step.modelUrl && (
+                        <Badge variant="outline" className="text-xs gap-1 font-normal">
+                          <Cuboid className="h-3 w-3" />
+                          3D
+                        </Badge>
+                      )}
+
                       {/* Actions */}
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <Button
@@ -781,6 +792,21 @@ export default function StationEditorPage() {
                 stationId={stationId}
                 stepId={editingStep?.id}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-foreground">Guia 3D (URL)</Label>
+              <Input
+                value={stepForm.modelUrl}
+                onChange={(e) =>
+                  setStepForm((prev) => ({ ...prev, modelUrl: e.target.value }))
+                }
+                placeholder="https://.../paso-01.glb o https://.../paso-01.json"
+                className="border-border"
+              />
+              <p className="text-xs text-muted-foreground/60">
+                Acepta URL GLB/GLTF o JSON de configuracion de animacion de montaje.
+              </p>
             </div>
 
             <Separator className="bg-border" />

@@ -19,6 +19,7 @@ import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
+import { StepAssemblyViewer } from "@/components/StepAssemblyViewer";
 import {
   ArrowLeft,
   ArrowRight,
@@ -117,6 +118,8 @@ export function ProductionStep({
 
   const startWhisperListeningRef = useRef(startWhisperListening);
   const stopWhisperListeningRef = useRef(stopWhisperListening);
+  const startContinuousListeningRef = useRef(startContinuousListening);
+  const stopContinuousListeningRef = useRef(stopContinuousListening);
 
   useEffect(() => {
     startWhisperListeningRef.current = startWhisperListening;
@@ -126,6 +129,14 @@ export function ProductionStep({
     stopWhisperListeningRef.current = stopWhisperListening;
   }, [stopWhisperListening]);
 
+  useEffect(() => {
+    startContinuousListeningRef.current = startContinuousListening;
+  }, [startContinuousListening]);
+
+  useEffect(() => {
+    stopContinuousListeningRef.current = stopContinuousListening;
+  }, [stopContinuousListening]);
+
   const startFallbackRecognition = useCallback(() => {
     if (useWhisper) {
       void startWhisperListeningRef.current();
@@ -133,14 +144,14 @@ export function ProductionStep({
     }
 
     if (speechSupported) {
-      startContinuousListening();
+      startContinuousListeningRef.current();
     }
-  }, [useWhisper, speechSupported, startContinuousListening]);
+  }, [useWhisper, speechSupported]);
 
   const stopFallbackRecognition = useCallback(() => {
     stopWhisperListeningRef.current();
-    stopContinuousListening();
-  }, [stopContinuousListening]);
+    stopContinuousListeningRef.current();
+  }, []);
 
   const elevenStep = useElevenStepConversation({
     sessionId,
@@ -576,24 +587,33 @@ export function ProductionStep({
                 )}
               </div>
 
-              {/* Right: Image */}
+              {/* Right: Visual guidance */}
               <div className="flex items-start justify-center">
-                {step.photoUrl ? (
-                  <div className="w-full rounded-xl overflow-hidden border border-border bg-card shadow-sm">
-                    <img
-                      src={step.photoUrl}
-                      alt={`Referencia paso ${currentIndex + 1}`}
-                      className="w-full h-auto object-contain max-h-[60vh]"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/file.svg";
-                      }}
+                <div className="w-full space-y-4">
+                  {step.modelUrl && (
+                    <StepAssemblyViewer
+                      sourceUrl={step.modelUrl}
+                      stepLabel={`Montaje 3D · Paso ${currentIndex + 1}`}
                     />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
-                    <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
-                  </div>
-                )}
+                  )}
+
+                  {step.photoUrl ? (
+                    <div className="w-full rounded-xl overflow-hidden border border-border bg-card shadow-sm">
+                      <img
+                        src={step.photoUrl}
+                        alt={`Referencia paso ${currentIndex + 1}`}
+                        className="w-full h-auto object-contain max-h-[60vh]"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/file.svg";
+                        }}
+                      />
+                    </div>
+                  ) : !step.modelUrl ? (
+                    <div className="w-full aspect-video rounded-xl border-2 border-dashed bg-muted/50 flex items-center justify-center">
+                      <p className="text-muted-foreground text-lg">Sin imagen de referencia</p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </StepTransition>

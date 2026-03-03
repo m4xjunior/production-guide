@@ -28,19 +28,22 @@ export async function GET(
       orderBy: { orderNum: "asc" },
     });
 
-    // Assinar vozAudioUrl e photoUrl em paralelo para servir do GCS com autenticação
+    // Assinar vozAudioUrl, photoUrl e modelUrl em paralelo para servir do GCS com autenticação
     const vozUrls = steps.map((s) => s.vozAudioUrl);
     const photoUrls = steps.map((s) => s.photoUrl);
+    const modelUrls = steps.map((s) => s.modelUrl);
 
-    const [signedVoz, signedPhoto] = await Promise.all([
+    const [signedVoz, signedPhoto, signedModels] = await Promise.all([
       signPublicUrls(vozUrls),
       signPublicUrls(photoUrls),
+      signPublicUrls(modelUrls),
     ]);
 
     const signedSteps = steps.map((s, i) => ({
       ...s,
       vozAudioUrl: signedVoz[i],
       photoUrl: signedPhoto[i],
+      modelUrl: signedModels[i],
     }));
 
     return NextResponse.json({ steps: signedSteps });
@@ -56,7 +59,7 @@ export async function GET(
 /**
  * POST /api/stations/[id]/steps
  * Añadir un nuevo paso a la estación.
- * Body: { tipo, mensaje, voz?, responseType?, respuesta?, photoUrl?, isQc?, qcFrequency? }
+ * Body: { tipo, mensaje, voz?, responseType?, respuesta?, photoUrl?, modelUrl?, isQc?, qcFrequency? }
  * Auto-asigna el siguiente orderNum.
  */
 export async function POST(
@@ -83,6 +86,7 @@ export async function POST(
       responseType,
       respuesta,
       photoUrl,
+      modelUrl,
       isQc,
       qcFrequency,
     } = body;
@@ -119,6 +123,7 @@ export async function POST(
         responseType: responseType ?? "voice",
         respuesta: respuesta ?? null,
         photoUrl: photoUrl ?? null,
+        modelUrl: modelUrl ?? null,
         isQc: isQc ?? false,
         qcFrequency: qcFrequency ?? null,
       },

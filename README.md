@@ -215,3 +215,22 @@ Log de cada paso completado. Permite trazabilidad completa de la produccion.
 | `make db-reset` | Resetear base de datos |
 | `make db-studio` | Abrir Prisma Studio |
 | `make clean` | Limpiar todo (Docker volumes + node_modules + .next) |
+
+## Importacion Techo ciclonico (Excel)
+
+Para crear pasos directamente desde las hojas HP/PE:
+
+```bash
+npm run import:techo-ciclonico -- \
+  --hp "/ruta/5. HP_Techo ciclonico.xlsx" \
+  --pe "/ruta/4. PE_Techo ciclonico.xlsx" \
+  --station-name "Techo ciclonico - Montaje guiado" \
+  --product-code "TECHO-CICLONICO" \
+  --model-base-url "https://storage.googleapis.com/<bucket>/tenants/<tenant>/models/techo-ciclonico"
+```
+
+Notas:
+
+- Si pasas `--dry-run`, solo muestra previsualizacion y no escribe en BD.
+- Si defines `--model-base-url`, cada paso se crea con `modelUrl` automatico.
+- El visor 3D del operario acepta `modelUrl` en formato `.glb/.gltf` o `.json`.

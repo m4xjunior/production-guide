@@ -1,0 +1,11 @@
+{
+  "modelUrl": "https://storage.googleapis.com/<bucket>/tenants/<tenant>/models/techo-ciclonico/hp-paso-01.glb",
+  "focusNode": "pieza_soporte",
+  "label": "Paso 1 · Colocar soporte",
+  "instruction": "Alinear el soporte con el perfil y deslizar hasta encajar.",
+  "from": { "x": 0.0, "y": 0.25, "z": 0.0 },
+  "to": { "x": 0.0, "y": 0.0, "z": 0.0 },
+  "camera": { "x": 1.8, "y": 1.2, "z": 1.8, "zoom": 1.2 },
+  "durationMs": 1800,
+  "loop": true
+}
