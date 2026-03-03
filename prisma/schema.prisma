@@ -22,6 +22,7 @@ model Station {
   sessions   OperatorSession[]
   settings   StationSettings?
   references StationReference[]
+  stops      StationStop[]
 
   @@map("stations")
 }
@@ -41,10 +42,15 @@ model Step {
   modelUrl     String? @map("model_url") /// URL modelo 3D (fase 2)
   isQc         Boolean @default(false) @map("is_qc") /// ¿Es paso de control calidad?
   qcFrequency  Int?    @map("qc_frequency") /// Cada N unidades (NULL = siempre)
+  isErrorStep  Boolean @default(false) @map("is_error_step") /// ¿Es paso de error (muestra alerta)?
+  errorMessage String? @map("error_message") /// Mensaje de error a mostrar
+  periodEveryN Int?    @map("period_every_n") /// Repetir cada N unidades (null = siempre)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  stepLogs StepLog[]
+  station          Station         @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  stepLogs         StepLog[]
+  conditions       StepCondition[] @relation("StepConditions")
+  conditionsAsNext StepCondition[] @relation("NextStep")
 
   @@unique([stationId, orderNum])
   @@index([stationId])
@@ -82,6 +88,7 @@ model OperatorSession {
   station  Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
   operator Operator? @relation(fields: [operatorNumber], references: [sageCode])
   stepLogs StepLog[]
+  stops    StationStop[]
 
   @@index([stationId])
   @@index([operatorNumber])
@@ -182,4 +189,35 @@ model StationReference {
 
   @@id([stationId, referenceId])
   @@map("station_references")
+}
+
+/// Condiciones de navegacion: dado el resultado de un paso, cual el proximo paso
+model StepCondition {
+  id            String  @id @default(uuid()) @db.Uuid
+  stepId        String  @map("step_id") @db.Uuid
+  matchResponse String? @map("match_response") /// null = default (cualquier respuesta no cubierta)
+  nextStepId    String? @map("next_step_id") @db.Uuid /// null = fin del flujo
+
+  step     Step  @relation("StepConditions", fields: [stepId], references: [id], onDelete: Cascade)
+  nextStep Step? @relation("NextStep", fields: [nextStepId], references: [id], onDelete: SetNull)
+
+  @@index([stepId])
+  @@map("step_conditions")
+}
+
+/// Paros de estacion: cuando y por que la estacion paro
+model StationStop {
+  id        String    @id @default(uuid()) @db.Uuid
+  stationId String    @map("station_id") @db.Uuid
+  sessionId String?   @map("session_id") @db.Uuid
+  startAt   DateTime  @default(now()) @map("start_at") @db.Timestamptz
+  endAt     DateTime? @map("end_at") @db.Timestamptz
+  reason    String?
+
+  station Station          @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  session OperatorSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([stationId])
+  @@index([startAt])
+  @@map("station_stops")
 }

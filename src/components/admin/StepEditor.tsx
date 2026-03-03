@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Step } from "@/types";
+import { type Step, type StepCondition } from "@/types";
 import {
   GripVertical,
   Trash2,
@@ -24,6 +24,11 @@ import {
   Save,
   Loader2,
   ImagePlus,
+  GitBranch,
+  ChevronDown as CollapseIcon,
+  ChevronRight as ExpandIcon,
+  Plus,
+  X,
 } from "lucide-react";
 
 interface StepEditorProps {
@@ -32,11 +37,17 @@ interface StepEditorProps {
   totalSteps: number;
   stationId: string;
   adminPassword: string;
+  allSteps: Step[];
   onSave: (updatedStep: Step) => void;
   onDelete: (stepId: string) => void;
   onMoveUp: (stepId: string) => void;
   onMoveDown: (stepId: string) => void;
 }
+
+type ConditionDraft = {
+  matchResponse: string; // empty string = default (null in DB)
+  nextStepId: string; // empty string = end of flow (null in DB)
+};
 
 export function StepEditor({
   step,
@@ -44,6 +55,7 @@ export function StepEditor({
   totalSteps,
   stationId,
   adminPassword,
+  allSteps,
   onSave,
   onDelete,
   onMoveUp,
@@ -52,6 +64,8 @@ export function StepEditor({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showConditions, setShowConditions] = useState(false);
+  const [savingConditions, setSavingConditions] = useState(false);
 
   const [formTipo, setFormTipo] = useState(step.tipo);
   const [formMensaje, setFormMensaje] = useState(step.mensaje);
@@ -62,6 +76,20 @@ export function StepEditor({
   const [formModelUrl, setFormModelUrl] = useState(step.modelUrl || "");
   const [formIsQc, setFormIsQc] = useState(step.isQc);
   const [formQcFrequency, setFormQcFrequency] = useState(step.qcFrequency?.toString() || "");
+  const [formIsErrorStep, setFormIsErrorStep] = useState(step.isErrorStep ?? false);
+  const [formErrorMessage, setFormErrorMessage] = useState(step.errorMessage || "");
+  const [formPeriodEveryN, setFormPeriodEveryN] = useState(step.periodEveryN?.toString() || "");
+
+  // Conditions: convert from DB format to draft format
+  const toDrafts = (conditions?: StepCondition[]): ConditionDraft[] =>
+    (conditions ?? []).map((c) => ({
+      matchResponse: c.matchResponse ?? "",
+      nextStepId: c.nextStepId ?? "",
+    }));
+
+  const [conditions, setConditions] = useState<ConditionDraft[]>(
+    toDrafts(step.conditions)
+  );
 
   const headers = {
     "Content-Type": "application/json",
@@ -81,6 +109,9 @@ export function StepEditor({
         modelUrl: formModelUrl || null,
         isQc: formIsQc,
         qcFrequency: formQcFrequency ? parseInt(formQcFrequency) : null,
+        isErrorStep: formIsErrorStep,
+        errorMessage: formIsErrorStep ? (formErrorMessage || null) : null,
+        periodEveryN: formPeriodEveryN ? parseInt(formPeriodEveryN) : null,
       };
 
       const res = await fetch(`/api/stations/${stationId}/steps/${step.id}`, {
@@ -98,6 +129,33 @@ export function StepEditor({
       alert("Error al guardar el paso");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveConditions = async () => {
+    setSavingConditions(true);
+    try {
+      const conditionsPayload = conditions.map((c) => ({
+        matchResponse: c.matchResponse.trim() === "" ? null : c.matchResponse.trim(),
+        nextStepId: c.nextStepId.trim() === "" ? null : c.nextStepId.trim(),
+      }));
+
+      const res = await fetch(
+        `/api/stations/${stationId}/steps/${step.id}/conditions`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({ conditions: conditionsPayload }),
+        }
+      );
+      if (!res.ok) throw new Error("Error al guardar condiciones");
+      const data = await res.json();
+      setConditions(toDrafts(data.conditions));
+    } catch (err) {
+      console.error(err);
+      alert("Error al guardar las condiciones de navegacion");
+    } finally {
+      setSavingConditions(false);
     }
   };
 
@@ -129,14 +187,34 @@ export function StepEditor({
     }
   };
 
+  const addCondition = () => {
+    setConditions((prev) => [...prev, { matchResponse: "", nextStepId: "" }]);
+  };
+
+  const removeCondition = (i: number) => {
+    setConditions((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  const updateCondition = (
+    i: number,
+    field: keyof ConditionDraft,
+    value: string
+  ) => {
+    setConditions((prev) =>
+      prev.map((c, idx) => (idx === i ? { ...c, [field]: value } : c))
+    );
+  };
+
   const tipoBadge = {
     VOZ: "default" as const,
     SISTEMA: "secondary" as const,
     QC: "warning" as const,
   };
 
+  // Steps selectable as next (excluding current)
+  const selectableSteps = allSteps.filter((s) => s.id !== step.id);
+
   if (!editing) {
-    // Collapsed view
     return (
       <Card className="group">
         <CardContent className="py-3 px-4">
@@ -152,6 +230,13 @@ export function StepEditor({
               {step.responseType}
             </Badge>
             {step.isQc && <Badge variant="warning" className="text-xs">QC</Badge>}
+            {step.isErrorStep && <Badge variant="destructive" className="text-xs">Error</Badge>}
+            {(step.conditions?.length ?? 0) > 0 && (
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                <GitBranch className="h-3 w-3" />
+                {step.conditions!.length} cond.
+              </Badge>
+            )}
             <p className="flex-1 text-sm truncate">{step.mensaje}</p>
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
@@ -187,7 +272,6 @@ export function StepEditor({
     );
   }
 
-  // Expanded edit view
   return (
     <Card className="border-primary/50">
       <CardContent className="py-4 px-6 space-y-4">
@@ -315,6 +399,7 @@ export function StepEditor({
           />
         </div>
 
+        {/* QC */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <Switch
@@ -335,6 +420,159 @@ export function StepEditor({
                 placeholder="Cada N unidades"
                 className="w-32"
               />
+            </div>
+          )}
+        </div>
+
+        {/* isErrorStep */}
+        <div className="space-y-3 border-t pt-4">
+          <div className="flex items-center gap-3">
+            <Switch
+              checked={formIsErrorStep}
+              onCheckedChange={setFormIsErrorStep}
+              id={`error-${step.id}`}
+            />
+            <Label htmlFor={`error-${step.id}`}>Paso de error (requiere confirmacion manual)</Label>
+          </div>
+          {formIsErrorStep && (
+            <div className="space-y-2">
+              <Label>Mensaje de error (opcional)</Label>
+              <Textarea
+                value={formErrorMessage}
+                onChange={(e) => setFormErrorMessage(e.target.value)}
+                placeholder="Descripcion del error o accion correctiva..."
+                rows={2}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* periodEveryN */}
+        <div className="flex items-center gap-4 border-t pt-4">
+          <Label>Periodicidad (cada N unidades):</Label>
+          <Input
+            type="number"
+            min="0"
+            value={formPeriodEveryN}
+            onChange={(e) => setFormPeriodEveryN(e.target.value)}
+            placeholder="Vacio = siempre"
+            className="w-36"
+          />
+          <p className="text-xs text-muted-foreground">
+            0 o vacio = siempre. N = solo cuando unidades completadas % N == 0.
+          </p>
+        </div>
+
+        {/* Navigation Conditions accordion */}
+        <div className="border-t pt-4 space-y-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 text-sm font-semibold text-foreground w-full text-left"
+            onClick={() => setShowConditions((v) => !v)}
+          >
+            {showConditions ? (
+              <CollapseIcon className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ExpandIcon className="h-4 w-4 text-muted-foreground" />
+            )}
+            <GitBranch className="h-4 w-4 text-primary" />
+            Condiciones de navegacion
+            {conditions.length > 0 && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {conditions.length}
+              </Badge>
+            )}
+          </button>
+
+          {showConditions && (
+            <div className="space-y-3 pl-6">
+              <p className="text-xs text-muted-foreground">
+                Define a que paso ir segun la respuesta del operario. Deja &quot;Si respuesta =&quot; vacio para la condicion por defecto.
+                Deja &quot;Ir a paso&quot; vacio para terminar el flujo.
+              </p>
+
+              {conditions.map((cond, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg"
+                >
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">
+                        Si respuesta =
+                      </Label>
+                      <Input
+                        value={cond.matchResponse}
+                        onChange={(e) =>
+                          updateCondition(i, "matchResponse", e.target.value)
+                        }
+                        placeholder="(vacio = defecto)"
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">
+                        Ir a paso
+                      </Label>
+                      <Select
+                        value={cond.nextStepId || "__end__"}
+                        onValueChange={(v) =>
+                          updateCondition(
+                            i,
+                            "nextStepId",
+                            v === "__end__" ? "" : v
+                          )
+                        }
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Fin del flujo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__end__">
+                            (Fin del flujo)
+                          </SelectItem>
+                          {selectableSteps.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              #{allSteps.findIndex((x) => x.id === s.id) + 1} — {s.mensaje.slice(0, 40)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeCondition(i)}
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addCondition}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Anadir condicion
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveConditions}
+                  disabled={savingConditions}
+                >
+                  {savingConditions ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-1" />
+                  )}
+                  Guardar condiciones
+                </Button>
+              </div>
             </div>
           )}
         </div>

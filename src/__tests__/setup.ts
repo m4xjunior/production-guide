@@ -19,14 +19,29 @@ vi.mock("@/lib/db", () => ({
     },
     step: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
     operatorSession: {
       create: vi.fn(),
       updateMany: vi.fn(),
     },
+    stationStop: {
+      create: vi.fn(),
+      update: vi.fn(),
+      findMany: vi.fn(),
+    },
+    stepCondition: {
+      deleteMany: vi.fn(),
+      createMany: vi.fn(),
+      findMany: vi.fn(),
+    },
     $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         stationReference: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+        },
+        stepCondition: {
           deleteMany: vi.fn(),
           createMany: vi.fn(),
         },

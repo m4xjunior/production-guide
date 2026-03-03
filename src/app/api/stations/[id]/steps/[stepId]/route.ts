@@ -35,6 +35,9 @@ export async function PUT(
       isQc,
       qcFrequency,
       orderNum,
+      isErrorStep,
+      errorMessage,
+      periodEveryN,
     } = body;
 
     const step = await prisma.step.update({
@@ -50,6 +53,9 @@ export async function PUT(
         ...(isQc !== undefined && { isQc }),
         ...(qcFrequency !== undefined && { qcFrequency }),
         ...(orderNum !== undefined && { orderNum }),
+        ...(isErrorStep !== undefined && { isErrorStep }),
+        ...(errorMessage !== undefined && { errorMessage }),
+        ...(periodEveryN !== undefined && { periodEveryN }),
       },
     });
 

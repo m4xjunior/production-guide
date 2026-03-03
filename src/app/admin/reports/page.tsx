@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,11 @@ import {
   Clock,
   ChevronDown,
   ChevronRight,
+  Square,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { StopsReport } from "@/components/admin/StopsReport";
+import type { Station } from "@/types";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -87,11 +90,22 @@ export default function ReportsPage() {
   const [rawProduction, setRawProduction] = useState<ProductionRow[]>([]);
   const [loadingProduction, setLoadingProduction] = useState(false);
 
+  // Stops
+  const [stations, setStations] = useState<Station[]>([]);
+
   // Expanded rows
   const [expandedPresence, setExpandedPresence] = useState<Set<string>>(new Set());
   const [expandedProduction, setExpandedProduction] = useState<Set<string>>(new Set());
 
   const { toast } = useToast();
+
+  // Load stations for stops report
+  useEffect(() => {
+    adminFetch("/api/stations")
+      .then((r) => r.json())
+      .then((d) => setStations(d.stations ?? []))
+      .catch(() => {});
+  }, []);
 
   // ─── Fetch Presence ────────────────────────────────────
   const fetchPresence = useCallback(async () => {
@@ -399,6 +413,10 @@ export default function ReportsPage() {
             <BarChart3 className="h-4 w-4" />
             Produccion
           </TabsTrigger>
+          <TabsTrigger value="stops" className="gap-2 data-[state=active]:bg-card data-[state=active]:text-foreground">
+            <Square className="h-4 w-4" />
+            Paros
+          </TabsTrigger>
         </TabsList>
 
         {/* ─── Presence Tab ──────────────────────────── */}
@@ -570,6 +588,10 @@ export default function ReportsPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        {/* ─── Stops Tab ─────────────────────────────── */}
+        <TabsContent value="stops">
+          <StopsReport stations={stations} />
         </TabsContent>
       </Tabs>
     </div>

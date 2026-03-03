@@ -73,7 +73,8 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
 
       if (stepsRes.ok) {
         const stepsData = await stepsRes.json();
-        setSteps(stepsData.sort((a: Step, b: Step) => a.orderNum - b.orderNum));
+        const stepsArr: Step[] = stepsData.steps ?? stepsData;
+        setSteps(stepsArr.sort((a: Step, b: Step) => a.orderNum - b.orderNum));
       }
 
       if (refsRes.ok) {
@@ -395,6 +396,7 @@ export function StationEditorComponent({ stationId, adminPassword }: StationEdit
                 totalSteps={steps.length}
                 stationId={stationId}
                 adminPassword={adminPassword}
+                allSteps={steps}
                 onSave={handleStepSaved}
                 onDelete={handleStepDelete}
                 onMoveUp={(id) => handleMoveStep(id, "up")}

@@ -6,6 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
@@ -17,6 +29,7 @@ import {
 import { StepTransition } from "@/components/StepTransition";
 import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
+import { resolveNextStep } from "@/lib/resolveNextStep";
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
 import { StepAssemblyViewer } from "@/components/StepAssemblyViewer";
@@ -31,6 +44,9 @@ import {
   RotateCcw,
   LogOut,
   Loader2,
+  Square,
+  AlertTriangle,
+  PlayCircle,
 } from "lucide-react";
 
 interface ProductionStepProps {
@@ -40,12 +56,15 @@ interface ProductionStepProps {
   totalSteps: number;
   operatorNumber: string;
   sessionId: string;
-  onStepCompleted: () => void;
+  stationId: string;
+  completedUnits: number;
+  onStepCompleted: (nextStep?: Step | null) => void;
   onPreviousStep: () => void;
   onNextStep: () => void;
   onBackToStations: () => void;
   onRestart: () => void;
   onLogout: () => void;
+  onStepNavigate?: (nextStep: Step) => void;
 }
 
 export function ProductionStep({
@@ -55,12 +74,15 @@ export function ProductionStep({
   totalSteps,
   operatorNumber,
   sessionId,
+  stationId,
+  completedUnits,
   onStepCompleted,
   onPreviousStep,
   onNextStep,
   onBackToStations,
   onRestart,
   onLogout,
+  onStepNavigate,
 }: ProductionStepProps) {
   const [stepStartTime] = useState(Date.now());
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
@@ -71,6 +93,18 @@ export function ProductionStep({
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>("elevenlabs");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Error step: requires manual confirmation
+  const [errorConfirmed, setErrorConfirmed] = useState(false);
+
+  // Stop station state
+  const [showStopDialog, setShowStopDialog] = useState(false);
+  const [stopReason, setStopReason] = useState("");
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentStopId, setCurrentStopId] = useState<string | null>(null);
+  const [isRegisteringStop, setIsRegisteringStop] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
+
   const elevenLiveEnabledByEnv =
     process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
@@ -78,14 +112,31 @@ export function ProductionStep({
 
   const { speak, stop: stopSpeech, isSpeaking } = useTextToSpeech();
 
+  // Periodicity check: if periodEveryN defined, skip when not the right unit
+  const shouldSkipByPeriod =
+    step.periodEveryN != null &&
+    step.periodEveryN > 0 &&
+    completedUnits % step.periodEveryN !== 0;
+
+  const resolveAndNavigate = useCallback(
+    (responseGiven: string) => {
+      const nextStep = resolveNextStep(step, responseGiven, steps);
+      if (onStepNavigate && nextStep) {
+        onStepNavigate(nextStep);
+      }
+      onStepCompleted(nextStep);
+    },
+    [step, steps, onStepCompleted, onStepNavigate]
+  );
+
   const handleVoiceMatch = useCallback(() => {
     logStepCompletion(step.respuesta || "voz");
     setDirection("forward");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 900);
-    onStepCompleted();
+    resolveAndNavigate(step.respuesta || "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.respuesta, onStepCompleted]);
+  }, [step.respuesta, resolveAndNavigate]);
 
   const {
     isListening,
@@ -166,7 +217,6 @@ export function ProductionStep({
     enabled: useElevenLive && step.responseType === "voice",
   });
 
-  // Refs para evitar que startListening/stopListening nas deps causem loop infinito
   const elevenStartRef = useRef(elevenStep.startListening);
   const elevenStopRef = useRef(elevenStep.stopListening);
   useEffect(() => { elevenStartRef.current = elevenStep.startListening; }, [elevenStep.startListening]);
@@ -195,11 +245,23 @@ export function ProductionStep({
     }
   }, [sessionId, step.id, stepStartTime]);
 
-  // Speak the step instruction (from pre-generated ElevenLabs audio)
+  // Auto-skip for period steps that don't apply this unit
+  useEffect(() => {
+    if (shouldSkipByPeriod) {
+      const timer = setTimeout(() => {
+        // Skip without logging — advance automatically
+        onStepCompleted(undefined);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step.id, shouldSkipByPeriod]);
+
+  // Speak the step instruction
   useEffect(() => {
     hasSpokenRef.current = false;
 
-    if (!isMuted && step.vozAudioUrl) {
+    if (!isMuted && step.vozAudioUrl && !shouldSkipByPeriod) {
       const timer = setTimeout(() => {
         if (!hasSpokenRef.current) {
           hasSpokenRef.current = true;
@@ -209,10 +271,11 @@ export function ProductionStep({
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.id, isMuted]);
+  }, [step.id, isMuted, shouldSkipByPeriod]);
 
-  // Start voice recognition for voice steps (ElevenLabs first, fallback automático)
+  // Start voice recognition for voice steps
   useEffect(() => {
+    if (shouldSkipByPeriod || isPaused) return;
     if (step.responseType === "voice" && step.respuesta) {
       let cancelled = false;
       const timer = setTimeout(() => {
@@ -245,10 +308,13 @@ export function ProductionStep({
     useElevenLive,
     startFallbackRecognition,
     stopFallbackRecognition,
+    shouldSkipByPeriod,
+    isPaused,
   ]);
 
   // Auto-advance for SISTEMA steps
   useEffect(() => {
+    if (shouldSkipByPeriod || isPaused) return;
     if (step.responseType === "auto" || step.tipo === "SISTEMA") {
       setAutoAdvanceCountdown(3);
       autoTimerRef.current = setInterval(() => {
@@ -259,7 +325,7 @@ export function ProductionStep({
             setDirection("forward");
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 900);
-            onStepCompleted();
+            resolveAndNavigate("auto");
             return null;
           }
           return prev !== null ? prev - 1 : null;
@@ -275,7 +341,7 @@ export function ProductionStep({
       setAutoAdvanceCountdown(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.id]);
+  }, [step.id, shouldSkipByPeriod, isPaused]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -312,7 +378,7 @@ export function ProductionStep({
       .catch(() => {});
   }, [elevenLiveEnabledByEnv]);
 
-  // Se ElevenLabs cair durante o passo, ativa fallback automaticamente.
+  // ElevenLabs fallback on provider change
   useEffect(() => {
     if (step.responseType !== "voice" || !step.respuesta) return;
 
@@ -331,12 +397,21 @@ export function ProductionStep({
     stopFallbackRecognition,
   ]);
 
+  // Reset error confirmation when step changes
+  useEffect(() => {
+    setErrorConfirmed(false);
+  }, [step.id]);
+
   const handleButtonConfirm = () => {
+    if (step.isErrorStep && !errorConfirmed) {
+      setErrorConfirmed(true);
+      return;
+    }
     logStepCompletion("confirmado");
     setDirection("forward");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 900);
-    onStepCompleted();
+    resolveAndNavigate("confirmado");
   };
 
   const handleScanComplete = (code: string) => {
@@ -344,7 +419,7 @@ export function ProductionStep({
     setDirection("forward");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 900);
-    onStepCompleted();
+    resolveAndNavigate(code);
   };
 
   const handleToggleMute = () => {
@@ -366,6 +441,60 @@ export function ProductionStep({
   const handleNextStep = () => {
     setDirection("forward");
     onNextStep();
+  };
+
+  // Stop station handlers
+  const handleRegisterStop = async () => {
+    setIsRegisteringStop(true);
+    try {
+      const res = await fetch("/api/stops", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stationId,
+          sessionId,
+          reason: stopReason.trim() || null,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentStopId(data.stop.id);
+        setIsPaused(true);
+        setShowStopDialog(false);
+        setStopReason("");
+        // Stop voice recognition while paused
+        void elevenStopRef.current();
+        stopFallbackRecognition();
+        stopSpeech();
+        if (autoTimerRef.current) clearInterval(autoTimerRef.current);
+        setAutoAdvanceCountdown(null);
+      }
+    } catch (err) {
+      console.error("Error registering stop:", err);
+    } finally {
+      setIsRegisteringStop(false);
+    }
+  };
+
+  const handleResume = async () => {
+    if (!currentStopId) {
+      setIsPaused(false);
+      return;
+    }
+    setIsResuming(true);
+    try {
+      await fetch(`/api/stops/${currentStopId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      setIsPaused(false);
+      setCurrentStopId(null);
+    } catch (err) {
+      console.error("Error resuming:", err);
+    } finally {
+      setIsResuming(false);
+    }
   };
 
   const progressPercent = ((currentIndex + 1) / totalSteps) * 100;
@@ -394,6 +523,39 @@ export function ProductionStep({
       : useWhisper
       ? lastWhisperHeard
       : lastHeard;
+
+  // Suppress unused variable warning
+  void isWhisperConnected;
+
+  // ─── Paused screen ───────────────────────────────────────
+  if (isPaused) {
+    return (
+      <div className="min-h-dvh bg-background flex flex-col items-center justify-center gap-8 p-8">
+        <div className="text-center space-y-4">
+          <div className="h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <Square className="h-10 w-10 text-destructive" />
+          </div>
+          <h2 className="text-3xl font-bold text-foreground">Estacion Parada</h2>
+          <p className="text-muted-foreground text-lg">
+            La produccion esta detenida. Resuelve el incidente y pulsa Reanudar.
+          </p>
+        </div>
+        <Button
+          size="lg"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white text-lg px-8 py-6"
+          onClick={handleResume}
+          disabled={isResuming}
+        >
+          {isResuming ? (
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+          ) : (
+            <PlayCircle className="h-5 w-5 mr-2" />
+          )}
+          Reanudar produccion
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background flex flex-col">
@@ -454,6 +616,12 @@ export function ProductionStep({
                   {step.isQc && (
                     <Badge variant="warning">QC</Badge>
                   )}
+                  {step.isErrorStep && (
+                    <Badge variant="destructive" className="flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      Error
+                    </Badge>
+                  )}
                   {isVoiceListening && (
                     <Badge variant="default" className="voice-listening flex items-center gap-1.5">
                       <Mic className="h-3 w-3" />
@@ -481,7 +649,17 @@ export function ProductionStep({
                   )}
                 </div>
 
-                <Card className="border-2">
+                {/* Error step alert */}
+                {step.isErrorStep && step.errorMessage && (
+                  <div className="flex items-start gap-3 p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
+                    <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium text-destructive">
+                      {step.errorMessage}
+                    </p>
+                  </div>
+                )}
+
+                <Card className={`border-2 ${step.isErrorStep ? "border-destructive/50" : ""}`}>
                   <CardContent className="p-6 md:p-8">
                     <p className="text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed voice-optimized">
                       {step.mensaje}
@@ -489,7 +667,16 @@ export function ProductionStep({
                   </CardContent>
                 </Card>
 
-                {/* Voice feedback — siempre mostrar boton de confirmar manual */}
+                {/* Error step confirmation requirement */}
+                {step.isErrorStep && !errorConfirmed && (
+                  <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-md">
+                    <p className="text-sm text-destructive font-medium">
+                      Este paso requiere confirmacion manual. Asegurate de haber resuelto el problema antes de continuar.
+                    </p>
+                  </div>
+                )}
+
+                {/* Voice feedback */}
                 {step.responseType === "voice" && (
                   <>
                     {isVoiceListening && (
@@ -539,7 +726,7 @@ export function ProductionStep({
                     onClick={handleButtonConfirm}
                   >
                     <CheckCircle2 className="h-6 w-6 mr-2" />
-                    Confirmar
+                    {step.isErrorStep && !errorConfirmed ? "Confirmar que el error fue resuelto" : "Confirmar"}
                   </Button>
                 )}
 
@@ -633,6 +820,17 @@ export function ProductionStep({
             Anterior
           </Button>
 
+          {/* Stop button — center */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+            onClick={() => setShowStopDialog(true)}
+          >
+            <Square className="h-4 w-4 mr-1.5" />
+            Parar
+          </Button>
+
           {/* Step indicator dots */}
           <div className="hidden md:flex items-center gap-1.5">
             {steps.slice(
@@ -673,6 +871,46 @@ export function ProductionStep({
       </div>
 
       <SuccessFeedback visible={showSuccess} />
+
+      {/* Stop station dialog */}
+      <AlertDialog open={showStopDialog} onOpenChange={setShowStopDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Square className="h-5 w-5" />
+              Parar estacion
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              La produccion se detendra hasta que pulses Reanudar. Indica opcionalmente el motivo del paro.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2 space-y-2">
+            <Label htmlFor="stop-reason">Motivo del paro (opcional)</Label>
+            <Textarea
+              id="stop-reason"
+              value={stopReason}
+              onChange={(e) => setStopReason(e.target.value)}
+              placeholder="Avaria de maquina, falta de material, incidente..."
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={handleRegisterStop}
+              disabled={isRegisteringStop}
+            >
+              {isRegisteringStop ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Square className="h-4 w-4 mr-2" />
+              )}
+              Registrar paro
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

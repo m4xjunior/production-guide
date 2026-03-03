@@ -23,6 +23,13 @@ export interface Station {
   references?: Reference[];
 }
 
+export interface StepCondition {
+  id: string;
+  stepId: string;
+  matchResponse: string | null;
+  nextStepId: string | null;
+}
+
 export interface Step {
   id: string;
   stationId: string;
@@ -37,6 +44,20 @@ export interface Step {
   modelUrl: string | null;
   isQc: boolean;
   qcFrequency: number | null;
+  isErrorStep: boolean;
+  errorMessage: string | null;
+  periodEveryN: number | null;
+  conditions?: StepCondition[];
+}
+
+export interface StationStop {
+  id: string;
+  stationId: string;
+  sessionId: string | null;
+  startAt: string;
+  endAt: string | null;
+  reason: string | null;
+  durationMs?: number | null;
 }
 
 export interface OperatorSession {

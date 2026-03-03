@@ -26,6 +26,7 @@ export async function GET(
     const steps = await prisma.step.findMany({
       where: { stationId: id },
       orderBy: { orderNum: "asc" },
+      include: { conditions: true },
     });
 
     // Assinar photoUrl e modelUrl; para voz usar proxy /api/tts/{stepId}
@@ -87,6 +88,9 @@ export async function POST(
       modelUrl,
       isQc,
       qcFrequency,
+      isErrorStep,
+      errorMessage,
+      periodEveryN,
     } = body;
 
     // Validaciones obligatorias
@@ -124,6 +128,9 @@ export async function POST(
         modelUrl: modelUrl ?? null,
         isQc: isQc ?? false,
         qcFrequency: qcFrequency ?? null,
+        isErrorStep: isErrorStep ?? false,
+        errorMessage: errorMessage ?? null,
+        periodEveryN: periodEveryN ?? null,
       },
     });
 
