@@ -13,11 +13,10 @@ export default withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
-  // Disable static page wrapping to fix _not-found build error
-  autoInstrumentServerFunctions: false,
-  autoInstrumentAppDirectory: false,
   webpack: {
     automaticVercelMonitors: true,
+    autoInstrumentServerFunctions: false,
+    autoInstrumentAppDirectory: false,
     treeshake: {
       removeDebugLogging: true,
     },
