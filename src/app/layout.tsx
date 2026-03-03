@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="es">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-        <meta name="theme-color" content="#1e40af" />
+        <meta name="theme-color" content="#111113" />
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body

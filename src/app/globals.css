@@ -3,34 +3,34 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.488 0.243 264.376);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --success: oklch(0.696 0.17 162.48);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.21 0.006 285.885);
+  --background: #111113;
+  --foreground: #E8E8E8;
+  --card: #1A1A1E;
+  --card-foreground: #E8E8E8;
+  --popover: #1A1A1E;
+  --popover-foreground: #E8E8E8;
+  --primary: #8B1A1A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #27272A;
+  --secondary-foreground: #E8E8E8;
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+  --accent: #1F1F23;
+  --accent-foreground: #E8E8E8;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --border: #2A2A2E;
+  --input: #27272A;
+  --ring: #8B1A1A;
+  --chart-1: #8B1A1A;
+  --chart-2: #22C55E;
+  --chart-3: #F59E0B;
+  --chart-4: #6B6B6B;
+  --chart-5: #A52525;
+  --success: #22C55E;
+  --success-foreground: #FFFFFF;
+  --warning: #F59E0B;
+  --warning-foreground: #111113;
 }
 
 @theme inline {
@@ -98,18 +98,18 @@ body {
 /* Indicador visual de escucha de voz */
 .voice-listening {
   animation: pulse-voice 2s infinite;
-  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 0 rgba(139, 26, 26, 0.7);
 }
 
 @keyframes pulse-voice {
   0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    box-shadow: 0 0 0 0 rgba(139, 26, 26, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    box-shadow: 0 0 0 10px rgba(139, 26, 26, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    box-shadow: 0 0 0 0 rgba(139, 26, 26, 0);
   }
 }
 
@@ -143,7 +143,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
