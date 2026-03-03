@@ -1,236 +1,111 @@
-# SAO — Sistema de Ayuda al Operario
+# SAO — Sistema de Ayuda al Operario v3.0
 
-> Sistema de guia de montaje para operarios de fabrica con control por voz, escaneo de codigos de barras y controles de calidad configurables.
+Sistema MES industrial multi-tenant para guiar operarios en línea de montaje mediante voz, imagen y vídeo. Cada fábrica cliente (tenant) tiene su propia configuración, estaciones, operarios y comandos de voz.
+
+## Arquitectura
+
+- **Frontend:** Next.js 15 → Vercel (wildcard domains: `*.sao.app`)
+- **DB:** PostgreSQL en Neon (shared schema multi-tenant con tenantId)
+- **Backend services:** Docker Compose (sync-sage + transcription-server)
+- **Storage:** Google Cloud Storage por tenant (`tenants/{slug}/...`)
+- **TTS:** ElevenLabs API
+- **STT:** Web Speech API (cloud) o Whisper (local, privacidad fábrica)
 
 ## Requisitos
 
 - Node.js 20+
-- Docker (para PostgreSQL)
-- Google Cloud SDK (para GCS — opcional en desarrollo)
+- Docker + Docker Compose
+- Cuenta Neon (PostgreSQL)
+- Cuenta Vercel
+- Bucket en Google Cloud Storage
+- ElevenLabs API key (TTS)
 
-## Instalacion rapida
+## Instalación en nueva fábrica (~30 min)
 
-```bash
-make setup
-```
-
-Este comando levanta PostgreSQL en Docker, instala dependencias, genera el cliente Prisma, ejecuta las migraciones e importa los datos iniciales.
-
-## Desarrollo
+### 1. Clonar y configurar
 
 ```bash
-make dev
+git clone <repo>
+cp .env.example .env
+# Rellenar DATABASE_URL, GCS_BUCKET, GCS credentials, ELEVENLABS_API_KEY
 ```
 
-La aplicacion estara disponible en `http://localhost:3000`.
+### 2. Instalar dependencias y generar cliente Prisma
 
-## Arquitectura
-
-- **Frontend:** Next.js 15 + React 19 + shadcn-ui + Tailwind CSS 4
-- **Backend:** Next.js API Routes + Prisma ORM
-- **Base de datos:** PostgreSQL 15 (Docker)
-- **Almacenamiento:** Google Cloud Storage (imagenes, configuraciones)
-- **Voz:** Web Speech API (TTS + reconocimiento continuo)
-
-## Estructura del proyecto
-
-```
-src/
-├── app/
-│   ├── page.tsx                      # Pagina principal (flujo operario)
-│   ├── layout.tsx                    # Layout raiz
-│   ├── globals.css                   # Estilos globales
-│   ├── admin/
-│   │   ├── page.tsx                  # Panel admin
-│   │   └── stations/[id]/page.tsx    # Editor de estacion
-│   └── api/
-│       ├── stations/                 # CRUD estaciones
-│       ├── sessions/                 # Sesiones de operario
-│       ├── step-logs/                # Registro de pasos
-│       ├── validate/barcode/         # Validacion de codigos
-│       ├── upload/image/             # Subida de imagenes a GCS
-│       └── reports/                  # Reportes (presencia, produccion)
-├── components/
-│   ├── ProductionStep.tsx            # Paso de produccion (voz, scan, boton)
-│   ├── BarcodeScanner.tsx            # Lector de codigos de barras
-│   ├── OperatorLogin.tsx             # Login de operario
-│   ├── StationSelector.tsx           # Selector de estacion
-│   ├── StationCard.tsx               # Tarjeta de estacion
-│   ├── admin/                        # Componentes del panel admin
-│   └── ui/                           # Componentes shadcn-ui
-├── hooks/
-│   ├── useContinuousSpeechRecognition.ts  # Reconocimiento de voz continuo
-│   ├── useSpeechRecognition.ts            # Reconocimiento de voz manual
-│   ├── useTextToSpeech.ts                 # Sintesis de voz (TTS)
-│   └── use-toast.ts                       # Notificaciones
-├── lib/
-│   ├── db.ts                         # Cliente Prisma singleton
-│   ├── gcs.ts                        # Cliente Google Cloud Storage
-│   └── utils.ts                      # Utilidades generales
-├── types/
-│   └── index.ts                      # Tipos TypeScript
-└── middleware.ts                      # Middleware Next.js
-prisma/
-├── schema.prisma                     # Esquema de base de datos
-├── seed.ts                           # Seed de datos iniciales
-└── migrations/                       # Migraciones SQL
+```bash
+npm install
+npx prisma generate
 ```
 
-## API Reference
+### 3. Ejecutar migration en Neon
 
-### Estaciones
+```bash
+npx prisma migrate deploy
+```
 
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| GET | `/api/stations` | Listar estaciones activas | Publica |
-| POST | `/api/stations` | Crear estacion | Admin |
-| GET | `/api/stations/:id` | Detalle con pasos | Publica |
-| PUT | `/api/stations/:id` | Editar estacion | Admin |
-| DELETE | `/api/stations/:id` | Desactivar estacion | Admin |
+### 4. Crear tenant en DB
 
-### Pasos
+```sql
+INSERT INTO tenants (slug, name, primary_color, tts_voice_id)
+VALUES ('acme', 'Acme Factory', '#1A4B8B', 'JBFqnCBsd6RMkjVDRZzb');
+```
 
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| GET | `/api/stations/:id/steps` | Listar pasos | Publica |
-| POST | `/api/stations/:id/steps` | Anadir paso | Admin |
-| PUT | `/api/stations/:id/steps/:stepId` | Editar paso | Admin |
-| DELETE | `/api/stations/:id/steps/:stepId` | Eliminar paso | Admin |
-| PATCH | `/api/stations/:id/steps/reorder` | Reordenar pasos | Admin |
+### 5. Configurar DNS
 
-### Sesiones
+Añadir registro CNAME: `acme.sao.app` → dominio Vercel.
 
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| POST | `/api/sessions` | Iniciar sesion | Publica |
-| GET | `/api/sessions/:id` | Estado de sesion | Publica |
-| PATCH | `/api/sessions/:id/logout` | Cerrar sesion | Publica |
+### 6. Iniciar servicios Docker
 
-### Logs y Validacion
+```bash
+cp sync-sage/.env.example sync-sage/.env
+# Rellenar SAGE_HOST, SAGE_PASSWORD, DATABASE_URL
+make start
+```
 
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| POST | `/api/step-logs` | Registrar paso completado | Publica |
-| POST | `/api/validate/barcode` | Validar codigo de barras | Publica |
-| POST | `/api/upload/image` | Subir imagen | Admin |
+### 7. Deploy frontend
 
-### Reportes
-
-| Metodo | Ruta | Descripcion | Auth |
-|--------|------|-------------|------|
-| GET | `/api/reports/presence` | Reporte de presencia | Publica |
-| GET | `/api/reports/production` | Reporte de produccion | Publica |
-
-## Variables de entorno
-
-Configuradas en `.env.local`:
-
-| Variable | Descripcion | Ejemplo |
-|----------|-------------|---------|
-| `DATABASE_URL` | URL de conexion a PostgreSQL | `postgresql://p2v:p2v_secret@localhost:54320/picktvoice` |
-| `GOOGLE_CLOUD_PROJECT` | ID del proyecto en Google Cloud | `eastern-synapse-466208-t9` |
-| `GOOGLE_CLOUD_LOCATION` | Region de Google Cloud | `us-central1` |
-| `GCS_BUCKET` | Nombre del bucket de GCS | `lexusfx-media-eastern-synapse-466208-t9-prod` |
-| `GCS_TENANT` | Tenant dentro del bucket | `p2v` |
-| `ADMIN_PASSWORD` | Contrasena para endpoints admin | *(definir en .env.local)* |
-| `SAGE_API_URL` | URL de la API de Sage ERP (futuro) | *(pendiente)* |
-| `SAGE_API_KEY` | Clave API de Sage ERP (futuro) | *(pendiente)* |
-| `NEXT_PUBLIC_SENTRY_DSN` | DSN de Sentry para monitorizacion | *(opcional)* |
-
-## Modelo de datos
-
-La base de datos PostgreSQL tiene 4 tablas principales gestionadas por Prisma:
-
-### stations
-
-Estaciones de trabajo en la fabrica. Cada estacion representa una linea o puesto de montaje.
-
-| Campo | Tipo | Descripcion |
-|-------|------|-------------|
-| `id` | UUID | Identificador unico |
-| `name` | TEXT | Nombre de la estacion |
-| `description` | TEXT? | Descripcion opcional |
-| `product_code` | TEXT? | Codigo Sage (futuro ERP) |
-| `is_active` | BOOLEAN | Si esta activa (default: true) |
-| `updated_by` | TEXT? | Email del ingeniero que la modifico |
-
-### steps
-
-Pasos de cada estacion. Definen las instrucciones de montaje ordenadas.
-
-| Campo | Tipo | Descripcion |
-|-------|------|-------------|
-| `id` | UUID | Identificador unico |
-| `station_id` | UUID | FK a stations |
-| `order_num` | INT | Orden del paso dentro de la estacion |
-| `tipo` | TEXT | VOZ, SISTEMA o QC |
-| `mensaje` | TEXT | Instruccion visual (pantalla) |
-| `voz` | TEXT? | Texto para sintesis de voz |
-| `response_type` | TEXT | voice, scan, button o auto |
-| `respuesta` | TEXT? | Respuesta esperada o codigo de barras |
-| `photo_url` | TEXT? | URL de imagen (GCS o local) |
-| `model_url` | TEXT? | URL de modelo 3D (fase 2) |
-| `is_qc` | BOOLEAN | Si es control de calidad |
-| `qc_frequency` | INT? | Cada N unidades (NULL = siempre) |
-
-### operator_sessions
-
-Sesiones de operario. Registran cuando un operario inicia y finaliza trabajo en una estacion.
-
-| Campo | Tipo | Descripcion |
-|-------|------|-------------|
-| `id` | UUID | Identificador unico |
-| `operator_number` | TEXT | Numero del operario |
-| `station_id` | UUID | FK a stations |
-| `login_at` | TIMESTAMPTZ | Inicio de sesion |
-| `logout_at` | TIMESTAMPTZ? | Fin de sesion (NULL = activa) |
-| `completed_units` | INT | Unidades completadas |
-| `is_active` | BOOLEAN | Si la sesion esta activa |
-
-### step_logs
-
-Log de cada paso completado. Permite trazabilidad completa de la produccion.
-
-| Campo | Tipo | Descripcion |
-|-------|------|-------------|
-| `id` | UUID | Identificador unico |
-| `session_id` | UUID | FK a operator_sessions |
-| `step_id` | UUID | FK a steps |
-| `completed_at` | TIMESTAMPTZ | Momento de completado |
-| `response_received` | TEXT? | Lo que el operario dijo/escaneo |
-| `duration_ms` | INT? | Duracion del paso en milisegundos |
-| `was_skipped` | BOOLEAN | Si fue saltado por frecuencia QC |
+```bash
+make deploy
+```
 
 ## Comandos Make
 
-| Comando | Descripcion |
+| Comando | Descripción |
 |---------|-------------|
-| `make setup` | Instalacion completa (Docker + deps + migraciones + seed) |
-| `make dev` | Servidor de desarrollo |
-| `make start` | Modo produccion (build + start) |
-| `make db-up` | Levantar PostgreSQL en Docker |
-| `make db-down` | Parar Docker |
-| `make db-migrate` | Ejecutar migraciones Prisma |
-| `make db-seed` | Importar datos iniciales |
-| `make db-reset` | Resetear base de datos |
-| `make db-studio` | Abrir Prisma Studio |
-| `make clean` | Limpiar todo (Docker volumes + node_modules + .next) |
+| `make start` | Inicia Docker services |
+| `make stop` | Para Docker services |
+| `make logs` | Logs en tiempo real |
+| `make sync-once` | Sync Sage manual (una vez) |
+| `make build` | Build imágenes Docker |
+| `make migrate` | Aplica migrations Prisma |
+| `make deploy` | Deploy a Vercel |
+| `make status` | Estado de containers |
+| `make help` | Lista todos los comandos |
 
-## Importacion Techo ciclonico (Excel)
-
-Para crear pasos directamente desde las hojas HP/PE:
+## Desarrollo local
 
 ```bash
-npm run import:techo-ciclonico -- \
-  --hp "/ruta/5. HP_Techo ciclonico.xlsx" \
-  --pe "/ruta/4. PE_Techo ciclonico.xlsx" \
-  --station-name "Techo ciclonico - Montaje guiado" \
-  --product-code "TECHO-CICLONICO" \
-  --model-base-url "https://storage.googleapis.com/<bucket>/tenants/<tenant>/models/techo-ciclonico"
+npm install
+npx prisma generate
+npm run dev
+# App en http://localhost:3000
+# Admin en http://localhost:3000/admin
 ```
 
-Notas:
+> El tenant por defecto en local es `kh` (configurable con `DEFAULT_TENANT_SLUG`).
 
-- Si pasas `--dry-run`, solo muestra previsualizacion y no escribe en BD.
-- Si defines `--model-base-url`, cada paso se crea con `modelUrl` automatico.
-- El visor 3D del operario acepta `modelUrl` en formato `.glb/.gltf` o `.json`.
+## Tests
+
+```bash
+npx vitest run     # todos los tests (una vez)
+npx vitest         # modo watch
+```
+
+## Multi-tenancy
+
+El sistema usa subdominio para identificar el tenant:
+- `kh.sao.app` → tenant slug = "kh"
+- `acme.sao.app` → tenant slug = "acme"
+- `localhost` → DEFAULT_TENANT_SLUG (= "kh" por defecto)
+
+Cada tenant tiene estaciones, operarios, referencias, comandos de voz y configuración TTS propios.
