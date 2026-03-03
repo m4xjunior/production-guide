@@ -1,5 +1,5 @@
-const CACHE_NAME = "sao-v2";
-const STATIC_ASSETS = ["/", "/manifest.json"];
+const CACHE_NAME = "sao-v3";
+const STATIC_ASSETS = ["/", "/offline", "/favicon.ico"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -18,42 +18,19 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+  if (event.request.method !== "GET") return;
 
-  // Network-first para API
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(
-      fetch(request).catch(() => caches.match(request).then((r) => r || new Response("Offline", { status: 503 })))
-    );
-    return;
-  }
-
-  // Cache-first para áudio TTS (imutável 1 ano)
-  if (url.pathname.startsWith("/api/tts/")) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cached = await cache.match(request);
-        if (cached) return cached;
-        const response = await fetch(request);
-        if (response.ok) cache.put(request, response.clone());
-        return response;
-      })
-    );
-    return;
-  }
-
-  // Cache-first para assets estáticos (GCS, imagens)
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok && (url.pathname.startsWith("/icons/") || url.origin.includes("storage.googleapis.com"))) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, copy));
+    fetch(event.request)
+      .then((response) => {
+        if (event.request.url.includes("/api/stations/")) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      });
-    })
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("/offline"))
+      )
   );
 });

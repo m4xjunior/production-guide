@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,7 +52,10 @@ export default function RootLayout({
       >
         {children}
         <Toaster />
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').then(r=>console.log('[SW] Registrado:',r.scope),e=>console.warn('[SW] Erro:',e));})}` }} />
+        <InstallPrompt />
+        <script dangerouslySetInnerHTML={{
+          __html: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }`
+        }} />
       </body>
     </html>
   );
