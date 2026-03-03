@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateAndUploadTTS } from "@/lib/elevenlabs";
 import { getPublicUrl } from "@/lib/gcs";
@@ -7,10 +7,20 @@ import { getPublicUrl } from "@/lib/gcs";
  * POST /api/tts/generate-all
  * Genera audio TTS para todos los pasos que tengan texto de voz
  * pero no tengan audio generado (vozAudioUrl = null).
+ * Con ?force=true regenera todos (reseta vozAudioUrl primero).
  * Protegido por middleware admin.
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const force = request.nextUrl.searchParams.get("force") === "true";
+
+    if (force) {
+      await prisma.step.updateMany({
+        where: { voz: { not: null } },
+        data: { vozAudioUrl: null },
+      });
+    }
+
     const steps = await prisma.step.findMany({
       where: {
         voz: { not: null },

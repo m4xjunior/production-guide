@@ -1,7 +1,7 @@
 # Variables
 DB_URL := postgresql://p2v:p2v_secret@localhost:54320/picktvoice
 
-.PHONY: setup dev start build start-prod stop-prod restart-prod logs-prod status-prod db-up db-down db-migrate db-seed db-reset db-studio gcs-sync clean
+.PHONY: setup dev start build start-prod stop-prod restart-prod logs-prod status-prod db-up db-down db-migrate db-seed db-reset db-studio gcs-sync clean whisper whisper-stop whisper-restart
 
 ## Setup completo (primera vez)
 setup: db-up
@@ -60,6 +60,21 @@ db-reset:
 
 db-studio:
 	DATABASE_URL=$(DB_URL) npx prisma studio
+
+## Whisper server local
+whisper: whisper-stop
+	@echo "🎙️ Iniciando Whisper server na porta 8765..."
+	@cd transcription-server && nohup .venv/bin/uvicorn server:app --host 0.0.0.0 --port 8765 > /tmp/whisper.log 2>&1 & echo "✅ Whisper iniciado (PID: $$!). Logs: tail -f /tmp/whisper.log"
+
+whisper-stop:
+	@pm2 delete whisper 2>/dev/null || true
+	@lsof -ti:8765 | xargs kill -9 2>/dev/null || true
+	@echo "✅ Whisper parado"
+
+whisper-logs:
+	@tail -f /tmp/whisper.log
+
+whisper-restart: whisper-stop whisper
 
 ## GCS sync (futuro)
 gcs-sync:
