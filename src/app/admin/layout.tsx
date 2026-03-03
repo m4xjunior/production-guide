@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Mic,
 } from "lucide-react";
 
 // ─── Auth Context ──────────────────────────────────────────
@@ -57,6 +58,12 @@ const NAV_ITEMS = [
     label: "Reportes",
     href: "/admin/reports",
     icon: BarChart3,
+    exact: false,
+  },
+  {
+    label: "Comandos de Voz",
+    href: "/admin/voice-commands",
+    icon: Mic,
     exact: false,
   },
   {
