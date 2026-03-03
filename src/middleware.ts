@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractSubdomain, getTenantFromCache, setTenantCache } from "@/lib/tenant-cache";
-import { prisma } from "@/lib/db";
+import { extractSubdomain } from "@/lib/tenant-cache";
 
 const DEFAULT_TENANT_SLUG = process.env.DEFAULT_TENANT_SLUG || "kh";
 
@@ -14,10 +13,11 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Middleware multi-tenant.
- * 1. Extrae subdomínio → resolve tenant (cache → DB).
- * 2. Injeta x-tenant-id e x-tenant-slug nos headers.
- * 3. Valida X-Admin-Password para rotas protegidas.
+ * Middleware multi-tenant (Edge Runtime compatible).
+ * 1. Extrae subdomínio → passa slug como header.
+ * 2. Resolve tenant ID via API route interna (/api/tenant-lookup).
+ * 3. Injeta x-tenant-id e x-tenant-slug nos headers.
+ * 4. Valida X-Admin-Password para rotas protegidas.
  */
 
 const RUTAS_PROTEGIDAS_ESCRITURA = [
@@ -38,6 +38,9 @@ const RUTAS_OPERARIO = [
   "/api/voice-commands",
 ];
 
+// Rota interna de tenant lookup — não proteger para evitar loop
+const RUTAS_INTERNAS = ["/api/tenant-lookup"];
+
 function requiereAdmin(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
   const metodo = request.method;
@@ -57,37 +60,43 @@ function requiereAdmin(request: NextRequest): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Não interceptar rotas internas do próprio middleware
+  for (const ruta of RUTAS_INTERNAS) {
+    if (pathname.startsWith(ruta)) return NextResponse.next();
+  }
+
   const hostname = request.headers.get("host") || "localhost";
   const slug = extractSubdomain(hostname) ?? DEFAULT_TENANT_SLUG;
 
-  // Resolver tenant (cache → DB)
-  let tenantId: string;
-  const cached = getTenantFromCache(slug);
-
-  if (cached) {
-    tenantId = cached.id;
-  } else {
-    try {
-      const tenant = await prisma.tenant.findUnique({ where: { slug } });
-      if (!tenant || !tenant.isActive) {
-        // Páginas do frontend: deixar passar mesmo sem tenant
-        if (!request.nextUrl.pathname.startsWith("/api")) {
+  // Resolver tenant via API route interna (sem usar Prisma diretamente — Edge Runtime)
+  let tenantId = "00000000-0000-0000-0000-000000000000";
+  try {
+    const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}`, request.url);
+    const res = await fetch(lookupUrl.toString(), {
+      headers: { "x-internal-middleware": "1" },
+    });
+    if (res.ok) {
+      const data = await res.json() as { tenantId?: string; error?: string };
+      if (data.tenantId) {
+        tenantId = data.tenantId;
+      } else if (data.error) {
+        // Tenant não encontrado — páginas frontend: deixar passar
+        if (!pathname.startsWith("/api")) {
           const response = NextResponse.next();
           response.headers.set("x-tenant-slug", slug);
           return response;
         }
         return NextResponse.json({ error: "Tenant no encontrado" }, { status: 404 });
       }
-      setTenantCache(slug, tenant.id);
-      tenantId = tenant.id;
-    } catch {
-      // Fallback para dev sem DB
-      tenantId = "00000000-0000-0000-0000-000000000000";
     }
+  } catch {
+    // Fallback para dev sem DB
   }
 
   // Validar admin para rotas protegidas
-  if (request.nextUrl.pathname.startsWith("/api") && requiereAdmin(request)) {
+  if (pathname.startsWith("/api") && requiereAdmin(request)) {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminPassword) {
