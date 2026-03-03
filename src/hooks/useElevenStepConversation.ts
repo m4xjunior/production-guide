@@ -85,6 +85,11 @@ export function useElevenStepConversation({
   const hasStartedRef = useRef(false);
   const isTTSSpeakingRef = useRef(isTTSSpeaking);
   const lastMatchedRef = useRef("");
+  const onMatchRef = useRef(onMatch);
+
+  useEffect(() => {
+    onMatchRef.current = onMatch;
+  });
 
   useEffect(() => {
     isTTSSpeakingRef.current = isTTSSpeaking;
@@ -125,9 +130,9 @@ export function useElevenStepConversation({
 
       if (lastMatchedRef.current === heard) return;
       lastMatchedRef.current = heard;
-      onMatch();
+      onMatchRef.current();
     },
-    [expectedResponse, onMatch],
+    [expectedResponse],
   );
 
   const {
@@ -255,22 +260,32 @@ export function useElevenStepConversation({
   ]);
 
   // Atualiza waveform em tempo real com os dados de áudio da sessão ElevenLabs.
+  // Usamos refs para as funções de frequência para evitar re-renders infinitos —
+  // getInputByteFrequencyData e getOutputByteFrequencyData mudam de referência
+  // a cada render do useConversation, causando loop se colocadas nas deps.
+  const getInputFreqRef = useRef(getInputByteFrequencyData);
+  const getOutputFreqRef = useRef(getOutputByteFrequencyData);
+  useEffect(() => {
+    getInputFreqRef.current = getInputByteFrequencyData;
+    getOutputFreqRef.current = getOutputByteFrequencyData;
+  });
+
   useEffect(() => {
     if (provider !== "elevenlabs" || status !== "connected") {
-      setInputBars([]);
-      setOutputBars([]);
+      setInputBars((prev) => (prev.length === 0 ? prev : []));
+      setOutputBars((prev) => (prev.length === 0 ? prev : []));
       return;
     }
 
     const interval = window.setInterval(() => {
-      setInputBars(buildWaveformBars(getInputByteFrequencyData()));
-      setOutputBars(buildWaveformBars(getOutputByteFrequencyData()));
+      setInputBars(buildWaveformBars(getInputFreqRef.current()));
+      setOutputBars(buildWaveformBars(getOutputFreqRef.current()));
     }, 40);
 
     return () => {
       window.clearInterval(interval);
     };
-  }, [provider, status, getInputByteFrequencyData, getOutputByteFrequencyData]);
+  }, [provider, status]);
 
   useEffect(() => {
     if (enabled) return;
