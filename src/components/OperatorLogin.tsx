@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Delete, LogIn, Settings2 } from "lucide-react";
+import { Delete, LogIn, Settings2, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface OperatorLoginProps {
-  onLogin: (operatorNumber: string) => void;
+  onLogin: (operatorNumber: string, operatorName: string) => void;
 }
 
 export function OperatorLogin({ onLogin }: OperatorLoginProps) {
@@ -14,6 +14,9 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
   const [pressedKey, setPressedKey] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [operatorName, setOperatorName] = useState("");
+  const [validated, setValidated] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -38,14 +41,44 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
     setTimeout(() => setPressedKey(null), 150);
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (operatorNumber.length !== 4) {
       setError("El número de operario debe tener 4 dígitos");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
-    onLogin(operatorNumber);
+
+    setValidating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/validate/operator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: operatorNumber }),
+      });
+
+      const data = await res.json();
+
+      if (data.valid) {
+        setOperatorName(data.name);
+        setValidated(true);
+        setTimeout(() => {
+          onLogin(operatorNumber, data.name);
+        }, 1500);
+      } else {
+        setError("Operario no encontrado");
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+      }
+    } catch {
+      setError("Error de conexión");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    } finally {
+      setValidating(false);
+    }
   }, [operatorNumber, onLogin]);
 
   // Keyboard support
@@ -173,6 +206,16 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
                   {error}
                 </p>
               )}
+
+              {/* Validated operator name */}
+              {validated && operatorName && (
+                <div className="mt-4 text-center animate-in fade-in duration-500">
+                  <p className="text-sm text-[#6B6B6B] tracking-wide">Bienvenido</p>
+                  <p className="text-lg font-semibold text-[#E8E8E8] tracking-wide mt-1">
+                    {operatorName}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Numpad */}
@@ -216,7 +259,7 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
               <button
                 onClick={handleSubmit}
                 aria-label="Confirmar número de operario"
-                disabled={operatorNumber.length !== 4}
+                disabled={operatorNumber.length !== 4 || validating || validated}
                 className={`group relative h-16 rounded-xl transition-all duration-100
                   ${
                     operatorNumber.length === 4
@@ -238,17 +281,17 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
             {/* Main Enter button */}
             <button
               onClick={handleSubmit}
-              disabled={operatorNumber.length !== 4}
+              disabled={operatorNumber.length !== 4 || validating || validated}
               className={`w-full h-14 rounded-xl font-semibold text-base tracking-[0.15em] uppercase
                 transition-all duration-200 flex items-center justify-center gap-3
                 ${
-                  operatorNumber.length === 4
+                  operatorNumber.length === 4 && !validating && !validated
                     ? "bg-[#8B1A1A] text-white hover:bg-[#A52525] active:translate-y-[1px] cursor-pointer"
                     : "bg-[#1A1A1E] text-[#4A4A4E] border border-[#2A2A2E] cursor-not-allowed"
                 }
               `}
               style={
-                operatorNumber.length === 4
+                operatorNumber.length === 4 && !validating && !validated
                   ? {
                       boxShadow: `
                       0 2px 0 0 #5A0E0E,
@@ -259,8 +302,14 @@ export function OperatorLogin({ onLogin }: OperatorLoginProps) {
                   : undefined
               }
             >
-              <LogIn className="h-5 w-5" />
-              Entrar
+              {validating ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <LogIn className="h-5 w-5" />
+                  Entrar
+                </>
+              )}
             </button>
 
             {/* Footer */}

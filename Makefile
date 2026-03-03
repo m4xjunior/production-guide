@@ -1,7 +1,7 @@
 # Variables
 DB_URL := postgresql://p2v:p2v_secret@localhost:54320/picktvoice
 
-.PHONY: setup dev start build start-prod stop-prod restart-prod logs-prod status-prod db-up db-down db-migrate db-seed db-reset db-studio gcs-sync clean whisper whisper-stop whisper-restart
+.PHONY: setup dev start build start-prod stop-prod restart-prod logs-prod status-prod db-up db-down db-migrate db-seed db-reset db-studio gcs-sync clean whisper whisper-stop whisper-restart sage-sync-install sage-sync sage-sync-once
 
 ## Setup completo (primera vez)
 setup: db-up
@@ -79,6 +79,16 @@ whisper-restart: whisper-stop whisper
 ## GCS sync (futuro)
 gcs-sync:
 	@echo "📦 GCS sync no implementado aún"
+
+## Sage Operator Sync
+sage-sync-install:
+	cd sync-sage && npm install
+
+sage-sync:
+	cd sync-sage && npm run sync
+
+sage-sync-once:
+	cd sync-sage && npm run sync:once
 
 ## Limpiar
 clean:

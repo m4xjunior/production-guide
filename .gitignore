@@ -52,3 +52,8 @@ generated/
 .env.sentry-build-plugin
 picktvoice_dump.sql
 transcription-server/__pycache__/
+
+# Sage sync
+sync-sage/.env
+sync-sage/node_modules/
+sync-sage/dist/

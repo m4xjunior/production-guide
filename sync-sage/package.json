@@ -1,0 +1,20 @@
+{
+  "name": "sage-operator-sync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Syncs operators from Sage SQL Server to Neon PostgreSQL",
+  "scripts": {
+    "sync": "tsx src/index.ts",
+    "sync:once": "SYNC_ONCE=true tsx src/index.ts"
+  },
+  "dependencies": {
+    "mssql": "^11.0.1",
+    "@prisma/client": "^7.4.2",
+    "@prisma/adapter-pg": "^7.4.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.0.0",
+    "@types/mssql": "^9.1.0"
+  }
+}

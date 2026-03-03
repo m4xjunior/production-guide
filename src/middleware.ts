@@ -36,6 +36,7 @@ const RUTAS_OPERARIO = [
   "/api/sessions",
   "/api/step-logs",
   "/api/validate/barcode",
+  "/api/validate/operator",
 ];
 
 function requiereAdmin(request: NextRequest): boolean {

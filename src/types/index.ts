@@ -1,3 +1,10 @@
+export interface Operator {
+  id: string;
+  sageCode: string;
+  name: string;
+  isActive: boolean;
+}
+
 export interface Station {
   id: string;
   name: string;

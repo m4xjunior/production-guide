@@ -24,6 +24,7 @@ type AppState = "login" | "station-selection" | "production";
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("login");
   const [operatorNumber, setOperatorNumber] = useState("");
+  const [operatorName, setOperatorName] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [selectedStationId, setSelectedStationId] = useState("");
   const [steps, setSteps] = useState<Step[]>([]);
@@ -65,6 +66,7 @@ export default function Home() {
         const data = JSON.parse(savedSession);
         if (data.operatorNumber && data.sessionId && data.stationId) {
           setOperatorNumber(data.operatorNumber);
+          setOperatorName(data.operatorName || "");
           setSessionId(data.sessionId);
           setSelectedStationId(data.stationId);
           setCurrentStepIndex(data.currentStepIndex || 0);
@@ -87,15 +89,17 @@ export default function Home() {
     if (appState === "production" && sessionId) {
       sessionStorage.setItem("p2v_session", JSON.stringify({
         operatorNumber,
+        operatorName,
         sessionId,
         stationId: selectedStationId,
         currentStepIndex,
       }));
     }
-  }, [appState, operatorNumber, sessionId, selectedStationId, currentStepIndex]);
+  }, [appState, operatorNumber, operatorName, sessionId, selectedStationId, currentStepIndex]);
 
-  const handleLogin = useCallback(async (operator: string) => {
+  const handleLogin = useCallback(async (operator: string, name: string) => {
     setOperatorNumber(operator);
+    setOperatorName(name);
     setAppState("station-selection");
   }, []);
 
@@ -197,6 +201,7 @@ export default function Home() {
     sessionStorage.removeItem("p2v_session");
     setAppState("login");
     setOperatorNumber("");
+    setOperatorName("");
     setSessionId("");
     setSelectedStationId("");
     setSteps([]);
@@ -237,10 +242,12 @@ export default function Home() {
     return (
       <StationSelector
         operatorNumber={operatorNumber}
+        operatorName={operatorName}
         onStationSelected={handleStationSelected}
         onBack={() => {
           setAppState("login");
           setOperatorNumber("");
+          setOperatorName("");
         }}
       />
     );
