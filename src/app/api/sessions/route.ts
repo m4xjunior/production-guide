@@ -1,0 +1,73 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+
+/**
+ * POST /api/sessions
+ * Iniciar sesión de operario.
+ * Body: { operatorNumber, stationId }
+ * Desactiva cualquier sesión activa previa del mismo operario.
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { operatorNumber, stationId } = body;
+
+    if (!operatorNumber || typeof operatorNumber !== "string") {
+      return NextResponse.json(
+        { error: "El campo 'operatorNumber' es obligatorio" },
+        { status: 400 },
+      );
+    }
+    if (!stationId || typeof stationId !== "string") {
+      return NextResponse.json(
+        { error: "El campo 'stationId' es obligatorio" },
+        { status: 400 },
+      );
+    }
+
+    // Verificar que la estación existe y está activa
+    const station = await prisma.station.findUnique({
+      where: { id: stationId },
+    });
+    if (!station || !station.isActive) {
+      return NextResponse.json(
+        { error: "Estación no encontrada o no está activa" },
+        { status: 404 },
+      );
+    }
+
+    // Desactivar sesiones activas previas de este operario
+    await prisma.operatorSession.updateMany({
+      where: {
+        operatorNumber,
+        isActive: true,
+      },
+      data: {
+        isActive: false,
+        logoutAt: new Date(),
+      },
+    });
+
+    // Crear nueva sesión
+    const session = await prisma.operatorSession.create({
+      data: {
+        operatorNumber,
+        stationId,
+      },
+    });
+
+    // Obtener los pasos de la estación ordenados
+    const steps = await prisma.step.findMany({
+      where: { stationId },
+      orderBy: { orderNum: "asc" },
+    });
+
+    return NextResponse.json({ session, steps }, { status: 201 });
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 },
+    );
+  }
+}
