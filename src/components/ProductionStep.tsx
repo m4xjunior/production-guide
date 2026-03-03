@@ -98,7 +98,13 @@ export function ProductionStep({
     isSpeaking
   );
 
-  const whisperSTT = useWhisperSTT({
+  const {
+    startListening: startWhisperListening,
+    stopListening: stopWhisperListening,
+    isListening: isWhisperListening,
+    isConnected: isWhisperConnected,
+    lastHeard: lastWhisperHeard,
+  } = useWhisperSTT({
     expectedResponse: step.respuesta || "",
     onMatch: () => {
       stopContinuousListening();
@@ -109,21 +115,32 @@ export function ProductionStep({
     enabled: useWhisper && step.responseType === "voice",
   });
 
+  const startWhisperListeningRef = useRef(startWhisperListening);
+  const stopWhisperListeningRef = useRef(stopWhisperListening);
+
+  useEffect(() => {
+    startWhisperListeningRef.current = startWhisperListening;
+  }, [startWhisperListening]);
+
+  useEffect(() => {
+    stopWhisperListeningRef.current = stopWhisperListening;
+  }, [stopWhisperListening]);
+
   const startFallbackRecognition = useCallback(() => {
     if (useWhisper) {
-      void whisperSTT.startListening();
+      void startWhisperListeningRef.current();
       return;
     }
 
     if (speechSupported) {
       startContinuousListening();
     }
-  }, [useWhisper, whisperSTT, speechSupported, startContinuousListening]);
+  }, [useWhisper, speechSupported, startContinuousListening]);
 
   const stopFallbackRecognition = useCallback(() => {
-    whisperSTT.stopListening();
+    stopWhisperListeningRef.current();
     stopContinuousListening();
-  }, [whisperSTT, stopContinuousListening]);
+  }, [stopContinuousListening]);
 
   const elevenStep = useElevenStepConversation({
     sessionId,
@@ -137,6 +154,12 @@ export function ProductionStep({
     isTTSSpeaking: isSpeaking,
     enabled: useElevenLive && step.responseType === "voice",
   });
+
+  // Refs para evitar que startListening/stopListening nas deps causem loop infinito
+  const elevenStartRef = useRef(elevenStep.startListening);
+  const elevenStopRef = useRef(elevenStep.stopListening);
+  useEffect(() => { elevenStartRef.current = elevenStep.startListening; }, [elevenStep.startListening]);
+  useEffect(() => { elevenStopRef.current = elevenStep.stopListening; }, [elevenStep.stopListening]);
 
   useEffect(() => {
     setVoiceProvider(elevenStep.provider);
@@ -188,7 +211,7 @@ export function ProductionStep({
             return;
           }
 
-          const startedWithEleven = await elevenStep.startListening();
+          const startedWithEleven = await elevenStartRef.current();
           if (cancelled) return;
 
           if (!startedWithEleven) {
@@ -200,7 +223,7 @@ export function ProductionStep({
       return () => {
         cancelled = true;
         clearTimeout(timer);
-        void elevenStep.stopListening();
+        void elevenStopRef.current();
         stopFallbackRecognition();
       };
     }
@@ -209,8 +232,6 @@ export function ProductionStep({
     step.responseType,
     step.respuesta,
     useElevenLive,
-    elevenStep.startListening,
-    elevenStep.stopListening,
     startFallbackRecognition,
     stopFallbackRecognition,
   ]);
@@ -250,10 +271,10 @@ export function ProductionStep({
     return () => {
       stopSpeech();
       stopFallbackRecognition();
-      void elevenStep.stopListening();
+      void elevenStopRef.current();
       if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     };
-  }, [stopSpeech, stopFallbackRecognition, elevenStep.stopListening]);
+  }, [stopSpeech, stopFallbackRecognition]);
 
   // Fetch Whisper config from global settings
   useEffect(() => {
@@ -350,7 +371,7 @@ export function ProductionStep({
 
   const fallbackEngineLabel = useWhisper ? "Whisper" : "Web Speech API";
   const isFallbackVoiceListening =
-    isListening || (useWhisper && whisperSTT.isListening);
+    isListening || (useWhisper && isWhisperListening);
   const isVoiceListening =
     step.responseType === "voice" &&
     (voiceProvider === "elevenlabs"
@@ -360,7 +381,7 @@ export function ProductionStep({
     voiceProvider === "elevenlabs"
       ? elevenStep.lastHeard
       : useWhisper
-      ? whisperSTT.lastHeard
+      ? lastWhisperHeard
       : lastHeard;
 
   return (
@@ -452,7 +473,7 @@ export function ProductionStep({
                       ● Fallback ({fallbackEngineLabel})
                     </span>
                   )}
-                  {voiceProvider === "fallback" && useWhisper && whisperSTT.isConnected && (
+                  {voiceProvider === "fallback" && useWhisper && isWhisperConnected && (
                     <span className="text-xs text-green-600">● Whisper conectado</span>
                   )}
                 </div>

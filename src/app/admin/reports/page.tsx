@@ -61,11 +61,18 @@ interface ProductionByStation {
   operators: ProductionRow[];
 }
 
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function ReportsPage() {
-  const today = new Date().toISOString().split("T")[0];
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0];
+  const today = toLocalDateString(new Date());
+  const weekAgo = toLocalDateString(
+    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  );
 
   const [dateFrom, setDateFrom] = useState(weekAgo);
   const [dateTo, setDateTo] = useState(today);
@@ -366,9 +373,9 @@ export default function ReportsPage() {
                 size="sm"
                 className="text-xs text-muted-foreground"
                 onClick={() => {
-                  const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0];
+                  const monthAgo = toLocalDateString(
+                    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                  );
                   setDateFrom(monthAgo);
                   setDateTo(today);
                 }}
