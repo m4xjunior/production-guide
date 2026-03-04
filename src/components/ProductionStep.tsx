@@ -21,7 +21,6 @@ import {
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
-import { useWhisperSTT } from "@/hooks/useWhisperSTT";
 import {
   type VoiceProvider,
   useElevenStepConversation,
@@ -92,8 +91,6 @@ export function ProductionStep({
   const [stepStartTime] = useState(Date.now());
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [useWhisper, setUseWhisper] = useState(false);
-  const [whisperUrl, setWhisperUrl] = useState("ws://localhost:8765");
   const [useElevenLive, setUseElevenLive] = useState(true);
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>("elevenlabs");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -156,36 +153,8 @@ export function ProductionStep({
     isSpeaking
   );
 
-  const {
-    startListening: startWhisperListening,
-    stopListening: stopWhisperListening,
-    isListening: isWhisperListening,
-    isConnected: isWhisperConnected,
-    lastHeard: lastWhisperHeard,
-    hasFailed: whisperFailed,
-  } = useWhisperSTT({
-    expectedResponse: step.respuesta || "",
-    onMatch: () => {
-      stopContinuousListening();
-      handleVoiceMatch();
-    },
-    isTTSSpeaking: isSpeaking,
-    serverUrl: whisperUrl,
-    enabled: useWhisper && step.responseType === "voice",
-  });
-
-  const startWhisperListeningRef = useRef(startWhisperListening);
-  const stopWhisperListeningRef = useRef(stopWhisperListening);
   const startContinuousListeningRef = useRef(startContinuousListening);
   const stopContinuousListeningRef = useRef(stopContinuousListening);
-
-  useEffect(() => {
-    startWhisperListeningRef.current = startWhisperListening;
-  }, [startWhisperListening]);
-
-  useEffect(() => {
-    stopWhisperListeningRef.current = stopWhisperListening;
-  }, [stopWhisperListening]);
 
   useEffect(() => {
     startContinuousListeningRef.current = startContinuousListening;
@@ -196,18 +165,12 @@ export function ProductionStep({
   }, [stopContinuousListening]);
 
   const startFallbackRecognition = useCallback(() => {
-    if (useWhisper) {
-      void startWhisperListeningRef.current();
-      return;
-    }
-
     if (speechSupported) {
       startContinuousListeningRef.current();
     }
-  }, [useWhisper, speechSupported]);
+  }, [speechSupported]);
 
   const stopFallbackRecognition = useCallback(() => {
-    stopWhisperListeningRef.current();
     stopContinuousListeningRef.current();
   }, []);
 
@@ -365,18 +328,8 @@ export function ProductionStep({
     setUseElevenLive(elevenLiveEnabledByEnv);
     fetch("/api/config/global")
       .then((r) => r.json())
-      .then((
-        d: {
-          settings?: {
-            useWhisperSTT?: boolean;
-            whisperServerUrl?: string;
-            useElevenLiveSTT?: boolean;
-          };
-        },
-      ) => {
+      .then((d: { settings?: { useElevenLiveSTT?: boolean } }) => {
         if (d.settings) {
-          setUseWhisper(d.settings.useWhisperSTT ?? false);
-          setWhisperUrl(d.settings.whisperServerUrl ?? "ws://localhost:8765");
           if (typeof d.settings.useElevenLiveSTT === "boolean") {
             setUseElevenLive(d.settings.useElevenLiveSTT);
           }
@@ -403,15 +356,6 @@ export function ProductionStep({
     startFallbackRecognition,
     stopFallbackRecognition,
   ]);
-
-  // Cascade to Web Speech API when Whisper server is unavailable
-  useEffect(() => {
-    if (!whisperFailed || !useWhisper) return;
-    if (step.responseType !== "voice" || !step.respuesta) return;
-    if (speechSupported) {
-      startContinuousListeningRef.current();
-    }
-  }, [whisperFailed, useWhisper, step.responseType, step.respuesta, speechSupported]);
 
   // Reset error confirmation when step changes
   useEffect(() => {
@@ -539,23 +483,12 @@ export function ProductionStep({
 
   const badgeInfo = tipoBadge[step.tipo] || tipoBadge.VOZ;
 
-  const fallbackEngineLabel = useWhisper ? "Whisper" : "Web Speech API";
-  const isFallbackVoiceListening =
-    isListening || (useWhisper && isWhisperListening);
+  const fallbackEngineLabel = "Web Speech API";
   const isVoiceListening =
     step.responseType === "voice" &&
-    (voiceProvider === "elevenlabs"
-      ? elevenStep.isListening
-      : isFallbackVoiceListening);
+    (voiceProvider === "elevenlabs" ? elevenStep.isListening : isListening);
   const lastHeardText =
-    voiceProvider === "elevenlabs"
-      ? elevenStep.lastHeard
-      : useWhisper
-      ? lastWhisperHeard
-      : lastHeard;
-
-  // Suppress unused variable warning
-  void isWhisperConnected;
+    voiceProvider === "elevenlabs" ? elevenStep.lastHeard : lastHeard;
 
   // ─── Paused screen ───────────────────────────────────────
   if (isPaused) {
