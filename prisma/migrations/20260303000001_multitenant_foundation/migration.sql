@@ -128,6 +128,8 @@ CREATE INDEX IF NOT EXISTS "audit_logs_tenant_id_idx" ON "audit_logs"("tenant_id
 -- 7. Substituir unique simples por compostos em operators e references
 -- (mesmo sageCode pode existir em tenants diferentes)
 -- =============================================================================
+-- Dropar FK que depende do índice antes de removê-lo
+ALTER TABLE "operator_sessions" DROP CONSTRAINT IF EXISTS "operator_sessions_operator_number_fkey";
 DROP INDEX IF EXISTS "operators_sage_code_key";
 CREATE UNIQUE INDEX IF NOT EXISTS "operators_tenant_sage_code_key"  ON "operators"("tenant_id", "sage_code");
 DROP INDEX IF EXISTS "references_sage_code_key";
