@@ -114,17 +114,19 @@ export function useElevenStepConversation({
       if (!heard || !expected) return;
 
       const isMatch =
+        // 1. Match exato
+        heard === expected ||
+        // 2. Transcript contém a frase esperada completa
         heard.includes(expected) ||
-        expected.includes(heard) ||
-        (expected.includes("pin bueno") &&
+        // 3. Variantes fonéticas explícitas para "pin bueno"
+        (expected === "pin bueno" &&
           (heard.includes("pin bueno") ||
             heard.includes("pinbueno") ||
-            heard.includes("pin buen") ||
-            heard.includes("bueno"))) ||
-        (heard.length >= 3 &&
-          expected.length >= 3 &&
-          (expected.startsWith(heard.slice(0, 3)) ||
-            heard.startsWith(expected.slice(0, 3))));
+            heard.includes("fin bueno") ||
+            heard.includes("pin buen"))) ||
+        // 4. Truncagem: ≥80% do comprimento e coincide com o início
+        (heard.length >= Math.floor(expected.length * 0.8) &&
+          expected.startsWith(heard.slice(0, Math.min(heard.length, expected.length))));
 
       if (!isMatch) return;
 

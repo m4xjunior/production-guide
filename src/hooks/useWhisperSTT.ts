@@ -53,11 +53,15 @@ export function useWhisperSTT({
       const e = normalize(expectedResponse);
       if (!e) return;
       const isMatch =
+        // 1. Match exato
+        t === e ||
+        // 2. Transcript contém a frase esperada completa
         t.includes(e) ||
-        e.includes(t) ||
-        (e.includes("pin bueno") &&
-          (t.includes("bueno") || t.includes("pin buen") || t.includes("pinbueno"))) ||
-        (t.length >= 3 && e.length >= 3 && e.startsWith(t.slice(0, 3)));
+        // 3. Variantes fonéticas explícitas para "pin bueno"
+        (e === "pin bueno" &&
+          (t.includes("pin bueno") || t.includes("pinbueno") || t.includes("fin bueno") || t.includes("pin buen"))) ||
+        // 4. Truncagem: ≥80% do comprimento e coincide com o início
+        (t.length >= Math.floor(e.length * 0.8) && e.startsWith(t.slice(0, Math.min(t.length, e.length))));
       if (isMatch) {
         console.log("[Whisper] Match:", { heard: text, expected: expectedResponse });
         onMatch();

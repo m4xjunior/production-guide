@@ -72,32 +72,22 @@ export const useContinuousSpeechRecognition = (
         expected: normalizedExpected,
       });
 
-      // More flexible matching - check for common variations
       const isMatch =
+        // 1. Match exato
+        normalizedTranscript === normalizedExpected ||
+        // 2. Transcript contém a frase esperada completa (pode ter palavras extra)
         normalizedTranscript.includes(normalizedExpected) ||
-        normalizedExpected.includes(normalizedTranscript) ||
-        // Check for "pin bueno" variations
-        (normalizedExpected.includes("pin bueno") &&
+        // 3. Variantes fonéticas explícitas para "pin bueno" (erros comuns do STT)
+        (normalizedExpected === "pin bueno" &&
           (normalizedTranscript.includes("pin bueno") ||
             normalizedTranscript.includes("pinbueno") ||
-            normalizedTranscript.includes("pin buen") ||
-            normalizedTranscript.includes("bueno") ||
-            normalizedTranscript.includes("buen"))) ||
-        // Check for other common patterns
-        (normalizedTranscript.length >= 3 &&
-          normalizedExpected.length >= 3 &&
-          (normalizedTranscript.includes(
-            normalizedExpected.substring(
-              0,
-              Math.max(3, normalizedExpected.length - 2),
-            ),
-          ) ||
-            normalizedExpected.includes(
-              normalizedTranscript.substring(
-                0,
-                Math.max(3, normalizedTranscript.length - 2),
-              ),
-            )));
+            normalizedTranscript.includes("fin bueno") ||
+            normalizedTranscript.includes("pin buen"))) ||
+        // 4. STT cortou a última sílaba: transcript cobre ≥80% e coincide com o início
+        (normalizedTranscript.length >= Math.floor(normalizedExpected.length * 0.8) &&
+          normalizedExpected.startsWith(
+            normalizedTranscript.slice(0, Math.min(normalizedTranscript.length, normalizedExpected.length))
+          ));
 
       if (isMatch) {
         console.log("Match found! Advancing step.");
