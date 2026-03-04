@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db";
  */
 export async function POST(request: NextRequest) {
   try {
+    const tenantId = request.headers.get("x-tenant-id");
     const body = await request.json();
     const { code } = body;
 
@@ -19,8 +20,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!tenantId) {
+      return NextResponse.json({ valid: false, error: "Tenant no identificado" }, { status: 400 });
+    }
+
     const operator = await prisma.operator.findUnique({
-      where: { sageCode: code },
+      where: { tenantId_sageCode: { tenantId, sageCode: code } },
     });
 
     if (!operator || !operator.isActive) {
