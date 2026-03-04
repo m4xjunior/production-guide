@@ -113,7 +113,10 @@ export const useContinuousSpeechRecognition = (
   );
 
   const startContinuousListening = useCallback(() => {
-    if (!isSupported || isListeningRef.current || isTTSSpeaking) return;
+    // Note: intentionally NOT blocking on isTTSSpeaking here.
+    // checkMatch already ignores transcripts while TTS is speaking.
+    // Blocking here causes recognition to never start when TTS finishes.
+    if (!isSupported || isListeningRef.current) return;
 
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -177,7 +180,8 @@ export const useContinuousSpeechRecognition = (
       setIsListening(false);
 
       // Auto-restart after error (except for permission denied)
-      if (event.error !== "not-allowed" && isListeningRef.current && !isTTSSpeaking) {
+      // checkMatch already suppresses matches during TTS, so restart is safe
+      if (event.error !== "not-allowed" && isListeningRef.current) {
         restartTimeoutRef.current = setTimeout(() => {
           startContinuousListening();
         }, 1000);
@@ -187,8 +191,9 @@ export const useContinuousSpeechRecognition = (
     recognition.onend = () => {
       console.log("Speech recognition ended");
 
-      // Auto-restart if we're supposed to be listening and TTS is not speaking
-      if (isListeningRef.current && !isTTSSpeaking) {
+      // Auto-restart if we're supposed to be listening
+      // checkMatch already suppresses matches during TTS, so restart is safe
+      if (isListeningRef.current) {
         restartTimeoutRef.current = setTimeout(() => {
           startContinuousListening();
         }, 500);
@@ -201,7 +206,7 @@ export const useContinuousSpeechRecognition = (
       console.error("Failed to start recognition:", error);
       setIsListening(false);
     }
-  }, [isSupported, isTTSSpeaking, checkMatch]);
+  }, [isSupported, checkMatch]);
 
   const stopContinuousListening = useCallback(() => {
     setIsListening(false);
