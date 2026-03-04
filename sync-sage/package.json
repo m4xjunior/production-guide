@@ -4,6 +4,7 @@
   "private": true,
   "description": "Syncs operators from Sage SQL Server to Neon PostgreSQL",
   "scripts": {
+    "setup": "npx prisma generate --schema=prisma/schema.prisma",
     "sync": "tsx src/index.ts",
     "sync:once": "SYNC_ONCE=true tsx src/index.ts"
   },

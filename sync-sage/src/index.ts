@@ -1,6 +1,6 @@
 import "dotenv/config";
 import sql from "mssql";
-import { PrismaClient } from "../../generated/prisma/client.js";
+import { PrismaClient } from "../generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 // ── Validação de identifiers SQL (previne injection via env vars) ──
@@ -17,6 +17,11 @@ if (!process.env.SAGE_USER || !process.env.SAGE_PASSWORD) {
   console.error("ERRO: SAGE_USER e SAGE_PASSWORD são obrigatórios");
   process.exit(1);
 }
+if (!process.env.TENANT_ID) {
+  console.error("ERRO: TENANT_ID é obrigatório (UUID do tenant no Neon)");
+  process.exit(1);
+}
+const TENANT_ID = process.env.TENANT_ID;
 
 const SAGE_CONFIG: sql.config = {
   server: process.env.SAGE_HOST || "localhost",
@@ -87,25 +92,25 @@ async function syncOperators(): Promise<void> {
       if (!code) continue;
 
       const existing = await prisma.operator.findUnique({
-        where: { sageCode: code },
+        where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
       });
 
       if (existing) {
         if (existing.name !== name || !existing.isActive) {
           await prisma.operator.update({
-            where: { sageCode: code },
+            where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
             data: { name, isActive: true, lastSyncedAt: now },
           });
           updated++;
         } else {
           await prisma.operator.update({
-            where: { sageCode: code },
+            where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
             data: { lastSyncedAt: now },
           });
         }
       } else {
         await prisma.operator.create({
-          data: { sageCode: code, name, isActive: true, lastSyncedAt: now },
+          data: { sageCode: code, name, isActive: true, lastSyncedAt: now, tenantId: TENANT_ID },
         });
         created++;
       }
@@ -115,6 +120,7 @@ async function syncOperators(): Promise<void> {
     const sageCodes = sageOperators.map((op) => String(op.code).trim()).filter(Boolean);
     const deactivated = await prisma.operator.updateMany({
       where: {
+        tenantId: TENANT_ID,
         sageCode: { notIn: sageCodes },
         isActive: true,
       },
@@ -166,25 +172,25 @@ async function syncReferences(): Promise<void> {
       if (!code) continue;
 
       const existing = await prisma.reference.findUnique({
-        where: { sageCode: code },
+        where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
       });
 
       if (existing) {
         if (existing.name !== name || !existing.isActive) {
           await prisma.reference.update({
-            where: { sageCode: code },
+            where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
             data: { name, isActive: true, lastSyncedAt: now },
           });
           updated++;
         } else {
           await prisma.reference.update({
-            where: { sageCode: code },
+            where: { tenantId_sageCode: { tenantId: TENANT_ID, sageCode: code } },
             data: { lastSyncedAt: now },
           });
         }
       } else {
         await prisma.reference.create({
-          data: { sageCode: code, name, isActive: true, lastSyncedAt: now },
+          data: { sageCode: code, name, isActive: true, lastSyncedAt: now, tenantId: TENANT_ID },
         });
         created++;
       }
@@ -194,6 +200,7 @@ async function syncReferences(): Promise<void> {
     const sageCodes = sageRefs.map((r) => String(r.code).trim()).filter(Boolean);
     const deactivated = await prisma.reference.updateMany({
       where: {
+        tenantId: TENANT_ID,
         sageCode: { notIn: sageCodes },
         isActive: true,
       },

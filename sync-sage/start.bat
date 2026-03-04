@@ -11,6 +11,11 @@ IF NOT EXIST "node_modules" (
     call npm install
 )
 
+IF NOT EXIST "generated" (
+    echo [SETUP] Gerando cliente Prisma...
+    call npx prisma generate --schema=prisma/schema.prisma
+)
+
 echo [SAO] Iniciando sync Sage → Neon...
 echo [SAO] Pressione Ctrl+C para parar.
 echo.
