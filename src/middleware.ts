@@ -73,7 +73,7 @@ export async function middleware(request: NextRequest) {
   // Resolver tenant via API route interna (sem usar Prisma diretamente — Edge Runtime)
   let tenantId = "00000000-0000-0000-0000-000000000000";
   try {
-    const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}`, request.url);
+    const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(hostname)}`, request.url);
     const res = await fetch(lookupUrl.toString(), {
       headers: { "x-internal-middleware": "1" },
     });
