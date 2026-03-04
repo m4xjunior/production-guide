@@ -162,6 +162,7 @@ export function ProductionStep({
     isListening: isWhisperListening,
     isConnected: isWhisperConnected,
     lastHeard: lastWhisperHeard,
+    hasFailed: whisperFailed,
   } = useWhisperSTT({
     expectedResponse: step.respuesta || "",
     onMatch: () => {
@@ -402,6 +403,15 @@ export function ProductionStep({
     startFallbackRecognition,
     stopFallbackRecognition,
   ]);
+
+  // Cascade to Web Speech API when Whisper server is unavailable
+  useEffect(() => {
+    if (!whisperFailed || !useWhisper) return;
+    if (step.responseType !== "voice" || !step.respuesta) return;
+    if (speechSupported) {
+      startContinuousListeningRef.current();
+    }
+  }, [whisperFailed, useWhisper, step.responseType, step.respuesta, speechSupported]);
 
   // Reset error confirmation when step changes
   useEffect(() => {

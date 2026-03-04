@@ -23,6 +23,7 @@ export function useWhisperSTT({
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [lastHeard, setLastHeard] = useState("");
+  const [hasFailed, setHasFailed] = useState(false);
   const isSpeakingRef = useRef(isTTSSpeaking);
   // Evita loop de reconexão: após uma falha de conexão, não tenta novamente
   // até que o contexto mude (step novo, enabled toggle, etc.)
@@ -35,6 +36,7 @@ export function useWhisperSTT({
   // Reseta o flag de falha quando muda de step ou servidor — permite nova tentativa
   useEffect(() => {
     hasFailedRef.current = false;
+    setHasFailed(false);
   }, [enabled, serverUrl]);
 
   const normalize = (s: string) =>
@@ -119,6 +121,7 @@ export function useWhisperSTT({
 
       ws.onerror = () => {
         hasFailedRef.current = true; // Bloqueia reconexão automática após falha
+        setHasFailed(true); // Sinaliza ao consumer para cascadear ao fallback
         console.warn("[Whisper] Servidor indisponível - usando Web Speech API como fallback");
         setIsConnected(false);
       };
@@ -151,6 +154,7 @@ export function useWhisperSTT({
     isListening,
     isConnected,
     lastHeard,
+    hasFailed,
     isSupported: typeof WebSocket !== "undefined",
   };
 }
