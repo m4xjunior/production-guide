@@ -20,6 +20,7 @@ export interface Station {
   createdAt: string;
   updatedAt: string;
   _count?: { steps: number };
+  stepsCount?: number;
   references?: Reference[];
 }
 

@@ -3,6 +3,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +107,148 @@ const DEFAULT_STEP = {
   isQc: false,
   qcFrequency: "",
 };
+
+function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }: {
+  step: Step; 
+  index: number; 
+  stepsLength: number;
+  onEdit: (step: Step) => void;
+  onDelete: (step: Step) => void;
+  onMove: (stepId: string, direction: 'up' | 'down') => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: step.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+    position: 'relative' as const,
+  };
+
+  const tipoConf = TIPO_CONFIG[step.tipo];
+  const respConf = RESPONSE_CONFIG[step.responseType];
+  const TipoIcon = tipoConf.icon;
+  const RespIcon = respConf.icon;
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className="border-border group hover:border-border transition-colors"
+    >
+      <CardContent className="py-3 px-4">
+        <div className="flex items-center gap-3">
+          {/* Drag handle / order */}
+          <div className="flex items-center gap-1">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+              <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+            </div>
+            <span className="text-xs font-mono text-muted-foreground/60 w-6 text-center">
+              {index + 1}
+            </span>
+          </div>
+
+          {/* Tipo badge */}
+          <div
+            className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${tipoConf.color}`}
+          >
+            <TipoIcon className="h-3 w-3" />
+            {step.tipo}
+          </div>
+
+          {/* Response type */}
+          <Badge variant="outline" className="text-xs gap-1 font-normal">
+            <RespIcon className="h-3 w-3" />
+            {respConf.label}
+          </Badge>
+
+          {/* QC badge */}
+          {step.isQc && (
+            <Badge variant="warning" className="text-xs">
+              QC{step.qcFrequency ? ` c/${step.qcFrequency}` : ""}
+            </Badge>
+          )}
+
+          {/* Message preview */}
+          <p className="flex-1 text-sm text-muted-foreground truncate min-w-0">
+            {step.mensaje}
+          </p>
+
+          {/* Photo indicator */}
+          {step.photoUrl && (
+            <div className="h-6 w-6 rounded border border-border overflow-hidden shrink-0">
+              <img
+                src={step.photoUrl}
+                alt=""
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+          )}
+
+          {step.modelUrl && (
+            <Badge variant="outline" className="text-xs gap-1 font-normal">
+              <Cuboid className="h-3 w-3" />
+              3D
+            </Badge>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onMove(step.id, "up")}
+              disabled={index === 0}
+              className="h-7 w-7 p-0"
+              title="Mover arriba"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onMove(step.id, "down")}
+              disabled={index === stepsLength - 1}
+              className="h-7 w-7 p-0"
+              title="Mover abajo"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(step)}
+              className="h-7 w-7 p-0"
+              title="Editar paso"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(step)}
+              className="h-7 w-7 p-0 text-destructive hover:text-destructive/90"
+              title="Eliminar paso"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function StationEditorPage() {
   const params = useParams();
@@ -346,6 +505,45 @@ export default function StationEditorPage() {
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    
+    const oldIndex = steps.findIndex(s => s.id === active.id);
+    const newIndex = steps.findIndex(s => s.id === over.id);
+    const reordered = arrayMove(steps, oldIndex, newIndex).map((s, i) => ({ ...s, orderNum: i + 1 }));
+    
+    setSteps(reordered);
+    try {
+      await adminFetch(`/api/stations/${stationId}/steps/reorder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepIds: reordered.map(s => s.id) }),
+      });
+    } catch (err) {
+      console.error('Error reordering steps:', err);
+      // Revert on error
+      setSteps(steps);
+      toast({
+        title: "Error",
+        description: "No se pudo reordenar los pasos",
+        variant: "destructive",
+      });
+      await adminFetch(`/api/stations/${stationId}/steps/reorder`, {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepIds: steps.map(s => s.id) }),
+      });
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   // ─── Loading / not found ──────────────────────────────
   if (loading) {
     return (
@@ -519,122 +717,23 @@ export default function StationEditorPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-2">
-            {steps.map((step, index) => {
-              const tipoConf = TIPO_CONFIG[step.tipo];
-              const respConf = RESPONSE_CONFIG[step.responseType];
-              const TipoIcon = tipoConf.icon;
-              const RespIcon = respConf.icon;
-
-              return (
-                <Card
-                  key={step.id}
-                  className="border-border group hover:border-border transition-colors"
-                >
-                  <CardContent className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      {/* Drag handle / order */}
-                      <div className="flex items-center gap-1">
-                        <GripVertical className="h-4 w-4 text-muted-foreground/40" />
-                        <span className="text-xs font-mono text-muted-foreground/60 w-6 text-center">
-                          {index + 1}
-                        </span>
-                      </div>
-
-                      {/* Tipo badge */}
-                      <div
-                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${tipoConf.color}`}
-                      >
-                        <TipoIcon className="h-3 w-3" />
-                        {step.tipo}
-                      </div>
-
-                      {/* Response type */}
-                      <Badge variant="outline" className="text-xs gap-1 font-normal">
-                        <RespIcon className="h-3 w-3" />
-                        {respConf.label}
-                      </Badge>
-
-                      {/* QC badge */}
-                      {step.isQc && (
-                        <Badge variant="warning" className="text-xs">
-                          QC{step.qcFrequency ? ` c/${step.qcFrequency}` : ""}
-                        </Badge>
-                      )}
-
-                      {/* Message preview */}
-                      <p className="flex-1 text-sm text-muted-foreground truncate min-w-0">
-                        {step.mensaje}
-                      </p>
-
-                      {/* Photo indicator */}
-                      {step.photoUrl && (
-                        <div className="h-6 w-6 rounded border border-border overflow-hidden shrink-0">
-                          <img
-                            src={step.photoUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      {step.modelUrl && (
-                        <Badge variant="outline" className="text-xs gap-1 font-normal">
-                          <Cuboid className="h-3 w-3" />
-                          3D
-                        </Badge>
-                      )}
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleMoveStep(step.id, "up")}
-                          disabled={index === 0}
-                          className="h-7 w-7 p-0"
-                          title="Mover arriba"
-                        >
-                          <ChevronUp className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleMoveStep(step.id, "down")}
-                          disabled={index === steps.length - 1}
-                          className="h-7 w-7 p-0"
-                          title="Mover abajo"
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEditStep(step)}
-                          className="h-7 w-7 p-0"
-                          title="Editar paso"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openDeleteStep(step)}
-                          className="h-7 w-7 p-0 text-destructive hover:text-destructive/90"
-                          title="Eliminar paso"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={steps.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {steps.map((step, index) => (
+                  <SortableStepCard
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    stepsLength={steps.length}
+                    onEdit={openEditStep}
+                    onDelete={openDeleteStep}
+                    onMove={handleMoveStep}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
         </TabsContent>
