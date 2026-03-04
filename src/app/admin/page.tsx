@@ -19,14 +19,16 @@ import {
   Factory,
   BarChart3,
   Users,
-  CheckCircle,
+  CheckCircle2,
   Loader2,
   ArrowRight,
   Activity,
   Clock,
+  TrendingUp,
+  Layers,
+  ExternalLink,
+  RefreshCw,
 } from "lucide-react";
-
-// ─── Dashboard Stats ────────────────────────────────────────
 
 interface DashboardStats {
   totalStations: number;
@@ -51,11 +53,11 @@ export default function AdminDashboardPage() {
   });
   const [recentStations, setRecentStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch stations
       const stationsRes = await adminFetch("/api/stations");
       let stations: Station[] = [];
       if (stationsRes.ok) {
@@ -66,17 +68,12 @@ export default function AdminDashboardPage() {
       const totalStations = stations.length;
       const activeStations = stations.filter((s) => s.isActive).length;
 
-      // Fetch today's production report
       const today = toLocalDateString(new Date());
-      const prodRes = await adminFetch(
-        `/api/reports/production?from=${today}&to=${today}`
-      );
+      const prodRes = await adminFetch(`/api/reports/production?from=${today}&to=${today}`);
       let unitsToday = 0;
       if (prodRes.ok) {
         const prodData = await prodRes.json();
-        const items = Array.isArray(prodData)
-          ? prodData
-          : prodData.estaciones || prodData.data || [];
+        const items = Array.isArray(prodData) ? prodData : prodData.estaciones || prodData.data || [];
         unitsToday = items.reduce(
           (acc: number, item: { completedUnits?: number; unitsCompleted?: number }) =>
             acc + (item.completedUnits ?? item.unitsCompleted ?? 0),
@@ -84,35 +81,21 @@ export default function AdminDashboardPage() {
         );
       }
 
-      // Fetch today's presence (active sessions)
-      const presRes = await adminFetch(
-        `/api/reports/presence?from=${today}&to=${today}`
-      );
+      const presRes = await adminFetch(`/api/reports/presence?from=${today}&to=${today}`);
       let activeSessions = 0;
       if (presRes.ok) {
         const presData = await presRes.json();
-        const presItems = Array.isArray(presData)
-          ? presData
-          : presData.operarios || presData.data || [];
+        const presItems = Array.isArray(presData) ? presData : presData.operarios || presData.data || [];
         activeSessions = presItems.length;
       }
 
-      setStats({
-        totalStations,
-        activeStations,
-        activeSessions,
-        unitsToday,
-      });
-
-      // Show the 5 most recently updated stations
+      setStats({ totalStations, activeStations, activeSessions, unitsToday });
       setRecentStations(
         [...stations]
-          .sort(
-            (a, b) =>
-              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          )
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
           .slice(0, 5)
       );
+      setLastUpdated(new Date());
     } catch (err) {
       console.error("Error loading dashboard:", err);
     } finally {
@@ -124,200 +107,227 @@ export default function AdminDashboardPage() {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-[#8B1A1A]" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8 max-w-5xl">
-      {/* Page title */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Panel de control
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Resumen general del sistema de produccion
-        </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Panel de control</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Resumen del sistema de produccion
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchDashboard}
+          disabled={loading}
+          className="gap-2 border-border/60 text-muted-foreground hover:text-foreground"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          {lastUpdated
+            ? lastUpdated.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+            : "Actualizar"}
+        </Button>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          icon={Factory}
-          label="Estaciones activas"
-          value={stats.activeStations}
-          subtitle={`${stats.totalStations} totales`}
-          color="blue"
-        />
-        <StatCard
-          icon={Users}
-          label="Sesiones hoy"
-          value={stats.activeSessions}
-          subtitle="Operarios registrados"
-          color="emerald"
-        />
-        <StatCard
-          icon={CheckCircle}
-          label="Unidades hoy"
-          value={stats.unitsToday}
-          subtitle="Unidades completadas"
-          color="amber"
-        />
-        <StatCard
-          icon={Activity}
-          label="Estado"
-          value="Operativo"
-          subtitle="Sistema en linea"
-          color="emerald"
-          isText
-        />
-      </div>
+      {/* Stats */}
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[0, 1, 2, 3].map((i) => (
+            <Card key={i} className="border-border">
+              <CardContent className="pt-4 pb-3">
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-3 w-24 bg-muted rounded" />
+                  <div className="h-8 w-12 bg-muted rounded" />
+                  <div className="h-3 w-16 bg-muted rounded" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <StatCard
+            icon={Factory}
+            label="Estaciones activas"
+            value={stats.activeStations}
+            sub={`de ${stats.totalStations} totales`}
+            accent="#8B1A1A"
+          />
+          <StatCard
+            icon={Users}
+            label="Operarios hoy"
+            value={stats.activeSessions}
+            sub="sesiones registradas"
+            accent="#3B82F6"
+          />
+          <StatCard
+            icon={CheckCircle2}
+            label="Unidades hoy"
+            value={stats.unitsToday}
+            sub="unidades completadas"
+            accent="#F59E0B"
+          />
+          <StatCard
+            icon={Activity}
+            label="Estado"
+            value="Operativo"
+            sub="sistema en linea"
+            accent="#22C55E"
+            isText
+            pulse
+          />
+        </div>
+      )}
 
-      {/* Gradient separator */}
-      <div className="h-px bg-gradient-to-r from-transparent via-[#2A2A2E] to-transparent" />
+      {/* Main grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      {/* Quick actions + recent stations */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quick actions */}
-        <Card className="border-border">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold text-foreground">
-              Acciones rapidas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row gap-2">
-            <Link href="/admin/stations" className="block flex-1">
-              <Button
-                variant="outline"
-                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
-              >
-                <span className="flex items-center gap-2">
-                  <Factory className="h-4 w-4 text-[#8B1A1A]" aria-hidden="true" />
-                  Gestionar estaciones
-                </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
-              </Button>
-            </Link>
-            <Link href="/admin/reports" className="block flex-1">
-              <Button
-                variant="outline"
-                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
-              >
-                <span className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#22C55E]" aria-hidden="true" />
-                  Ver reportes
-                </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
-              </Button>
-            </Link>
-            <Link href="/" className="block flex-1">
-              <Button
-                variant="outline"
-                className="w-full justify-between h-11 text-left border-border/60 hover:border-[#8B1A1A]/30 hover:bg-[#8B1A1A]/5 transition-all duration-200"
-              >
-                <span className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-[#F59E0B]" aria-hidden="true" />
-                  Vista del operario
-                </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Left column */}
+        <div className="space-y-4">
+          {/* Quick actions */}
+          <Card className="border-border">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Acciones rapidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 space-y-2">
+              {[
+                { href: "/admin/stations", icon: Factory, label: "Gestionar estaciones", color: "#8B1A1A" },
+                { href: "/admin/reports", icon: BarChart3, label: "Ver reportes", color: "#3B82F6" },
+                { href: "/admin/voice-commands", icon: Layers, label: "Comandos de voz", color: "#8B5CF6" },
+                { href: "/", icon: ExternalLink, label: "Vista del operario", color: "#22C55E" },
+              ].map((item) => (
+                <Link key={item.href} href={item.href} className="block">
+                  <div className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 hover:border-border hover:bg-white/[0.02] transition-all group">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="rounded-md p-1.5"
+                        style={{ background: `${item.color}18` }}
+                      >
+                        <item.icon className="h-4 w-4" style={{ color: item.color }} />
+                      </div>
+                      <span className="text-sm text-foreground/80 group-hover:text-foreground transition-colors">
+                        {item.label}
+                      </span>
+                    </div>
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
 
-        {/* Recent stations */}
+          {/* Mini stats */}
+          <Card className="border-border">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Resumen
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 space-y-3">
+              {[
+                { label: "Pasos configurados", value: recentStations.reduce((a, s) => a + (s.stepsCount ?? 0), 0), icon: Layers },
+                { label: "Estaciones con pasos", value: recentStations.filter((s) => (s.stepsCount ?? 0) > 0).length, icon: TrendingUp },
+                { label: "Ultima actualizacion", value: recentStations[0] ? formatRelativeTime(recentStations[0].updatedAt) : "—", icon: Clock },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <item.icon className="h-3.5 w-3.5" />
+                    {item.label}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{item.value}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stations table */}
         <Card className="lg:col-span-2 border-border">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold text-foreground">
+          <CardHeader className="pb-2 pt-4 px-4 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Estaciones recientes
             </CardTitle>
             <Link href="/admin/stations">
-              <Button variant="ghost" size="sm" className="text-[#8B1A1A] hover:text-[#A52525] hover:bg-[#8B1A1A]/5">
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-[#8B1A1A] hover:text-[#A52525] hover:bg-[#8B1A1A]/5">
                 Ver todas
-                <ArrowRight className="h-3 w-3 ml-1" aria-hidden="true" />
+                <ArrowRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>
           </CardHeader>
-          <CardContent>
-            {recentStations.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground/60">
-                <Factory className="h-10 w-10 mx-auto mb-2 opacity-40" aria-hidden="true" />
-                <p>No hay estaciones creadas todavia.</p>
+          <CardContent className="px-0 pb-0">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-[#8B1A1A]" />
+              </div>
+            ) : recentStations.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground/50 px-4">
+                <Factory className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Sin estaciones aun.</p>
                 <Link href="/admin/stations" className="mt-3 inline-block">
-                  <Button size="sm">Crear primera estacion</Button>
+                  <Button size="sm" variant="outline" className="mt-2">Crear primera estacion</Button>
                 </Link>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table className="min-w-[600px]">
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent border-b border-border/50">
-                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                        Nombre
-                      </TableHead>
-                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                        Codigo
-                      </TableHead>
-                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                        Pasos
-                      </TableHead>
-                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
-                        Estado
-                      </TableHead>
-                      <TableHead scope="col" className="text-muted-foreground text-xs uppercase tracking-wider font-medium text-right">
-                        Actualizada
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border/40">
+                    <TableHead className="px-4 text-xs text-muted-foreground/60 uppercase tracking-wider font-medium">Nombre</TableHead>
+                    <TableHead className="text-xs text-muted-foreground/60 uppercase tracking-wider font-medium">Codigo</TableHead>
+                    <TableHead className="text-xs text-muted-foreground/60 uppercase tracking-wider font-medium text-center">Pasos</TableHead>
+                    <TableHead className="text-xs text-muted-foreground/60 uppercase tracking-wider font-medium">Estado</TableHead>
+                    <TableHead className="text-xs text-muted-foreground/60 uppercase tracking-wider font-medium text-right pr-4">Actualizada</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <TableBody>
                   {recentStations.map((station) => (
                     <TableRow
                       key={station.id}
-                      className="cursor-pointer border-b border-border/30 hover:bg-[#8B1A1A]/5 transition-colors duration-150"
+                      className="border-b border-border/20 hover:bg-white/[0.015] transition-colors"
                     >
-                      <TableCell>
+                      <TableCell className="px-4 py-3">
                         <Link
                           href={`/admin/stations/${station.id}`}
-                          className="font-medium text-foreground hover:text-[#A52525] transition-colors"
+                          className="font-medium text-sm text-foreground/90 hover:text-[#A52525] transition-colors"
                         >
                           {station.name}
                         </Link>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-3">
                         {station.productCode ? (
-                          <Badge variant="secondary" className="font-mono text-xs">
+                          <Badge variant="secondary" className="font-mono text-xs h-5 px-1.5">
                             {station.productCode}
                           </Badge>
                         ) : (
-                          <span className="text-muted-foreground/40">-</span>
+                          <span className="text-muted-foreground/30 text-sm">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {station._count?.steps ?? 0}
+                      <TableCell className="py-3 text-center">
+                        <span className="text-sm tabular-nums text-muted-foreground">
+                          {station.stepsCount ?? 0}
+                        </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-3">
                         <Badge
                           variant={station.isActive ? "success" : "secondary"}
-                          className="text-xs"
+                          className="text-xs h-5"
                         >
                           {station.isActive ? "Activa" : "Inactiva"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground/60">
-                        <span className="flex items-center justify-end gap-1">
-                          <Clock className="h-3 w-3" aria-hidden="true" />
+                      <TableCell className="py-3 text-right pr-4">
+                        <span className="text-xs text-muted-foreground/50 flex items-center justify-end gap-1">
+                          <Clock className="h-3 w-3" />
                           {formatRelativeTime(station.updatedAt)}
                         </span>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
-                </Table>
-              </div>
+              </Table>
             )}
           </CardContent>
         </Card>
@@ -326,89 +336,64 @@ export default function AdminDashboardPage() {
   );
 }
 
-// ─── Stat Card Component ────────────────────────────────────
+// ─── Stat Card ────────────────────────────────────────────────
 
 function StatCard({
   icon: Icon,
   label,
   value,
-  subtitle,
-  color,
+  sub,
+  accent,
   isText = false,
+  pulse = false,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   label: string;
   value: string | number;
-  subtitle: string;
-  color: "blue" | "emerald" | "amber";
+  sub: string;
+  accent: string;
   isText?: boolean;
+  pulse?: boolean;
 }) {
-  const colorMap = {
-    blue: {
-      border: "border-l-[#8B1A1A]",
-      gradientFrom: "from-[#8B1A1A]/15",
-      gradientTo: "to-[#8B1A1A]/5",
-      icon: "text-[#8B1A1A]",
-      value: "text-[#A52525]",
-    },
-    emerald: {
-      border: "border-l-[#22C55E]",
-      gradientFrom: "from-[#22C55E]/15",
-      gradientTo: "to-[#22C55E]/5",
-      icon: "text-[#22C55E]",
-      value: "text-[#22C55E]",
-    },
-    amber: {
-      border: "border-l-[#F59E0B]",
-      gradientFrom: "from-[#F59E0B]/15",
-      gradientTo: "to-[#F59E0B]/5",
-      icon: "text-[#F59E0B]",
-      value: "text-[#F59E0B]",
-    },
-  };
-
-  const c = colorMap[color];
-
-  // "Operativo" status gets a green pulse glow
-  const isOperativo = isText && value === "Operativo" && color === "emerald";
-
   return (
-    <Card className={`border-border border-l-2 ${c.border} overflow-hidden`}>
-      <CardContent className="pt-5 pb-4">
-        <div className="flex items-start justify-between">
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+    <Card className="border-border overflow-hidden">
+      <CardContent className="pt-4 pb-3 px-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground/70 font-medium uppercase tracking-wider truncate">
               {label}
             </p>
-            {isOperativo ? (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E]/60 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+            {pulse ? (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span
+                    className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60"
+                    style={{ background: accent }}
+                  />
+                  <span
+                    className="relative inline-flex h-2 w-2 rounded-full"
+                    style={{ background: accent }}
+                  />
                 </span>
-                <p
-                  className={`font-bold text-lg ${c.value}`}
-                  style={{ fontFamily: "var(--font-geist-mono), monospace" }}
-                >
+                <p className="font-semibold text-base" style={{ color: accent }}>
                   {value}
                 </p>
               </div>
             ) : (
               <p
-                className={`mt-1 font-bold ${
-                  isText ? "text-lg" : "text-3xl tabular-nums"
-                } ${c.value}`}
-                style={{ fontFamily: "var(--font-geist-mono), monospace" }}
+                className={`mt-1 font-bold tabular-nums ${isText ? "text-base" : "text-2xl"}`}
+                style={{ color: accent }}
               >
                 {value}
               </p>
             )}
-            <p className="text-xs text-muted-foreground/60 mt-0.5">{subtitle}</p>
+            <p className="text-xs text-muted-foreground/50 mt-0.5 truncate">{sub}</p>
           </div>
           <div
-            className={`rounded-lg p-2.5 bg-gradient-to-br ${c.gradientFrom} ${c.gradientTo}`}
+            className="rounded-lg p-2 shrink-0"
+            style={{ background: `${accent}14` }}
           >
-            <Icon className={`h-5 w-5 ${c.icon}`} aria-hidden="true" />
+            <Icon className="h-4 w-4" style={{ color: accent }} />
           </div>
         </div>
       </CardContent>
@@ -429,8 +414,5 @@ function formatRelativeTime(dateStr: string): string {
   if (hours < 24) return `hace ${hours}h`;
   if (days < 7) return `hace ${days}d`;
 
-  return new Date(dateStr).toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "short",
-  });
+  return new Date(dateStr).toLocaleDateString("es-ES", { day: "2-digit", month: "short" });
 }
