@@ -221,6 +221,7 @@ body {
 html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  height: 100%;
 }
 
 /* Prevent text size adjustment on rotation */
@@ -229,12 +230,13 @@ html {
   text-size-adjust: 100%;
 }
 
-/* Prevent pull-to-refresh */
+/* Allow vertical scroll — PwaContainer manages overflow per page */
 body {
-  overflow: hidden;
+  overflow-x: hidden;
+  min-height: 100dvh;
 }
 
-/* Main scrollable area */
+/* Main scrollable area fallback */
 #__next, main, [data-scroll-root] {
   overflow-y: auto;
   overflow-x: hidden;
