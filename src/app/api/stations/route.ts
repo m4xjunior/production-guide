@@ -5,10 +5,11 @@ import { prisma } from "@/lib/db";
  * GET /api/stations
  * Lista todas las estaciones activas con el conteo de pasos.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const tenantId = request.headers.get("x-tenant-id");
     const stations = await prisma.station.findMany({
-      where: { isActive: true },
+      where: { isActive: true, ...(tenantId ? { tenantId } : {}) },
       include: {
         _count: { select: { steps: true } },
       },
@@ -41,10 +42,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, description, productCode } = body;
+    const tenantId = request.headers.get("x-tenant-id");
 
     if (!name || typeof name !== "string") {
       return NextResponse.json(
         { error: "El campo 'name' es obligatorio" },
+        { status: 400 },
+      );
+    }
+
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: "Tenant no resuelto" },
         { status: 400 },
       );
     }
@@ -54,6 +63,7 @@ export async function POST(request: NextRequest) {
         name,
         description: description ?? null,
         productCode: productCode ?? null,
+        tenantId,
       },
     });
 
