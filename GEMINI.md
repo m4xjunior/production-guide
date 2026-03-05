@@ -7,7 +7,7 @@
 | 1 | Fluxo operário — login, estações, 3 passos | ✅ Concluída (8/10) | `docs/sprints/gemini/sessao-1-log.md` |
 | 2 | Painel admin — todas as 5 páginas | ✅ Concluída (8.5/10) | `docs/sprints/gemini/sessao-2-log.md` |
 | 3 | Fixes de acessibilidade (QA 1+2) | ✅ Concluída | `docs/sprints/gemini/sessao-3-log.md` |
-| 4 | Verificar fix de voz mobile + remoção ElevenLabs ConvAI | 🔄 Próxima | `docs/sprints/gemini/sessao-4-log.md` |
+| 4 | Verificar fix de voz mobile + remoção ElevenLabs ConvAI | ✅ Concluída | `docs/sprints/gemini/sessao-4-log.md` |
 
 **Antes de iniciar:** leia o log da sessão anterior para não repetir o que já foi testado.
 
