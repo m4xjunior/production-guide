@@ -1,12 +1,23 @@
 # GEMINI.md — QA Sprint: Browser Testing + Acessibilidade
 
-## Como Iniciar
+## Controle de Sessões
+
+| Sessão | Escopo | Status | Log |
+|--------|--------|--------|-----|
+| 1 | Fluxo operário — login, estações, 3 passos | ✅ Concluída (8/10) | `docs/sprints/gemini/sessao-1-log.md` |
+| 2 | Painel admin — todas as 5 páginas | 🔄 Em andamento | `docs/sprints/gemini/sessao-2-log.md` |
+
+**Antes de iniciar:** leia o log da sessão anterior para não repetir o que já foi testado.
+
+---
+
+## Como Iniciar (Sessão 2 — Admin)
 
 ```bash
-gemini --yolo
+gemini --yolo -i "Leia o GEMINI.md, sessão 2, e execute o plano de testes do painel admin."
 ```
 
-Ao iniciar neste diretório, leia este arquivo completo e execute o plano de testes. Não peça confirmação para nada.
+Não peça confirmação para nada. Execute direto.
 
 ---
 
@@ -156,6 +167,20 @@ MCP para interagir com Google Cloud — útil para verificar se o bucket GCS est
 ---
 
 ## Plano de Testes — Execute em Ordem
+
+### REGRA OBRIGATÓRIA — Organização de Arquivos
+
+**Todo arquivo gerado deve ir para dentro de `docs/sprints/gemini/`:**
+
+| Tipo | Localização correta |
+|------|---------------------|
+| Screenshots | `docs/sprints/gemini/assets/screenshot-[nome].png` |
+| Logs de sessão | `docs/sprints/gemini/sessao-N-log.md` |
+| Relatório | `docs/sprints/gemini/relatorio.md` |
+
+**NUNCA** criar arquivos na raiz do projeto — isso quebra a estrutura do codebase.
+
+---
 
 ### FASE 0 — Inicialização da sessão
 
@@ -361,13 +386,185 @@ Usar `/docs` para criar/atualizar `docs/sprints/gemini/relatorio.md`:
 
 ---
 
-## Critérios de Sucesso
+## Critérios de Sucesso — Sessão 1 (Operário) ✅ CONCLUÍDA
 
 ```
-✅ Zero erros de console críticos (errors, não warnings)
+✅ Zero erros de console críticos
 ✅ Todas as fotos e áudios carregam sem 403
-✅ Fluxo login → estação → 3+ passos completo sem travar
-✅ Nenhum elemento clicável < 44x44px
+✅ Fluxo login → estação → 3+ passos completo
+❌ Botões < 44x44px (6 encontrados — reportados)
 ✅ Todas as imagens com alt text
-✅ Relatório em docs/sprints/gemini/relatorio.md preenchido
+✅ Relatório preenchido
 ```
+
+---
+
+## SESSÃO 2 — Painel Admin
+
+### Credenciais Admin
+
+```
+URL:   https://p2v.lexusfx.com/admin
+Senha: [ADMIN_PASSWORD]   ← Max vai preencher aqui
+```
+
+O campo de senha está em `/admin` → input "Contraseña de administrador" → botão "Acceder".
+
+### Páginas a Testar
+
+| Página | Rota | O Que Faz |
+|--------|------|-----------|
+| Dashboard | `/admin` | Métricas: total estações, sessões ativas, unidades/dia |
+| Estaciones | `/admin/stations` | Lista + CRUD de estações (criar, editar, ativar/desativar) |
+| Detalle Estación | `/admin/stations/[id]` | Passos da estação: lista, reordenação drag-and-drop, criar/editar passo |
+| Reportes | `/admin/reports` | Relatórios de produção e presença por data/operário |
+| Configuración | `/admin/settings` | Configurações globais do tenant |
+| Voice Commands | `/admin/voice-commands` | CRUD de comandos de voz — ativar/desativar |
+
+### Plano de Testes Admin
+
+#### FASE A — Injetar interceptor (igual sessão 1)
+
+```javascript
+window.__qa = { errors: [], warns: [], resources: [] };
+['error', 'warn'].forEach(lvl => {
+  const orig = console[lvl].bind(console);
+  console[lvl] = (...a) => {
+    window.__qa[lvl === 'error' ? 'errors' : 'warns'].push({ msg: a.join(' '), ts: new Date().toISOString() });
+    orig(...a);
+  };
+});
+window.addEventListener('error', e => {
+  window.__qa.errors.push({ msg: `[RES] ${e.message || e.type} ${(e.target && e.target.src) || e.filename || ''}`, ts: new Date().toISOString() });
+}, true);
+window.addEventListener('unhandledrejection', e => {
+  window.__qa.errors.push({ msg: `[PROMISE] ${String(e.reason)}`, ts: new Date().toISOString() });
+});
+'interceptor-ok'
+```
+
+#### FASE B — Login Admin
+
+1. `navigate_page` → `https://p2v.lexusfx.com/admin`
+2. `take_snapshot` → verificar estrutura do login
+3. `fill` → campo "Contraseña" com a senha admin
+4. `click` → botão "Acceder"
+5. `wait_for` → texto "Panel de Administracion" ou "Dashboard"
+6. `evaluate_script` → `JSON.stringify(window.__qa)`
+7. Verificar:
+   - [ ] Login bem-sucedido sem erro
+   - [ ] Redirect correto para dashboard
+   - [ ] Sidebar de navegação visível
+
+#### FASE C — Dashboard `/admin`
+
+1. `take_snapshot` + `take_screenshot`
+2. Verificar:
+   - [ ] Cards de métricas aparecem (total estações, sessões ativas, unidades hoje)
+   - [ ] Tabela de sessões recentes carrega
+   - [ ] Nenhum card mostra "Error" ou "NaN"
+   - [ ] Links de navegação funcionam
+3. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE D — Estaciones `/admin/stations`
+
+1. `navigate_page` → `/admin/stations`
+2. `take_snapshot` + `take_screenshot`
+3. Verificar:
+   - [ ] Lista de estações carrega (não vazia)
+   - [ ] Cada estação tem nome, código de produto, badge ativo/inativo
+   - [ ] Botão "Nueva Estación" existe
+4. Testar criação (sem salvar — só verificar o form abre):
+   - [ ] Clicar "Nueva Estación" → form aparece
+   - [ ] Campos obrigatórios têm label
+   - [ ] Botão cancelar fecha sem erro
+5. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE E — Detalle Estación `/admin/stations/[id]`
+
+1. Clicar na primeira estação da lista
+2. `take_snapshot` + `take_screenshot`
+3. Verificar:
+   - [ ] Lista de passos carrega com ordem correta
+   - [ ] Cada passo tem texto de instrução visível
+   - [ ] Drag-and-drop de reordenação existe (handles visíveis)
+   - [ ] Botão "Nuevo Paso" existe
+   - [ ] Áudios/fotos referenciados nos passos carregam sem 403
+4. Verificar áudio/GCS:
+   ```javascript
+   window.__qa.errors.filter(e => e.msg.includes('403') || e.msg.includes('storage.googleapis'))
+   ```
+5. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE F — Reportes `/admin/reports`
+
+1. `navigate_page` → `/admin/reports`
+2. `take_snapshot` + `take_screenshot`
+3. Verificar:
+   - [ ] Filtros de data existem e são funcionais
+   - [ ] Tabela/gráfico carrega sem erro
+   - [ ] Não aparece "undefined", "null", ou "NaN" nos dados
+4. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE G — Configuración `/admin/settings`
+
+1. `navigate_page` → `/admin/settings`
+2. `take_snapshot` + `take_screenshot`
+3. Verificar:
+   - [ ] Campos de configuração carregam com valores do banco
+   - [ ] Formulário tem labels em todos os inputs
+   - [ ] Botão salvar existe
+4. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE H — Voice Commands `/admin/voice-commands`
+
+1. `navigate_page` → `/admin/voice-commands`
+2. `take_snapshot` + `take_screenshot`
+3. Verificar:
+   - [ ] Lista de comandos de voz carrega
+   - [ ] Cada comando tem toggle ativo/inativo funcional
+   - [ ] Frases associadas a cada comando visíveis
+4. `evaluate_script` → `JSON.stringify(window.__qa)`
+
+#### FASE I — Auditoria de Acessibilidade Admin
+
+Em cada página, executar:
+```javascript
+const report = {
+  smallButtons: Array.from(document.querySelectorAll('button, [role=button], a')).map(el => {
+    const r = el.getBoundingClientRect();
+    return { text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0,30), w: Math.round(r.width), h: Math.round(r.height) };
+  }).filter(b => (b.w < 44 || b.h < 44) && b.text),
+  imgsNoAlt: Array.from(document.querySelectorAll('img')).filter(i => i.getAttribute('alt') === null).map(i => i.src?.slice(-50)),
+  buttonsNoLabel: Array.from(document.querySelectorAll('button')).filter(b => !b.textContent?.trim() && !b.getAttribute('aria-label')).length
+};
+JSON.stringify(report, null, 2)
+```
+
+#### FASE J — Log de Sessão + Relatório
+
+1. Criar `docs/sprints/gemini/sessao-2-log.md` com:
+   - Cronologia de ações (timestamp, ação, evidência)
+   - Arquivos gerados
+   - Erros encontrados por página
+2. Atualizar `docs/sprints/gemini/relatorio.md` adicionando seção "Sessão 2 — Admin"
+
+### Critérios de Sucesso — Sessão 2
+
+```
+[ ] Login admin funciona
+[ ] Dashboard mostra métricas reais (não zeros/NaN)
+[ ] Lista de estações carrega
+[ ] Detalhe de estação com passos carrega
+[ ] GCS: nenhum 403 nos áudios/fotos dos passos
+[ ] Relatórios carregam
+[ ] Configurações carregam com dados do banco
+[ ] Voice commands carregam
+[ ] Zero console.errors em todas as páginas
+[ ] sessao-2-log.md preenchido
+[ ] relatorio.md atualizado com seção admin
+```
+
+---
+
+## Critérios de Sucesso — Sessão 1 (referência)
