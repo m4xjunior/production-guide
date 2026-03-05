@@ -1,41 +1,65 @@
-# Relatório QA — 2026-03-05 10:00
+# Relatório QA — 2026-03-05
 
-## Score Geral: 8/10
+## Score Geral: 8.5/10
 
 ## Resumo Executivo
-O fluxo de produção ("INICIAR ESTACIÓN" → Login Operário → Seleção de Estação → Passos 1 ao 3) foi completado com sucesso e sem falhas de comportamento. Zero erros críticos de console, rede (ex: 403), áudio ou carregamento de imagens detectados. Os problemas encontrados foram exclusivamente focados em acessibilidade (tamanho de clique e rótulos ocultos).
+**Sessão 1 (Operário):** O fluxo de produção (Login → Seleção de Estação → Passos) foi completado com sucesso e sem falhas de comportamento. Zero erros críticos detectados.
+**Sessão 2 (Admin):** O fluxo administrativo foi percorrido sem ocorrência de erros. Telas de Dashboard, Estações, Reportes, Configurações e Voice Commands renderizam os dados do banco corretamente, sem estados espúrios. 
+Ambas sessões apresentaram problemas comuns focados em acessibilidade (tamanho de clique e rótulos ocultos em botões de ação).
 
-## Bugs Críticos (bloqueiam fluxo)
+---
+
+## SESSÃO 1 — Fluxo do Operário
+
+### Bugs Críticos (bloqueiam fluxo)
 | # | Descrição | Arquivo | Esperado | Real |
 |---|-----------|---------|----------|------|
 | - | N/A | N/A | Nenhum erro bloqueante | N/A |
 
-## Bugs Menores
-| # | Descrição | Localização |
-|---|-----------|-------------|
-| 1 | Alguns botões carecem de rótulo para leitores de tela | Componentes principais / Layout |
-
-## Problemas de Acessibilidade
+### Problemas de Acessibilidade
 | # | Elemento | Violação WCAG | Severidade |
 |---|----------|---------------|-----------|
-| 1 | Botões ("Estaciones", "Parar", "Instalar", "Cerrar") | Área de toque menor que 44x44px (Target Size 2.5.5) | Média (Uso industrial com luvas) |
-| 2 | Botões ("Confirmar manualmente", "Repetir instruccion") | Área de toque menor que 44px de altura (40px) | Média |
-| 3 | Elementos `<button>` genéricos (3 detectados) | Falta de texto visível ou `aria-label` (Name, Role, Value 4.1.2) | Alta |
+| 1 | Botões ("Estaciones", "Parar", "Instalar", "Cerrar") | Área de toque menor que 44x44px (Target Size 2.5.5) | Média (Uso industrial) |
+| 2 | Elementos `<button>` genéricos (3 detectados) | Falta de texto visível ou `aria-label` (Name, Role, Value 4.1.2) | Alta |
 
-## Erros de Console
+### O Que Funcionou
+- Navegação entre telas de operação com resposta rápida sem dependência exclusiva de mouse.
+- Nenhum erro de API rejeitado nem unhandled exceptions.
+
+---
+
+## SESSÃO 2 — Painel Admin
+
+### Bugs Críticos (bloqueiam fluxo)
+| # | Descrição | Arquivo | Esperado | Real |
+|---|-----------|---------|----------|------|
+| - | N/A | N/A | Nenhum erro bloqueante | N/A |
+
+### Bugs Menores / Melhorias
+| # | Descrição | Localização |
+|---|-----------|-------------|
+| 1 | Botão de "Salvar/Guardar" ausente na aba de configurações do TTS. Apenas opções para regenerar estão aparentes. | `/admin/settings` |
+
+### Problemas de Acessibilidade
+| # | Elemento | Violação WCAG | Severidade |
+|---|----------|---------------|-----------|
+| 1 | Links de Navegação Sidebar ("Ver app operario", "Cerrar sesion", etc.) | Área de toque menor que 44x44px de altura (36px). | Média |
+| 2 | Botões de Ação na Lista de Passos (61 detectados) | Ausência de `aria-label` para ícones de edição, lixeira e arrastar. | Alta |
+
+### Erros de Console e Rede (403/404)
 ```json
 []
 ```
+Nenhum recurso de mídia dos passos apresentou erro HTTP 403, as imagens carregaram normalmente em todas as rotas validadas.
 
-## Recursos com Erro (403/404)
-Nenhum. Todos os recursos de imagem (`P1.png`, `P2.png`, `P3.png` etc) carregaram em 100% dos cenários validados.
+### O Que Funcionou
+- Dashboard calcula com precisão estados vazios e de listagem.
+- Drag-and-drop da lista de passos na Estação detalhada funcionou perfeitamente.
+- Formulários, relatórios e paginações carregaram conforme os schemas propostos e sem erros nativos do React ou Next.
 
-## O Que Funcionou
-- Navegação entre telas de operação com resposta rápida sem dependência exclusiva de mouse (suporte a touch via teclado numérico virtual).
-- As imagens e estados entre Passos (1, 2, 3) se mantiveram corretos e carregados.
-- Nenhum erro de API rejeitado nem unhandled exceptions (interceptador limpo).
+---
 
 ## Recomendações por Prioridade
-1. **IMPORTANTE**: Ajustar classes CSS (ex. `min-h-[44px] min-w-[44px] p-2`) nos botões de interface ("Parar", "Estaciones", e PWA) para estar em conformidade com as exigências de fábrica.
-2. **IMPORTANTE**: Inspecionar os 3 elementos `<button>` (provavelmente com SVG dentro sem `aria-label`) para adicionar rótulos claros para acessibilidade.
-3. **MELHORIA**: O fluxo do operário é altamente resiliente na parte visual e funcional do browser. Iniciar integração do novo Backend de Score de Voz como definido no Roadmap.
+1. **CRÍTICO / ACESSIBILIDADE**: Inspecionar os 69 elementos `<button>` encontrados no total (foco na área de `/admin/stations/[id]`) e adicionar `aria-label` aos componentes com ícones SVG que não possuem texto.
+2. **IMPORTANTE**: Ajustar o Target Size global dos componentes menores para atingir `44x44px` nos botões de navegação lateral (Sidebar Admin) e painéis de controle do operador, prevenindo dificuldades na operação industrial/Mobile.
+3. **MELHORIA**: Confirmar se o salvamento de configurações em `/admin/settings` é reativo e automático ou incluir um botão de feedback de progresso "Configurações salvas". Iniciar integração do novo Backend de Score de Voz.
