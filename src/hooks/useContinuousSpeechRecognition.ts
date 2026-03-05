@@ -178,6 +178,7 @@ export const useContinuousSpeechRecognition = (
   expectedResponse: string,
   onMatch: () => void,
   isTTSSpeaking: boolean = false,
+  alternativeResponses: string[] = [],
 ) => {
   const [isListening, setIsListening] = useState(false);
   const [lastHeard, setLastHeard] = useState("");
@@ -191,27 +192,67 @@ export const useContinuousSpeechRecognition = (
   // Sem refs, quando isTTSSpeaking muda, o handler antigo ainda usa o valor velho.
   const isTTSSpeakingRef = useRef(isTTSSpeaking);
   const expectedResponseRef = useRef(expectedResponse);
+  const alternativeResponsesRef = useRef<string[]>(alternativeResponses);
   const onMatchRef = useRef(onMatch);
   const matchCooldownRef = useRef(false);
   const wordBufferRef = useRef<string[]>([]);
+  const pendingDuringTTSRef = useRef<string[]>([]);
   const bufferTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => { isTTSSpeakingRef.current = isTTSSpeaking; }, [isTTSSpeaking]);
   useEffect(() => { expectedResponseRef.current = expectedResponse; }, [expectedResponse]);
+  useEffect(() => { alternativeResponsesRef.current = alternativeResponses; }, [alternativeResponses]);
   useEffect(() => { onMatchRef.current = onMatch; }, [onMatch]);
 
   // Reset ao mudar de step
   useEffect(() => {
     wordBufferRef.current = [];
+    pendingDuringTTSRef.current = [];
     matchCooldownRef.current = false;
     setLastHeard("");
-  }, [expectedResponse]);
+  }, [expectedResponse, alternativeResponses]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsSupported(!!SR);
     }
+  }, []);
+
+  const runMatch = useCallback(() => {
+    if (matchCooldownRef.current) return;
+    if (isTTSSpeakingRef.current) return;
+
+    const candidates = [
+      expectedResponseRef.current,
+      ...alternativeResponsesRef.current,
+    ]
+      .map((c) => normalize(c || ""))
+      .filter((c) => c.length > 0);
+
+    if (candidates.length === 0) return;
+
+    const currentTranscript = wordBufferRef.current.join(" ");
+    const pendingWhileSpeaking = pendingDuringTTSRef.current.join(" ");
+    const corpus = [currentTranscript, pendingWhileSpeaking]
+      .map((t) => normalize(t))
+      .filter((t) => t.length > 0);
+
+    if (corpus.length === 0) return;
+
+    const matched = corpus.some((t) =>
+      candidates.some((expected) => matchesExpected(t, expected))
+    );
+
+    if (!matched) return;
+
+    matchCooldownRef.current = true;
+    setTimeout(() => {
+      matchCooldownRef.current = false;
+    }, 2000);
+    wordBufferRef.current = [];
+    pendingDuringTTSRef.current = [];
+    onMatchRef.current();
   }, []);
 
   // checkMatch estável — lê tudo de refs, referência nunca muda.
@@ -221,12 +262,10 @@ export const useContinuousSpeechRecognition = (
       if (matchCooldownRef.current) return false;
 
       const t = normalize(transcript);
-      const e = normalize(expectedResponseRef.current);
 
       setLastHeard(transcript.trim());
 
-      if (!t || !e) return false;
-      if (isTTSSpeakingRef.current) return false;
+      if (!t) return false;
 
       // Acumular palavras finais para match cross-result
       if (isFinal) {
@@ -240,28 +279,57 @@ export const useContinuousSpeechRecognition = (
         }, 8000);
       }
 
-      // Rejeitar frases muito longas (conversa de fundo)
-      const tWords = t.split(" ");
-      const eWords = e.split(" ");
-      if (tWords.length > eWords.length * 4 + 5) return false;
+      // Enquanto TTS fala, guardamos o texto final para validar assim que terminar
+      if (isTTSSpeakingRef.current) {
+        if (isFinal) {
+          pendingDuringTTSRef.current.push(t);
+          if (pendingDuringTTSRef.current.length > 40) {
+            pendingDuringTTSRef.current = pendingDuringTTSRef.current.slice(-40);
+          }
+        }
+        return false;
+      }
 
-      // Match: transcript atual OU buffer acumulado
-      const buffered = wordBufferRef.current.join(" ");
-      const isMatch =
-        matchesExpected(t, e) || (buffered.length > 0 && matchesExpected(buffered, e));
+      // Rejeitar apenas lixo extremo (frases enormes de fundo)
+      if (t.split(" ").length > 30) return false;
 
-      if (isMatch) {
+      // ── MATCH DIRETO no transcript atual (interim OU final) ──
+      // Crítico: runMatch() só verifica o buffer (final results).
+      // Sem este check, resultados interim NUNCA fazem match —
+      // e em mobile o STT pode demorar muito a finalizar.
+      const candidates = [
+        expectedResponseRef.current,
+        ...alternativeResponsesRef.current,
+      ]
+        .map((c) => normalize(c || ""))
+        .filter((c) => c.length > 0);
+
+      const directMatch = candidates.some((e) => matchesExpected(t, e));
+
+      if (directMatch) {
         matchCooldownRef.current = true;
         setTimeout(() => { matchCooldownRef.current = false; }, 2000);
         wordBufferRef.current = [];
+        pendingDuringTTSRef.current = [];
         onMatchRef.current();
         return true;
       }
 
+      // Fallback: verificar buffer acumulado (para resultados split)
+      runMatch();
+      if (matchCooldownRef.current) return true;
+
       return false;
     },
-    [], // Sem deps — estável para sempre, lê de refs
+    [runMatch],
   );
+
+  useEffect(() => {
+    // Assim que TTS termina, tenta casar o que foi dito durante a fala
+    if (!isTTSSpeaking) {
+      runMatch();
+    }
+  }, [isTTSSpeaking, runMatch]);
 
   const startContinuousListening = useCallback(() => {
     if (!isSupported || isListeningRef.current) return;
@@ -364,6 +432,7 @@ export const useContinuousSpeechRecognition = (
     }
 
     wordBufferRef.current = [];
+    pendingDuringTTSRef.current = [];
     matchCooldownRef.current = false;
   }, []);
 

@@ -187,15 +187,23 @@ export default function Home() {
     await startProduction(selectedStationId, referenceId);
   }, [selectedStationId, startProduction]);
 
-  const handleStepCompleted = useCallback(() => {
+  const handleStepCompleted = useCallback((nextStep?: Step | null) => {
+    if (nextStep) {
+      const nextIndex = steps.findIndex((s) => s.id === nextStep.id);
+      if (nextIndex >= 0) {
+        setCurrentStepIndex(nextIndex);
+        return;
+      }
+    }
+
     if (currentStepIndex < steps.length - 1) {
       setCurrentStepIndex((prev) => prev + 1);
     } else {
-      // Todos los pasos completados — reiniciar para la siguiente unidad
+      // Todos los pasos completados — reiniciar para la seguinte unidade
       sessionStorage.removeItem("p2v_session");
       setCurrentStepIndex(0);
     }
-  }, [currentStepIndex, steps.length]);
+  }, [currentStepIndex, steps]);
 
   const handlePreviousStep = useCallback(() => {
     if (currentStepIndex > 0) {

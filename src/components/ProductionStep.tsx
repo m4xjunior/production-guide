@@ -168,7 +168,8 @@ export function ProductionStep({
   } = useContinuousSpeechRecognition(
     step.respuesta || "",
     handleVoiceMatch,
-    isSpeaking
+    isSpeaking,
+    step.synonyms ?? []
   );
 
   const startContinuousListeningRef = useRef(startContinuousListening);
