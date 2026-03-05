@@ -5,9 +5,26 @@
 | Sessão | Escopo | Status | Log |
 |--------|--------|--------|-----|
 | 1 | Fluxo operário — login, estações, 3 passos | ✅ Concluída (8/10) | `docs/sprints/gemini/sessao-1-log.md` |
-| 2 | Painel admin — todas as 5 páginas | 🔄 Em andamento | `docs/sprints/gemini/sessao-2-log.md` |
+| 2 | Painel admin — todas as 5 páginas | ✅ Concluída (8.5/10) | `docs/sprints/gemini/sessao-2-log.md` |
+| 3 | Fixes de acessibilidade (QA 1+2) | 🔄 Em andamento | `docs/sprints/gemini/sessao-3-log.md` |
 
 **Antes de iniciar:** leia o log da sessão anterior para não repetir o que já foi testado.
+
+---
+
+## Como Iniciar (Sessão 3 — Fixes)
+
+**Task:** Aplicar os fixes documentados no relatório QA das sessões 1 e 2.
+**Arquivo de tasks:** `docs/sprints/gemini/tarefas-fixes.md` — leia inteiro antes de começar.
+
+```bash
+gemini --yolo -i "Leia o GEMINI.md e docs/sprints/gemini/tarefas-fixes.md. Execute todas as tasks de fix de acessibilidade. Ao terminar, rode npx tsc --noEmit e crie sessao-3-log.md."
+```
+
+**Regras:**
+- Seguir os before/after exatos do `tarefas-fixes.md`
+- NÃO alterar lógica de negócio
+- NÃO criar arquivos fora de `docs/sprints/gemini/`
 
 ---
 
