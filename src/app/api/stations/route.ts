@@ -8,8 +8,11 @@ import { prisma } from "@/lib/db";
 export async function GET(request: NextRequest) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
+    if (!tenantId) {
+      return NextResponse.json({ error: "Tenant no resuelto" }, { status: 400 });
+    }
     const stations = await prisma.station.findMany({
-      where: { isActive: true, ...(tenantId ? { tenantId } : {}) },
+      where: { isActive: true, tenantId },
       include: {
         _count: { select: { steps: true } },
       },

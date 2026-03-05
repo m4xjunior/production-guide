@@ -1,3 +1,4 @@
+import "server-only";
 import { PrismaClient } from "../../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -52,17 +53,30 @@ export function getTenantPrisma(tenantId: string): PrismaClient {
           query: (args: Record<string, any>) => Promise<unknown>;
         }) {
           if (TENANT_SCOPED_MODELS.includes(model.toLowerCase())) {
+            // Leitura: injetar tenantId no where
             if (
               ["findMany", "findFirst", "findUnique", "count", "aggregate"].includes(operation)
             ) {
               args = { ...args, where: { ...(args.where ?? {}), tenantId } };
             }
+            // Escrita: injetar tenantId no data
             if (operation === "create") {
               args = { ...args, data: { ...(args.data ?? {}), tenantId } };
             }
             if (operation === "createMany") {
               const data = (args.data ?? []) as Record<string, unknown>[];
               args = { ...args, data: data.map((d) => ({ ...d, tenantId })) };
+            }
+            // Update/delete: injetar tenantId no where para evitar cross-tenant writes
+            if (["update", "updateMany", "delete", "deleteMany"].includes(operation)) {
+              args = { ...args, where: { ...(args.where ?? {}), tenantId } };
+            }
+            if (operation === "upsert") {
+              args = {
+                ...args,
+                where: { ...(args.where ?? {}), tenantId },
+                create: { ...(args.create ?? {}), tenantId },
+              };
             }
           }
           return query(args);

@@ -1,3 +1,5 @@
+import "server-only";
+
 const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1/text-to-speech";
 
 interface GenerateTTSOptions {

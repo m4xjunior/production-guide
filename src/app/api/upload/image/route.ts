@@ -46,9 +46,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Generar nombre único para el archivo
-    const extension = file.name.split(".").pop() ?? "jpg";
+    const tenantSlug = request.headers.get("x-tenant-slug") || "default";
+    const extension = file.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") ?? "jpg";
     const nombreArchivo = `${randomUUID()}.${extension}`;
-    const gcsPath = `images/${nombreArchivo}`;
+    const gcsPath = `tenants/${tenantSlug}/images/${nombreArchivo}`;
 
     // Convertir a buffer y subir a GCS
     const arrayBuffer = await file.arrayBuffer();

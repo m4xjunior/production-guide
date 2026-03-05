@@ -9,7 +9,10 @@ import { prisma } from "@/lib/db";
  */
 export async function GET(request: NextRequest) {
   // Só aceitar chamadas internas do middleware — validar shared secret
-  const internalSecret = process.env.INTERNAL_API_SECRET || "dev-secret";
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (!internalSecret) {
+    return NextResponse.json({ error: "INTERNAL_API_SECRET not configured" }, { status: 500 });
+  }
   if (request.headers.get("x-internal-middleware") !== internalSecret) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

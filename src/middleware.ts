@@ -29,6 +29,12 @@ const RUTAS_PROTEGIDAS_ESCRITURA = [
   "/api/reports",
 ];
 
+// Rotas que requerem admin mesmo para GET (dados sensíveis)
+const RUTAS_PROTEGIDAS_LECTURA = [
+  "/api/reports",
+  "/api/config/audit",
+];
+
 const METODOS_PUBLICOS = ["GET", "HEAD", "OPTIONS"];
 
 const RUTAS_OPERARIO = [
@@ -36,7 +42,6 @@ const RUTAS_OPERARIO = [
   "/api/step-logs",
   "/api/validate/barcode",
   "/api/validate/operator",
-  "/api/voice-commands",
   "/api/stops",
 ];
 
@@ -52,6 +57,12 @@ function requiereAdmin(request: NextRequest): boolean {
   const metodo = request.method;
 
   if (pathname.startsWith("/api/admin")) return true;
+
+  // Rotas com dados sensíveis requerem admin mesmo para GET
+  for (const ruta of RUTAS_PROTEGIDAS_LECTURA) {
+    if (pathname.startsWith(ruta)) return true;
+  }
+
   if (METODOS_PUBLICOS.includes(metodo)) return false;
 
   for (const ruta of RUTAS_OPERARIO) {
@@ -86,7 +97,14 @@ export async function middleware(request: NextRequest) {
   } else {
     try {
       const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(hostname)}`, request.url);
-      const internalSecret = process.env.INTERNAL_API_SECRET || "dev-secret";
+      const internalSecret = process.env.INTERNAL_API_SECRET;
+      if (!internalSecret) {
+        console.error("INTERNAL_API_SECRET not configured");
+        if (pathname.startsWith("/api")) {
+          return NextResponse.json({ error: "Configuración de servidor incompleta" }, { status: 500 });
+        }
+        return NextResponse.next();
+      }
       const res = await fetch(lookupUrl.toString(), {
         headers: { "x-internal-middleware": internalSecret },
       });

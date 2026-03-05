@@ -7,6 +7,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "Permissions-Policy", value: "camera=(), geolocation=(), microphone=(self)" },
+  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://storage.googleapis.com; media-src 'self' blob: https://storage.googleapis.com; connect-src 'self' https://*.sentry.io https://*.ingest.sentry.io; font-src 'self'; frame-ancestors 'none'" },
 ];
 
 const nextConfig: NextConfig = {

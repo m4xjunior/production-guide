@@ -7,7 +7,6 @@ module.exports = {
       cwd: "/Users/maxmeireles/Library/Mobile Documents/com~apple~CloudDocs/Proyectos/Proyectos Abiertos/production-guide-main",
       env: {
         NODE_ENV: "production",
-        DATABASE_URL: "postgresql://p2v:p2v_secret@localhost:54320/picktvoice",
       },
       instances: 1,
       autorestart: true,

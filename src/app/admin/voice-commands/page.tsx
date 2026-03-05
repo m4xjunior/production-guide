@@ -33,7 +33,7 @@ export default function VoiceCommandsPage() {
 
   useEffect(() => {
     fetch("/api/voice-commands", {
-      headers: { "X-Admin-Password": localStorage.getItem("adminPassword") || "" },
+      headers: { "X-Admin-Password": sessionStorage.getItem("p2v_admin_password") || "" },
     })
       .then((r) => r.json())
       .then(({ commands: cmds }) => setCommands(cmds || []));
@@ -44,7 +44,7 @@ export default function VoiceCommandsPage() {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Password": localStorage.getItem("adminPassword") || "",
+        "X-Admin-Password": sessionStorage.getItem("p2v_admin_password") || "",
       },
       body: JSON.stringify({ isEnabled }),
     });
