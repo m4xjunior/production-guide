@@ -55,14 +55,14 @@ describe("PUT /api/stations/:id/steps/:stepId/conditions", () => {
     vi.mocked(prisma.stepCondition.findMany).mockResolvedValue([
       { id: "cond-1", stepId: STEP_ID, matchResponse: "si", nextStepId: STEP_B_ID },
     ] as never);
-    vi.mocked(prisma.$transaction).mockImplementation(
-      async (fn: (tx: unknown) => Promise<unknown>) =>
-        fn({
-          stepCondition: {
-            deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
-            createMany: vi.fn().mockResolvedValue({ count: 2 }),
-          },
-        })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) =>
+      fn({
+        stepCondition: {
+          deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+          createMany: vi.fn().mockResolvedValue({ count: 2 }),
+        },
+      })
     );
   });
 
@@ -89,14 +89,14 @@ describe("PUT /api/stations/:id/steps/:stepId/conditions", () => {
   });
 
   it("acepta array vacio de condiciones (borra todo)", async () => {
-    vi.mocked(prisma.$transaction).mockImplementation(
-      async (fn: (tx: unknown) => Promise<unknown>) =>
-        fn({
-          stepCondition: {
-            deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
-            createMany: vi.fn().mockResolvedValue({ count: 0 }),
-          },
-        })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) =>
+      fn({
+        stepCondition: {
+          deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+          createMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+      })
     );
 
     const req = makeRequest(

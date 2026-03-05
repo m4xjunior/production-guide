@@ -68,17 +68,16 @@ describe("PUT /api/stations/:id — referenceIds", () => {
 
   it("aceita referenceIds array vazio (limpa todas as referências)", async () => {
     // ARRANGE
-    vi.mocked(prisma.$transaction).mockImplementation(
-      async (fn: (tx: unknown) => Promise<unknown>) => {
-        const tx = {
-          stationReference: {
-            deleteMany: vi.fn().mockResolvedValue({ count: 2 }),
-            createMany: vi.fn().mockResolvedValue({ count: 0 }),
-          },
-        };
-        return fn(tx);
-      }
-    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
+      const tx = {
+        stationReference: {
+          deleteMany: vi.fn().mockResolvedValue({ count: 2 }),
+          createMany: vi.fn().mockResolvedValue({ count: 0 }),
+        },
+      };
+      return fn(tx);
+    });
     const req = makeRequest({ referenceIds: [] });
 
     // ACT
@@ -98,10 +97,9 @@ describe("PUT /api/stations/:id — referenceIds", () => {
     // ARRANGE
     const deleteMany = vi.fn().mockResolvedValue({ count: 1 });
     const createMany = vi.fn().mockResolvedValue({ count: 2 });
-    vi.mocked(prisma.$transaction).mockImplementation(
-      async (fn: (tx: unknown) => Promise<unknown>) => {
-        return fn({ stationReference: { deleteMany, createMany } });
-      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) =>
+      fn({ stationReference: { deleteMany, createMany } })
     );
     const req = makeRequest({
       referenceIds: ["ref-uuid-1", "ref-uuid-2"],

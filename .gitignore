@@ -52,6 +52,7 @@ generated/
 # Sentry Config File
 .env.sentry-build-plugin
 picktvoice_dump.sql
+transcription.json
 transcription-server/__pycache__/
 
 # Sage sync
