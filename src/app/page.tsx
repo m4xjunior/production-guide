@@ -340,6 +340,7 @@ export default function Home() {
           totalSteps={steps.length}
           operatorNumber={operatorNumber}
           sessionId={sessionId}
+          stationId={selectedStationId}
           onStepCompleted={handleStepCompleted}
           onPreviousStep={handlePreviousStep}
           onNextStep={handleNextStep}
