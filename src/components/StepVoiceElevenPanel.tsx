@@ -144,7 +144,7 @@ export function StepVoiceElevenPanel({
           variant="outline"
           size="lg"
           onClick={onManualConfirm}
-          className="w-full"
+          className="w-full min-h-[44px]"
         >
           <CheckCircle2 className="h-5 w-5 mr-2" />
           Confirmar manualmente

@@ -529,7 +529,7 @@ export function ProductionStep({
             <img src="/logo-kh.png" alt="KH" className="h-8 w-auto" />
             <span className="text-sm font-bold text-foreground tracking-wide">SAO</span>
             <Separator orientation="vertical" className="h-6" />
-            <Button variant="ghost" size="sm" onClick={onBackToStations}>
+            <Button variant="ghost" size="sm" className="min-h-[44px]" onClick={onBackToStations}>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Estaciones
             </Button>
@@ -794,7 +794,7 @@ export function ProductionStep({
           <Button
             variant="outline"
             size="sm"
-            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+            className="border-destructive/50 text-destructive hover:bg-destructive/10 min-h-[44px]"
             onClick={() => setShowStopDialog(true)}
           >
             <Square className="h-4 w-4 mr-1.5" />

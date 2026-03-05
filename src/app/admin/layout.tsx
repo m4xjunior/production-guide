@@ -401,6 +401,7 @@ export default function AdminLayout({
                     padding: sidebarCollapsed
                       ? "10px 0"
                       : "10px 12px 10px 14px",
+                    minHeight: "44px",
                     justifyContent: sidebarCollapsed ? "center" : "flex-start",
                     color: isActive ? "#E8E8E8" : "#6B6B6B",
                     background: isActive
@@ -447,6 +448,7 @@ export default function AdminLayout({
               className="flex items-center gap-3 text-sm transition-colors rounded-lg"
               style={{
                 padding: sidebarCollapsed ? "8px 0" : "8px 12px",
+                minHeight: "44px",
                 justifyContent: sidebarCollapsed ? "center" : "flex-start",
                 color: "#6B6B6B",
               }}
@@ -468,6 +470,7 @@ export default function AdminLayout({
               className="flex items-center gap-3 text-sm transition-colors rounded-lg w-full"
               style={{
                 padding: sidebarCollapsed ? "8px 0" : "8px 12px",
+                minHeight: "44px",
                 justifyContent: sidebarCollapsed ? "center" : "flex-start",
                 color: "#6B6B6B",
               }}

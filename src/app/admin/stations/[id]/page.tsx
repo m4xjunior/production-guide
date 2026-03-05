@@ -148,8 +148,14 @@ function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }
         <div className="flex items-center gap-3">
           {/* Drag handle / order */}
           <div className="flex items-center gap-1">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-              <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing"
+              aria-label="Reordenar paso"
+              role="button"
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground/60" aria-hidden="true" />
             </div>
             <span className="text-xs font-mono text-muted-foreground/60 w-6 text-center">
               {index + 1}
@@ -211,6 +217,7 @@ function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }
               onClick={() => onMove(step.id, "up")}
               disabled={index === 0}
               className="h-7 w-7 p-0"
+              aria-label="Mover arriba"
               title="Mover arriba"
             >
               <ChevronUp className="h-4 w-4" />
@@ -221,6 +228,7 @@ function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }
               onClick={() => onMove(step.id, "down")}
               disabled={index === stepsLength - 1}
               className="h-7 w-7 p-0"
+              aria-label="Mover abajo"
               title="Mover abajo"
             >
               <ChevronDown className="h-4 w-4" />
@@ -230,6 +238,7 @@ function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }
               size="sm"
               onClick={() => onEdit(step)}
               className="h-7 w-7 p-0"
+              aria-label="Editar paso"
               title="Editar paso"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -239,6 +248,7 @@ function SortableStepCard({ step, index, stepsLength, onEdit, onDelete, onMove }
               size="sm"
               onClick={() => onDelete(step)}
               className="h-7 w-7 p-0 text-destructive hover:text-destructive/90"
+              aria-label="Eliminar paso"
               title="Eliminar paso"
             >
               <Trash2 className="h-3.5 w-3.5" />

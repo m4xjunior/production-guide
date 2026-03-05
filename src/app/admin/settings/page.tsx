@@ -164,6 +164,9 @@ export default function SettingsPage() {
               <CardTitle>ElevenLabs — Configuracion de Voz</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
+              <p className="text-xs text-muted-foreground mb-4">
+                Los cambios se guardan automáticamente al salir de cada campo.
+              </p>
               <div className="space-y-1.5">
                 <Label htmlFor="ttsVoiceId">Voice ID</Label>
                 <Input
