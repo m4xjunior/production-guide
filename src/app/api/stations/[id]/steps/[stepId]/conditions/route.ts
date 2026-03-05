@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, prisma, requireTenantId } from "@/lib/db";
 
 type ConditionInput = {
   matchResponse: string | null;
@@ -9,18 +9,20 @@ type ConditionInput = {
 /**
  * PUT /api/stations/:id/steps/:stepId/conditions
  * Replace all conditions for a step atomically (delete + recreate in transaction).
- * Body: { conditions: Array<{ matchResponse: string | null, nextStepId: string | null }> }
  */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; stepId: string }> }
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   try {
-    const { stepId } = await params;
+    const { id, stepId } = await params;
     const body = await request.json();
     const { conditions } = body;
 
-    // Validate conditions is an array
     if (!Array.isArray(conditions)) {
       return NextResponse.json(
         { error: "El campo 'conditions' debe ser un array" },
@@ -28,16 +30,23 @@ export async function PUT(
       );
     }
 
-    // Verify step exists
+    // Verificar que la estación pertenece al tenant
+    const station = await db.station.findFirst({ where: { id } });
+    if (!station) {
+      return NextResponse.json(
+        { error: "Estación no encontrada" },
+        { status: 404 }
+      );
+    }
+
     const step = await prisma.step.findUnique({ where: { id: stepId } });
-    if (!step) {
+    if (!step || step.stationId !== id) {
       return NextResponse.json(
         { error: "Paso no encontrado" },
         { status: 404 }
       );
     }
 
-    // Atomically delete old conditions and create new ones
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await prisma.$transaction(async (tx: any) => {
       await tx.stepCondition.deleteMany({ where: { stepId } });
@@ -53,7 +62,6 @@ export async function PUT(
       }
     });
 
-    // Return updated conditions
     const updatedConditions = await prisma.stepCondition.findMany({
       where: { stepId },
     });

@@ -109,6 +109,7 @@ model OperatorSession {
   @@index([operatorNumber])
   @@index([operatorId])
   @@index([isActive])
+  @@index([loginAt])
   @@map("operator_sessions")
 }
 

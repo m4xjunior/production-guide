@@ -8,8 +8,9 @@ import { prisma } from "@/lib/db";
  * Apenas aceita chamadas do próprio middleware (header x-internal-middleware).
  */
 export async function GET(request: NextRequest) {
-  // Só aceitar chamadas internas do middleware
-  if (!request.headers.get("x-internal-middleware")) {
+  // Só aceitar chamadas internas do middleware — validar shared secret
+  const internalSecret = process.env.INTERNAL_API_SECRET || "dev-secret";
+  if (request.headers.get("x-internal-middleware") !== internalSecret) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

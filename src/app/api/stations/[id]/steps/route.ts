@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, prisma, requireTenantId } from "@/lib/db";
 import { generateAndUploadTTS } from "@/lib/elevenlabs";
 import { getPublicUrl, signPublicUrls } from "@/lib/gcs";
 
@@ -8,14 +8,17 @@ import { getPublicUrl, signPublicUrls } from "@/lib/gcs";
  * Pasos ordenados de la estación.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id } = await params;
 
   try {
-    // Verificar que la estación existe
-    const station = await prisma.station.findUnique({ where: { id } });
+    const station = await db.station.findFirst({ where: { id } });
     if (!station) {
       return NextResponse.json(
         { error: "Estación no encontrada" },
@@ -29,7 +32,6 @@ export async function GET(
       include: { conditions: true },
     });
 
-    // Assinar photoUrl e modelUrl; para voz usar proxy /api/tts/{stepId}
     const photoUrls = steps.map((s) => s.photoUrl);
     const modelUrls = steps.map((s) => s.modelUrl);
 
@@ -58,18 +60,19 @@ export async function GET(
 /**
  * POST /api/stations/[id]/steps
  * Añadir un nuevo paso a la estación.
- * Body: { tipo, mensaje, voz?, responseType?, respuesta?, photoUrl?, modelUrl?, isQc?, qcFrequency? }
- * Auto-asigna el siguiente orderNum.
  */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id } = await params;
 
   try {
-    // Verificar que la estación existe
-    const station = await prisma.station.findUnique({ where: { id } });
+    const station = await db.station.findFirst({ where: { id } });
     if (!station) {
       return NextResponse.json(
         { error: "Estación no encontrada" },
@@ -93,7 +96,6 @@ export async function POST(
       periodEveryN,
     } = body;
 
-    // Validaciones obligatorias
     if (!tipo || typeof tipo !== "string") {
       return NextResponse.json(
         { error: "El campo 'tipo' es obligatorio" },
@@ -107,7 +109,6 @@ export async function POST(
       );
     }
 
-    // Obtener el máximo orderNum actual para auto-asignar el siguiente
     const ultimoPaso = await prisma.step.findFirst({
       where: { stationId: id },
       orderBy: { orderNum: "desc" },
@@ -134,7 +135,6 @@ export async function POST(
       },
     });
 
-    // Generar audio TTS con ElevenLabs si hay texto de voz
     let updatedStep = step;
     if (voz && typeof voz === "string" && voz.trim().length > 0) {
       try {
@@ -145,7 +145,6 @@ export async function POST(
         });
       } catch (ttsError) {
         console.error("Error generando TTS para paso:", ttsError);
-        // El paso se creó correctamente, solo faltó el audio
       }
     }
 

@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, prisma, requireTenantId } from "@/lib/db";
 
 /**
  * POST /api/sessions
  * Iniciar sesión de operario.
  * Body: { operatorNumber, stationId }
- * Desactiva cualquier sesión activa previa del mismo operario.
+ * Desactiva cualquier sesión activa previa del mismo operario EN EL MISMO TENANT.
  */
 export async function POST(request: NextRequest) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const tenantId = tenantOrError;
+  const db = getTenantPrisma(tenantId);
+
   try {
     const body = await request.json();
     const { operatorNumber, stationId, referenceId } = body;
@@ -31,19 +36,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que la estación existe, está activa y pertenece al tenant
-    const tenantId = request.headers.get("x-tenant-id");
-    const station = await prisma.station.findUnique({
-      where: { id: stationId },
+    // Verificar que la estación existe, está activa y pertenece al tenant (filtro automático via db)
+    const station = await db.station.findFirst({
+      where: { id: stationId, isActive: true },
     });
-    if (!station || !station.isActive || (tenantId && station.tenantId !== tenantId)) {
+    if (!station) {
       return NextResponse.json(
         { error: "Estación no encontrada o no está activa" },
         { status: 404 },
       );
     }
 
-    // Verificar que referenceId está vinculado a la estación y está activo
     if (referenceId) {
       const linked = await prisma.stationReference.findFirst({
         where: {
@@ -60,11 +63,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Desactivar sesiones activas previas de este operario
+    // Desactivar sesiones activas previas — scoped por estaciones del tenant
     await prisma.operatorSession.updateMany({
       where: {
         operatorNumber,
         isActive: true,
+        station: { tenantId },
       },
       data: {
         isActive: false,
@@ -72,7 +76,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Crear nueva sesión
     const session = await prisma.operatorSession.create({
       data: {
         operatorNumber,
@@ -81,7 +84,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Obtener los pasos de la estación ordenados
     const steps = await prisma.step.findMany({
       where: { stationId },
       orderBy: { orderNum: "asc" },

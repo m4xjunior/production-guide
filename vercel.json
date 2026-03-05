@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/tts/**/*.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/upload/**/*.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/tts/generate-all/**/*.ts": {
+      "maxDuration": 120
+    }
+  }
+}

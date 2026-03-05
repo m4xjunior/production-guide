@@ -56,20 +56,32 @@ export async function POST(request: NextRequest) {
     let generated = 0;
     const errors: { stepId: string; error: string }[] = [];
 
-    for (const step of steps) {
-      if (!step.voz) continue;
+    // Processar em batches de 5 para respeitar rate limits da API
+    const BATCH_SIZE = 5;
+    const stepsWithVoz = steps.filter((s) => s.voz);
 
-      try {
-        const gcsPath = await generateAndUploadTTS(step.id, step.voz);
-        await prisma.step.update({
-          where: { id: step.id },
-          data: { vozAudioUrl: getPublicUrl(gcsPath) },
-        });
-        generated++;
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : "Error desconocido";
-        errors.push({ stepId: step.id, error: errorMsg });
-        console.error(`Error generando TTS para paso ${step.id}:`, err);
+    for (let i = 0; i < stepsWithVoz.length; i += BATCH_SIZE) {
+      const batch = stepsWithVoz.slice(i, i + BATCH_SIZE);
+      const results = await Promise.allSettled(
+        batch.map(async (step) => {
+          const gcsPath = await generateAndUploadTTS(step.id, step.voz!);
+          await prisma.step.update({
+            where: { id: step.id },
+            data: { vozAudioUrl: getPublicUrl(gcsPath) },
+          });
+          return step.id;
+        }),
+      );
+
+      for (let j = 0; j < results.length; j++) {
+        const result = results[j];
+        if (result.status === "fulfilled") {
+          generated++;
+        } else {
+          const errorMsg = result.reason instanceof Error ? result.reason.message : "Error desconocido";
+          errors.push({ stepId: batch[j].id, error: errorMsg });
+          console.error(`Error generando TTS para paso ${batch[j].id}:`, result.reason);
+        }
       }
     }
 

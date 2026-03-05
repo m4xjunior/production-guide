@@ -32,7 +32,12 @@ export type ExtendedStep = Step & {
 };
 import { LiveWaveform } from "@/components/ui/live-waveform";
 import { StepVoiceElevenPanel } from "@/components/StepVoiceElevenPanel";
-import { StepAssemblyViewer } from "@/components/StepAssemblyViewer";
+import dynamic from "next/dynamic";
+
+const StepAssemblyViewer = dynamic(
+  () => import("@/components/StepAssemblyViewer").then((m) => m.StepAssemblyViewer),
+  { ssr: false, loading: () => <div className="aspect-video flex items-center justify-center bg-muted/30 rounded"><p className="text-sm text-muted-foreground">Cargando modelo 3D...</p></div> },
+);
 import {
   ArrowLeft,
   ArrowRight,
@@ -84,11 +89,14 @@ export function ProductionStep({
   onLogout,
   onStepNavigate,
 }: ProductionStepProps) {
-  const [stepStartTime] = useState(Date.now());
+  const stepStartTimeRef = useRef(Date.now());
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Reset stepStartTime when step changes
+  useEffect(() => { stepStartTimeRef.current = Date.now(); }, [step.id]);
 
   // Error step: requires manual confirmation
   const [errorConfirmed, setErrorConfirmed] = useState(false);
@@ -167,7 +175,7 @@ export function ProductionStep({
   }, []);
 
   const logStepCompletion = useCallback(async (response: string) => {
-    const durationMs = Date.now() - stepStartTime;
+    const durationMs = Date.now() - stepStartTimeRef.current;
     try {
       await fetch("/api/step-logs", {
         method: "POST",
@@ -183,7 +191,7 @@ export function ProductionStep({
     } catch (err) {
       console.error("Error logging step:", err);
     }
-  }, [sessionId, step.id, stepStartTime]);
+  }, [sessionId, step.id]);
 
   // Auto-skip for period steps that don't apply this unit
   useEffect(() => {

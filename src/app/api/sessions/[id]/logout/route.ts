@@ -1,23 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, requireTenantId } from "@/lib/db";
 
 /**
  * PATCH /api/sessions/[id]/logout
  * Terminar sesión de operario.
- * Establece logoutAt y isActive=false.
  */
 export async function PATCH(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const tenantId = tenantOrError;
+
   const { id } = await params;
 
   try {
     const session = await prisma.operatorSession.findUnique({
       where: { id },
+      include: { station: { select: { tenantId: true } } },
     });
 
-    if (!session) {
+    if (!session || session.station.tenantId !== tenantId) {
       return NextResponse.json(
         { error: "Sesión no encontrada" },
         { status: 404 },

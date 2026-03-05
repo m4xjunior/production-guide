@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, requireTenantId } from "@/lib/db";
 
 /**
  * POST /api/step-logs
  * Registrar un paso completado por el operario.
  * Body: { sessionId, stepId, responseReceived?, durationMs? }
- *
- * Lógica de frecuencia QC:
- * - Si el paso es QC (isQc=true) y tiene qcFrequency definido:
- *   - Se consulta session.completedUnits
- *   - Si completedUnits % qcFrequency !== 0, se marca wasSkipped=true y se devuelve { skipped: true }
- *   - En caso contrario, se registra normalmente
- *
- * Después de registrar el ÚLTIMO paso de la estación, se incrementa session.completedUnits en 1.
  */
 export async function POST(request: NextRequest) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const tenantId = tenantOrError;
+
   try {
     const body = await request.json();
     const { sessionId, stepId, responseReceived, durationMs } = body;
 
-    // Validaciones de campos obligatorios
     if (!sessionId || typeof sessionId !== "string") {
       return NextResponse.json(
         { error: "El campo 'sessionId' es obligatorio" },
@@ -33,11 +28,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que la sesión existe y está activa
+    // Verificar que la sesión existe, está activa y pertenece al tenant
     const session = await prisma.operatorSession.findUnique({
       where: { id: sessionId },
+      include: { station: { select: { tenantId: true } } },
     });
-    if (!session) {
+    if (!session || session.station.tenantId !== tenantId) {
       return NextResponse.json(
         { error: "Sesión no encontrada" },
         { status: 404 },
@@ -50,7 +46,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que el paso existe y pertenece a la estación de la sesión
     const step = await prisma.step.findUnique({
       where: { id: stepId },
     });
@@ -67,16 +62,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Lógica de frecuencia QC
     let wasSkipped = false;
     if (step.isQc && step.qcFrequency !== null && step.qcFrequency > 0) {
-      // Verificar si esta unidad requiere control de calidad
       if (session.completedUnits % step.qcFrequency !== 0) {
         wasSkipped = true;
       }
     }
 
-    // Crear el registro del log
     const stepLog = await prisma.stepLog.create({
       data: {
         sessionId,
@@ -87,7 +79,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Si fue saltado por frecuencia QC, devolver indicación
     if (wasSkipped) {
       return NextResponse.json(
         { stepLog, skipped: true, message: "Paso QC saltado por frecuencia" },
@@ -95,27 +86,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar si es el ÚLTIMO paso de la estación para incrementar unidades completadas
     const totalPasos = await prisma.step.count({
       where: { stationId: session.stationId },
     });
 
-    // Contar los logs de esta sesión para la unidad actual
-    // Los logs de la unidad actual son los últimos N logs (donde N = totalPasos)
     const logsUnidadActual = await prisma.stepLog.count({
-      where: {
-        sessionId,
-        // Contar solo los logs después de la última unidad completada
-        // Esto se calcula como: todos los logs - (completedUnits * totalPasos)
-      },
+      where: { sessionId },
     });
 
-    // Los logs de la unidad actual = total de logs - (unidades completadas * total pasos)
     const logsDeLaUnidadActual =
       logsUnidadActual - session.completedUnits * totalPasos;
 
     if (logsDeLaUnidadActual >= totalPasos) {
-      // Se completaron todos los pasos de esta unidad, incrementar contador
       await prisma.operatorSession.update({
         where: { id: sessionId },
         data: {

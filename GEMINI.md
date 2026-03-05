@@ -8,6 +8,7 @@
 | 2 | Painel admin — todas as 5 páginas | ✅ Concluída (8.5/10) | `docs/sprints/gemini/sessao-2-log.md` |
 | 3 | Fixes de acessibilidade (QA 1+2) | ✅ Concluída | `docs/sprints/gemini/sessao-3-log.md` |
 | 4 | Verificar fix de voz mobile + remoção ElevenLabs ConvAI | ✅ Concluída | `docs/sprints/gemini/sessao-4-log.md` |
+| 5 | Auditoria production-readiness — tenant isolation + segurança | 🔲 Pendente | `docs/sprints/gemini/sessao-5-log.md` |
 
 **Antes de iniciar:** leia o log da sessão anterior para não repetir o que já foi testado.
 
@@ -653,6 +654,100 @@ JSON.stringify(report, null, 2)
 [ ] Zero console.errors em todas as páginas
 [ ] sessao-2-log.md preenchido
 [ ] relatorio.md atualizado com seção admin
+```
+
+---
+
+## Como Iniciar (Sessão 5 — Auditoria Production-Readiness)
+
+**Contexto:** Claude aplicou uma auditoria completa de production-readiness (SAO v3). Os fixes incluem:
+
+### Issues corrigidas
+
+| # | Severidade | Issue | Fix |
+|---|-----------|-------|-----|
+| B1 | CRITICAL | ~15 rotas API sem tenant isolation | `requireTenantId()` + `getTenantPrisma()` em todas as rotas |
+| B2 | CRITICAL | Sentry DSN hardcoded + 100% traces + PII enabled | DSN via env var, 10% traces, sendDefaultPii: false |
+| B3 | HIGH | stepStartTime nunca reseta entre steps | useRef + useEffect([step.id]) |
+| I1 | HIGH | /api/reports sem autenticação | Adicionado a RUTAS_PROTEGIDAS_ESCRITURA |
+| I2 | HIGH | /api/stops sem auth | Adicionado a RUTAS_OPERARIO |
+| I3 | MEDIUM | x-internal-middleware spoofable | Shared secret via INTERNAL_API_SECRET env var |
+| I4 | MEDIUM | No error.tsx — crash mata o app | Criado src/app/error.tsx |
+| I5 | LOW | @google-cloud/storage não em serverExternalPackages | Adicionado |
+| R1 | LOW | radix-ui meta-package redundante | Removido do package.json |
+| R2 | LOW | @react-spring/web não em optimizePackageImports | Adicionado |
+| R3 | LOW | alert() em page.tsx | Substituído por useToast() |
+| R4 | LOW | Sem not-found.tsx | Criado src/app/not-found.tsx |
+| R5 | MEDIUM | Sem security headers | CSP, X-Frame-Options, HSTS em next.config.ts |
+| R6 | LOW | userScalable: false (WCAG) | Removido |
+| R7 | LOW | gcs.ts importável no client | import "server-only" |
+| R8 | LOW | tenantClientCache sem max size | Limite de 100 entradas |
+| R9 | MEDIUM | Middleware fallback UUID silencioso | 503 para API se tenant não resolvido |
+| R10 | LOW | Sem vercel.json timeouts | Criado com maxDuration para TTS/upload |
+| R11 | LOW | Sem index em loginAt | Migration criada |
+
+### Checklist de verificação
+
+```
+Tenant Isolation (B1):
+[ ] GET /api/stations/{id-outro-tenant} → 404
+[ ] PUT /api/stations/{id-outro-tenant} → 404
+[ ] DELETE /api/stations/{id-outro-tenant} → 404
+[ ] GET /api/stations/{id-outro-tenant}/steps → 404
+[ ] POST /api/stations/{id-outro-tenant}/steps → 404
+[ ] GET /api/sessions/{id-sessao-outro-tenant} → 404
+[ ] PATCH /api/sessions/{id-sessao-outro-tenant}/logout → 404
+[ ] POST /api/step-logs com sessionId de outro tenant → 404
+[ ] GET /api/stops?stationId={id-outro-tenant} → 404
+[ ] PATCH /api/stops/{id-outro-tenant} → 404
+[ ] GET /api/tts/{stepId-outro-tenant} → 404
+[ ] POST /api/validate/barcode com stepId de outro tenant → 404
+[ ] POST /api/validate/barcode NÃO retorna campo "expected" na resposta
+
+Sentry (B2):
+[ ] Inspecionar bundle client — DSN NÃO aparece hardcoded
+[ ] Verificar que Sentry carrega (sem erros de DSN undefined)
+
+stepStartTime (B3):
+[ ] Avançar 3 steps, verificar durationMs no console/network → deve ser tempo do step, não total
+
+Auth (I1-I3):
+[ ] GET /api/reports sem X-Admin-Password → 401
+[ ] POST /api/stops sem sessão → bloqueado
+[ ] GET /api/tenant-lookup sem header correto → 403
+
+Infra (I4-I5):
+[ ] Provocar erro em componente → error.tsx aparece com botão Reintentar
+[ ] Navegar para /pagina-inexistente → not-found.tsx aparece
+```
+
+### Scripts de teste (curl)
+
+```bash
+# Testar tenant isolation — substituir os IDs reais
+# Deve retornar 404 quando o station não pertence ao tenant do header
+
+# Com tenant correto (kh):
+curl -s https://p2v.lexusfx.com/api/stations/STATION_ID_KH | jq .station.name
+# → Deve retornar o nome da estação
+
+# Com tenant errado (header forçado via proxy ou teste local):
+# Se o ID não pertence ao tenant do subdomínio → 404
+
+# Verificar que barcode validate não retorna expected:
+curl -s -X POST https://p2v.lexusfx.com/api/validate/barcode \
+  -H "Content-Type: application/json" \
+  -d '{"stepId":"STEP_ID","scannedCode":"teste"}' | jq .
+# → Não deve ter campo "expected"
+
+# Verificar tenant-lookup bloqueado:
+curl -s https://p2v.lexusfx.com/api/tenant-lookup?slug=kh \
+  -H "x-internal-middleware: valor-errado"
+# → 403 Forbidden
+```
+
+```bash
+gemini --yolo -i "Leia o GEMINI.md sessão 5. Verifica todas as issues da auditoria production-readiness na produção. Segue o checklist e os scripts de teste. Cria sessao-5-log.md."
 ```
 
 ---

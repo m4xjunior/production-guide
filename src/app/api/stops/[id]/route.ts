@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, requireTenantId } from "@/lib/db";
 
 /**
  * PATCH /api/stops/:id
@@ -10,10 +10,26 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const tenantId = tenantOrError;
+
   try {
     const { id } = await params;
     const body = await request.json();
     const { endAt } = body;
+
+    // Verificar que el stop pertenece al tenant via station
+    const existing = await prisma.stationStop.findUnique({
+      where: { id },
+      include: { station: { select: { tenantId: true } } },
+    });
+    if (!existing || existing.station.tenantId !== tenantId) {
+      return NextResponse.json(
+        { error: "Paro no encontrado" },
+        { status: 404 }
+      );
+    }
 
     const stop = await prisma.stationStop.update({
       where: { id },

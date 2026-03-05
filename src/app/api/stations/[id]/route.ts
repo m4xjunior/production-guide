@@ -1,29 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, requireTenantId } from "@/lib/db";
 
 /**
  * GET /api/stations/[id]
  * Detalle de una estación con todos sus pasos ordenados por orderNum.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id } = await params;
 
   try {
-    const station = await prisma.station.findFirst({
-      where: { id, isActive: true },
-      include: {
-        references: {
-          include: {
-            reference: {
-              select: { id: true, sageCode: true, name: true },
+    const [station, steps] = await Promise.all([
+      db.station.findFirst({
+        where: { id, isActive: true },
+        include: {
+          references: {
+            include: {
+              reference: {
+                select: { id: true, sageCode: true, name: true },
+              },
             },
           },
         },
-      },
-    });
+      }),
+      db.step.findMany({
+        where: { stationId: id },
+        orderBy: { orderNum: "asc" },
+      }),
+    ]);
 
     if (!station) {
       return NextResponse.json(
@@ -32,12 +42,6 @@ export async function GET(
       );
     }
 
-    const steps = await prisma.step.findMany({
-      where: { stationId: id },
-      orderBy: { orderNum: "asc" },
-    });
-
-    // Flatten the references into a simpler array
     const references = station.references.map((sr) => sr.reference);
 
     return NextResponse.json({ station: { ...station, references }, steps });
@@ -53,20 +57,22 @@ export async function GET(
 /**
  * PUT /api/stations/[id]
  * Editar una estación (admin).
- * Body: { name?, description?, productCode?, isActive? }
  */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id } = await params;
 
   try {
     const body = await request.json();
     const { name, description, productCode, isActive, referenceIds } = body;
 
-    // Verificar que la estación existe
-    const existing = await prisma.station.findUnique({ where: { id } });
+    const existing = await db.station.findFirst({ where: { id } });
     if (!existing) {
       return NextResponse.json(
         { error: "Estación no encontrada" },
@@ -74,7 +80,7 @@ export async function PUT(
       );
     }
 
-    const station = await prisma.station.update({
+    const station = await db.station.update({
       where: { id },
       data: {
         ...(name !== undefined && { name }),
@@ -84,7 +90,6 @@ export async function PUT(
       },
     });
 
-    // Sync station references if provided
     if (Array.isArray(referenceIds)) {
       const invalidIds = referenceIds.filter(
         (refId: unknown) => typeof refId !== "string" || (refId as string).trim() === ""
@@ -96,7 +101,7 @@ export async function PUT(
         );
       }
 
-      await prisma.$transaction(async (tx) => {
+      await db.$transaction(async (tx) => {
         await tx.stationReference.deleteMany({ where: { stationId: id } });
         if (referenceIds.length > 0) {
           await tx.stationReference.createMany({
@@ -124,13 +129,17 @@ export async function PUT(
  * Desactivar estación (soft delete: isActive=false).
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id } = await params;
 
   try {
-    const existing = await prisma.station.findUnique({ where: { id } });
+    const existing = await db.station.findFirst({ where: { id } });
     if (!existing) {
       return NextResponse.json(
         { error: "Estación no encontrada" },
@@ -138,7 +147,7 @@ export async function DELETE(
       );
     }
 
-    const station = await prisma.station.update({
+    const station = await db.station.update({
       where: { id },
       data: { isActive: false },
     });

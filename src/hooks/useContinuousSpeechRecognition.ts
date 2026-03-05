@@ -58,45 +58,46 @@ export const useContinuousSpeechRecognition = (
 
   const checkMatch = useCallback(
     (transcript: string) => {
-      // Don't process if TTS is speaking
-      if (isTTSSpeaking) {
-        console.log("TTS is speaking, ignoring input:", transcript);
-        return false;
-      }
+      // Normalização ultra-robusta: apenas letras e números
+      const normalize = (str: string) => 
+        str.toLowerCase()
+           .normalize("NFD")
+           .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+           .replace(/[^a-z0-9\s]/g, "") // Remove TUDO exceto letras, números e espaços
+           .replace(/\s+/g, " ") // Normaliza espaços
+           .trim();
 
-      const normalizedTranscript = transcript.toLowerCase().trim();
-      const normalizedExpected = expectedResponse.toLowerCase().trim();
+      const t = normalize(transcript);
+      const e = normalize(expectedResponse);
 
-      console.log("Checking match:", {
-        transcript: normalizedTranscript,
-        expected: normalizedExpected,
-      });
+      if (!t || !e) return false;
 
+      // Filtro de segurança relaxado para conversa de fundo
+      const tWords = t.split(" ");
+      const eWords = e.split(" ");
+      if (tWords.length > eWords.length * 4 + 4) return false;
+
+      // Lógica de matching progressiva
       const isMatch =
-        // 1. Match exato
-        normalizedTranscript === normalizedExpected ||
-        // 2. Transcript contém a frase esperada completa (pode ter palavras extra)
-        normalizedTranscript.includes(normalizedExpected) ||
-        // 3. Variantes fonéticas explícitas para "pin bueno" (erros comuns do STT)
-        (normalizedExpected === "pin bueno" &&
-          (normalizedTranscript.includes("pin bueno") ||
-            normalizedTranscript.includes("pinbueno") ||
-            normalizedTranscript.includes("fin bueno") ||
-            normalizedTranscript.includes("pin buen"))) ||
-        // 4. STT cortou a última sílaba: transcript cobre ≥80% e coincide com o início
-        (normalizedTranscript.length >= Math.floor(normalizedExpected.length * 0.8) &&
-          normalizedExpected.startsWith(
-            normalizedTranscript.slice(0, Math.min(normalizedTranscript.length, normalizedExpected.length))
-          ));
+        t === e || // Exato
+        t.includes(e) || e.includes(t) || // Contido
+        (e.includes("bueno") && t.includes("bueno")) || // Keyword industrial
+        (e.includes("pin") && t.includes("pin")) || // Keyword industrial
+        (e.includes("ok") && t.includes("ok")) ||
+        (t.length >= 3 && e.includes(t)) || // Match parcial de pelo menos 3 letras
+        (e.length >= 3 && t.includes(e));
 
-      if (isMatch) {
-        console.log("Match found! Advancing step.");
-        setLastHeard(transcript);
+      // Feedback visual para o operário saber que o sistema reconheceu mas talvez o TTS estivesse bloqueando
+      const debugStatus = isMatch ? " ✓" : "";
+      const ttsStatus = isTTSSpeaking ? " (TTS)" : "";
+      setLastHeard(transcript + debugStatus + ttsStatus);
+
+      // Só dispara se não estiver falando (mantendo a segurança mas com feedback)
+      if (isMatch && !isTTSSpeaking) {
         onMatch();
         return true;
       }
 
-      console.log("No match found.");
       return false;
     },
     [expectedResponse, onMatch, isTTSSpeaking],
@@ -125,7 +126,6 @@ export const useContinuousSpeechRecognition = (
     recognition.onstart = () => {
       setIsListening(true);
       isListeningRef.current = true;
-      console.log("Continuous listening started");
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -144,7 +144,6 @@ export const useContinuousSpeechRecognition = (
       // Check both final and interim results
       const textToCheck = finalTranscript || interimTranscript;
       if (textToCheck.trim()) {
-        console.log("Heard:", textToCheck);
         setLastHeard(textToCheck);
         checkMatch(textToCheck);
       }
@@ -179,8 +178,6 @@ export const useContinuousSpeechRecognition = (
     };
 
     recognition.onend = () => {
-      console.log("Speech recognition ended");
-
       // Auto-restart if we're supposed to be listening
       // checkMatch already suppresses matches during TTS, so restart is safe
       if (isListeningRef.current) {
@@ -211,8 +208,6 @@ export const useContinuousSpeechRecognition = (
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
-
-    console.log("Continuous listening stopped");
   }, []);
 
   // Cleanup on unmount

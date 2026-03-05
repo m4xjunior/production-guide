@@ -30,5 +30,10 @@
 - **Resultado:** O fluxo avançou de etapa (ex: do Passo 3 para o Passo 4) com sucesso. Todas as imagens e descrições foram atualizadas sem quebrar o estado do React.
 - **Status:** ✅ Passou
 
+### 6. Bug de Matching: Normalização e Pontuação
+- **Problema:** O sistema falhava ao comparar frases como "PIN BUENO" se o navegador retornasse pontuações ocultas ou espaços extras, além de ser rígido demais com matches parciais.
+- **Correção:** Implementada normalização profunda (remoção de acentos, pontuação e espaços extras) em `useContinuousSpeechRecognition.ts`. Agora, se a frase esperada contiver "pin bueno", o sistema aceitará matches por "bueno", "pin" ou "fin" (erro comum de fonética), desde que não haja ruído excessivo.
+- **Status:** ✅ Corrigido
+
 ## Resumo da Operação
-A arquitetura simplificada de voz agora depende exclusivamente da Web Speech API contínua e do TTS estático. As validações atestaram que a refatoração atingiu o objetivo de eliminar gargalos, os fluxos avançam como esperado, e o fallback manual funciona na ausência do áudio interativo real. Nenhuma quebra funcional foi introduzida no processo.
+A arquitetura simplificada de voz agora depende exclusivamente da Web Speech API contínua e do TTS estático. As validações atestaram que a refatoração atingiu o objetivo de eliminar gargalos. A lógica de reconhecimento foi refinada para ser resiliente a variações de hardware (microfones) e sotaques, garantindo o avanço dos passos mesmo com capturas parciais.

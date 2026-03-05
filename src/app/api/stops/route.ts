@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, prisma, requireTenantId } from "@/lib/db";
 
 /**
  * POST /api/stops
@@ -7,6 +7,10 @@ import { prisma } from "@/lib/db";
  * Body: { stationId, sessionId?, reason? }
  */
 export async function POST(request: NextRequest) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   try {
     const body = await request.json();
     const { stationId, sessionId, reason } = body;
@@ -18,8 +22,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify station exists
-    const station = await prisma.station.findUnique({ where: { id: stationId } });
+    // Verificar estación pertenece al tenant (filtro automático)
+    const station = await db.station.findFirst({ where: { id: stationId } });
     if (!station) {
       return NextResponse.json(
         { error: "Estacion no encontrada" },
@@ -61,9 +65,12 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/stops?stationId=<id>&from=<iso>&to=<iso>
  * Lista paros de una estacion en un intervalo de tiempo.
- * Calcula durationMs para paros cerrados.
  */
 export async function GET(request: NextRequest) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   try {
     const { searchParams } = new URL(request.url);
     const stationId = searchParams.get("stationId");
@@ -74,6 +81,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "El parametro 'stationId' es obligatorio" },
         { status: 400 }
+      );
+    }
+
+    // Verificar estación pertenece al tenant
+    const station = await db.station.findFirst({ where: { id: stationId } });
+    if (!station) {
+      return NextResponse.json(
+        { error: "Estacion no encontrada" },
+        { status: 404 }
       );
     }
 

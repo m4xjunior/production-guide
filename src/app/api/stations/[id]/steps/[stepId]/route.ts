@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getTenantPrisma, prisma, requireTenantId } from "@/lib/db";
 import { generateAndUploadTTS } from "@/lib/elevenlabs";
 import { getPublicUrl } from "@/lib/gcs";
 
@@ -11,10 +11,22 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; stepId: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id, stepId } = await params;
 
   try {
-    // Verificar que el paso existe y pertenece a la estación
+    // Verificar que la estación pertenece al tenant
+    const station = await db.station.findFirst({ where: { id } });
+    if (!station) {
+      return NextResponse.json(
+        { error: "Estación no encontrada" },
+        { status: 404 },
+      );
+    }
+
     const existing = await prisma.step.findUnique({ where: { id: stepId } });
     if (!existing || existing.stationId !== id) {
       return NextResponse.json(
@@ -63,7 +75,6 @@ export async function PUT(
       },
     });
 
-    // Regenerar audio TTS si el texto de voz cambió
     let updatedStep = step;
     const vozChanged = voz !== undefined && voz !== existing.voz;
     if (vozChanged && voz && typeof voz === "string" && voz.trim().length > 0) {
@@ -77,7 +88,6 @@ export async function PUT(
         console.error("Error regenerando TTS para paso:", ttsError);
       }
     } else if (vozChanged && (!voz || voz.trim().length === 0)) {
-      // Si se eliminó el texto de voz, limpiar la URL del audio
       updatedStep = await prisma.step.update({
         where: { id: stepId },
         data: { vozAudioUrl: null },
@@ -99,13 +109,24 @@ export async function PUT(
  * Eliminar un paso y re-numerar los pasos restantes.
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string; stepId: string }> },
 ) {
+  const tenantOrError = requireTenantId(request);
+  if (tenantOrError instanceof Response) return tenantOrError;
+  const db = getTenantPrisma(tenantOrError);
+
   const { id, stepId } = await params;
 
   try {
-    // Verificar que el paso existe y pertenece a la estación
+    const station = await db.station.findFirst({ where: { id } });
+    if (!station) {
+      return NextResponse.json(
+        { error: "Estación no encontrada" },
+        { status: 404 },
+      );
+    }
+
     const existing = await prisma.step.findUnique({ where: { id: stepId } });
     if (!existing || existing.stationId !== id) {
       return NextResponse.json(
@@ -114,7 +135,6 @@ export async function DELETE(
       );
     }
 
-    // Eliminar el paso y re-numerar en una transacción
     await prisma.$transaction(async (tx) => {
       await tx.step.delete({ where: { id: stepId } });
 

@@ -1,7 +1,21 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  { key: "Permissions-Policy", value: "camera=(), geolocation=(), microphone=(self)" },
+];
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [{ source: "/(.*)", headers: securityHeaders }];
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-dialog", "@radix-ui/react-select", "@radix-ui/react-dropdown-menu", "@react-spring/web"],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -11,7 +25,7 @@ const nextConfig: NextConfig = {
     // TypeScript errors are caught in CI/tests — not blocking Vercel builds.
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg", "@google-cloud/storage"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Prisma 7 TypeScript client (./generated/prisma) usa node: protocol

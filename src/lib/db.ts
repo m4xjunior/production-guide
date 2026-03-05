@@ -21,14 +21,21 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 // ── Modelos que requerem filtro automático de tenant ──
 const TENANT_SCOPED_MODELS = ["station", "operator", "reference", "auditlog"];
 
+// Cache de clientes estendidos por tenant — evita criar novo $extends() a cada request
+const MAX_TENANT_CACHE_SIZE = 100;
+const tenantClientCache = new Map<string, PrismaClient>();
+
 /**
  * Retorna um cliente Prisma pré-filtrado por tenantId.
  * Usar em todas as rotas API que não são super-admin.
  *
  * @param tenantId - UUID do tenant extraído do header x-tenant-id
  */
-export function getTenantPrisma(tenantId: string) {
-  return prisma.$extends({
+export function getTenantPrisma(tenantId: string): PrismaClient {
+  const cached = tenantClientCache.get(tenantId);
+  if (cached) return cached;
+
+  const client = prisma.$extends({
     query: {
       $allModels: {
         async $allOperations({
@@ -63,7 +70,33 @@ export function getTenantPrisma(tenantId: string) {
       },
     },
   });
+
+  // Evitar crescimento ilimitado do cache
+  if (tenantClientCache.size >= MAX_TENANT_CACHE_SIZE) {
+    const firstKey = tenantClientCache.keys().next().value;
+    if (firstKey) tenantClientCache.delete(firstKey);
+  }
+  // Cast seguro: $extends preserva a API do PrismaClient, apenas adiciona middleware
+  const typedClient = client as unknown as PrismaClient;
+  tenantClientCache.set(tenantId, typedClient);
+  return typedClient;
 }
 
 // Para super-admin sem filtro de tenant
 export { prisma as adminPrisma };
+
+/**
+ * Extrai e valida tenantId do header x-tenant-id.
+ * Retorna o tenantId ou uma NextResponse de erro (400).
+ */
+export function requireTenantId(request: { headers: { get(name: string): string | null } }): string | Response {
+  const tenantId = request.headers.get("x-tenant-id");
+  if (!tenantId) {
+    // Import dinâmico evitado — quem chama deve tratar o tipo Response
+    return new Response(JSON.stringify({ error: "Tenant no identificado" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return tenantId;
+}

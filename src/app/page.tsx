@@ -7,6 +7,7 @@ import { ReferenceSelector } from "@/components/ReferenceSelector";
 import { ProductionStep } from "@/components/ProductionStep";
 import { AudioUnlockOverlay } from "@/components/devkit";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useToast } from "@/hooks/use-toast";
 import { type Step, type OperatorSession, type Reference } from "@/types";
 import { Loader2 } from "lucide-react";
 import {
@@ -36,6 +37,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showRestartDialog, setShowRestartDialog] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const { toast } = useToast();
   const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   const { unlockAudio, preload } = useTextToSpeech();
@@ -136,11 +138,11 @@ export default function Home() {
         setCurrentStepIndex(0);
         setAppState("production");
       } else {
-        alert("La estacion no tiene pasos configurados.");
+        toast({ variant: "destructive", title: "Sin pasos", description: "La estacion no tiene pasos configurados." });
       }
     } catch (err) {
       console.error("Error starting production:", err);
-      alert("Error al iniciar la produccion. Verifica la conexion.");
+      toast({ variant: "destructive", title: "Error", description: "Error al iniciar la produccion. Verifica la conexion." });
     } finally {
       setLoading(false);
     }

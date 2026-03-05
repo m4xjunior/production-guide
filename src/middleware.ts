@@ -26,6 +26,7 @@ const RUTAS_PROTEGIDAS_ESCRITURA = [
   "/api/upload",
   "/api/config",
   "/api/tts",
+  "/api/reports",
 ];
 
 const METODOS_PUBLICOS = ["GET", "HEAD", "OPTIONS"];
@@ -36,10 +37,15 @@ const RUTAS_OPERARIO = [
   "/api/validate/barcode",
   "/api/validate/operator",
   "/api/voice-commands",
+  "/api/stops",
 ];
 
 // Rota interna de tenant lookup — não proteger para evitar loop
 const RUTAS_INTERNAS = ["/api/tenant-lookup"];
+
+// Cache de tenant no Edge — persiste dentro do mesmo isolate V8
+const edgeTenantCache = new Map<string, { tenantId: string; expiresAt: number }>();
+const EDGE_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
 function requiereAdmin(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
@@ -71,28 +77,44 @@ export async function middleware(request: NextRequest) {
   const slug = extractSubdomain(hostname) ?? DEFAULT_TENANT_SLUG;
 
   // Resolver tenant via API route interna (sem usar Prisma diretamente — Edge Runtime)
-  let tenantId = "00000000-0000-0000-0000-000000000000";
-  try {
-    const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(hostname)}`, request.url);
-    const res = await fetch(lookupUrl.toString(), {
-      headers: { "x-internal-middleware": "1" },
-    });
-    if (res.ok) {
-      const data = await res.json() as { tenantId?: string; error?: string };
-      if (data.tenantId) {
-        tenantId = data.tenantId;
-      } else if (data.error) {
-        // Tenant não encontrado — páginas frontend: deixar passar
-        if (!pathname.startsWith("/api")) {
-          const response = NextResponse.next();
-          response.headers.set("x-tenant-slug", slug);
-          return response;
+  // Cache local no isolate evita fetch repetido para o mesmo slug
+  let tenantId: string | null = null;
+
+  const cachedTenant = edgeTenantCache.get(slug);
+  if (cachedTenant && Date.now() < cachedTenant.expiresAt) {
+    tenantId = cachedTenant.tenantId;
+  } else {
+    try {
+      const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(hostname)}`, request.url);
+      const internalSecret = process.env.INTERNAL_API_SECRET || "dev-secret";
+      const res = await fetch(lookupUrl.toString(), {
+        headers: { "x-internal-middleware": internalSecret },
+      });
+      if (res.ok) {
+        const data = await res.json() as { tenantId?: string; error?: string };
+        if (data.tenantId) {
+          tenantId = data.tenantId;
+          edgeTenantCache.set(slug, { tenantId, expiresAt: Date.now() + EDGE_CACHE_TTL });
+        } else if (data.error) {
+          if (!pathname.startsWith("/api")) {
+            const response = NextResponse.next();
+            response.headers.set("x-tenant-slug", slug);
+            return response;
+          }
+          return NextResponse.json({ error: "Tenant no encontrado" }, { status: 404 });
         }
-        return NextResponse.json({ error: "Tenant no encontrado" }, { status: 404 });
+      }
+    } catch {
+      // DB indisponível — retornar 503 para API, deixar frontend passar
+      if (pathname.startsWith("/api")) {
+        return NextResponse.json({ error: "Servicio temporalmente no disponible" }, { status: 503 });
       }
     }
-  } catch {
-    // Fallback para dev sem DB
+  }
+
+  // Se não resolvemos tenant para rotas API, retornar erro
+  if (!tenantId && pathname.startsWith("/api")) {
+    return NextResponse.json({ error: "Tenant no identificado" }, { status: 503 });
   }
 
   // Validar admin para rotas protegidas
@@ -124,13 +146,13 @@ export async function middleware(request: NextRequest) {
 
   // Injetar headers de tenant
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-tenant-id", tenantId);
+  if (tenantId) requestHeaders.set("x-tenant-id", tenantId);
   requestHeaders.set("x-tenant-slug", slug);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
   });
-  response.headers.set("x-tenant-id", tenantId);
+  if (tenantId) response.headers.set("x-tenant-id", tenantId);
   response.headers.set("x-tenant-slug", slug);
   return response;
 }
