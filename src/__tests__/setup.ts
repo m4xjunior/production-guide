@@ -1,12 +1,18 @@
 import { vi } from "vitest";
 
+const mockReferenceModel = {
+  findMany: vi.fn(),
+  findUnique: vi.fn(),
+};
+
 // Mock do módulo Prisma para testes de API routes
 vi.mock("@/lib/db", () => ({
+  // getTenantPrisma retorna o mesmo mock de prisma (tenant-scoped)
+  getTenantPrisma: vi.fn(() => ({
+    reference: mockReferenceModel,
+  })),
   prisma: {
-    reference: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-    },
+    reference: mockReferenceModel,
     stationReference: {
       findFirst: vi.fn(),
       deleteMany: vi.fn(),

@@ -21,10 +21,6 @@ import {
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useContinuousSpeechRecognition } from "@/hooks/useContinuousSpeechRecognition";
-import {
-  type VoiceProvider,
-  useElevenStepConversation,
-} from "@/hooks/useElevenStepConversation";
 import { StepTransition } from "@/components/StepTransition";
 import { SuccessFeedback } from "@/components/SuccessFeedback";
 import { type Step } from "@/types";
@@ -91,8 +87,6 @@ export function ProductionStep({
   const [stepStartTime] = useState(Date.now());
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [useElevenLive, setUseElevenLive] = useState(true);
-  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>("elevenlabs");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -107,8 +101,6 @@ export function ProductionStep({
   const [isRegisteringStop, setIsRegisteringStop] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
 
-  const elevenLiveEnabledByEnv =
-    process.env.NEXT_PUBLIC_ENABLE_ELEVENLABS_LIVE !== "false";
   const hasSpokenRef = useRef(false);
   const autoTimerRef = useRef<NodeJS.Timeout | null>(null);
   const swipeTouchStartY = useRef<number | null>(null);
@@ -174,28 +166,6 @@ export function ProductionStep({
     stopContinuousListeningRef.current();
   }, []);
 
-  const elevenStep = useElevenStepConversation({
-    sessionId,
-    stationId: step.stationId,
-    stepId: step.id,
-    expectedResponse: step.respuesta || "",
-    onMatch: () => {
-      stopFallbackRecognition();
-      handleVoiceMatch();
-    },
-    isTTSSpeaking: isSpeaking,
-    enabled: useElevenLive && step.responseType === "voice",
-  });
-
-  const elevenStartRef = useRef(elevenStep.startListening);
-  const elevenStopRef = useRef(elevenStep.stopListening);
-  useEffect(() => { elevenStartRef.current = elevenStep.startListening; }, [elevenStep.startListening]);
-  useEffect(() => { elevenStopRef.current = elevenStep.stopListening; }, [elevenStep.stopListening]);
-
-  useEffect(() => {
-    setVoiceProvider(elevenStep.provider);
-  }, [elevenStep.provider]);
-
   const logStepCompletion = useCallback(async (response: string) => {
     const durationMs = Date.now() - stepStartTime;
     try {
@@ -247,27 +217,12 @@ export function ProductionStep({
   useEffect(() => {
     if (shouldSkipByPeriod || isPaused) return;
     if (step.responseType === "voice" && step.respuesta) {
-      let cancelled = false;
       const timer = setTimeout(() => {
-        void (async () => {
-          if (!useElevenLive) {
-            startFallbackRecognition();
-            return;
-          }
-
-          const startedWithEleven = await elevenStartRef.current();
-          if (cancelled) return;
-
-          if (!startedWithEleven) {
-            startFallbackRecognition();
-          }
-        })();
-      }, 1000);
+        startFallbackRecognition();
+      }, 500);
 
       return () => {
-        cancelled = true;
         clearTimeout(timer);
-        void elevenStopRef.current();
         stopFallbackRecognition();
       };
     }
@@ -275,7 +230,6 @@ export function ProductionStep({
     step.id,
     step.responseType,
     step.respuesta,
-    useElevenLive,
     startFallbackRecognition,
     stopFallbackRecognition,
     shouldSkipByPeriod,
@@ -318,44 +272,10 @@ export function ProductionStep({
     return () => {
       stopSpeech();
       stopFallbackRecognition();
-      void elevenStopRef.current();
       if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     };
   }, [stopSpeech, stopFallbackRecognition]);
 
-  // Fetch Whisper config from global settings
-  useEffect(() => {
-    setUseElevenLive(elevenLiveEnabledByEnv);
-    fetch("/api/config/global")
-      .then((r) => r.json())
-      .then((d: { settings?: { useElevenLiveSTT?: boolean } }) => {
-        if (d.settings) {
-          if (typeof d.settings.useElevenLiveSTT === "boolean") {
-            setUseElevenLive(d.settings.useElevenLiveSTT);
-          }
-        }
-      })
-      .catch(() => {});
-  }, [elevenLiveEnabledByEnv]);
-
-  // ElevenLabs fallback on provider change
-  useEffect(() => {
-    if (step.responseType !== "voice" || !step.respuesta) return;
-
-    if (voiceProvider === "fallback") {
-      startFallbackRecognition();
-      return;
-    }
-
-    stopFallbackRecognition();
-  }, [
-    step.id,
-    step.responseType,
-    step.respuesta,
-    voiceProvider,
-    startFallbackRecognition,
-    stopFallbackRecognition,
-  ]);
 
   // Reset error confirmation when step changes
   useEffect(() => {
@@ -437,7 +357,6 @@ export function ProductionStep({
         setShowStopDialog(false);
         setStopReason("");
         // Stop voice recognition while paused
-        void elevenStopRef.current();
         stopFallbackRecognition();
         stopSpeech();
         if (autoTimerRef.current) clearInterval(autoTimerRef.current);
@@ -483,12 +402,7 @@ export function ProductionStep({
 
   const badgeInfo = tipoBadge[step.tipo] || tipoBadge.VOZ;
 
-  const fallbackEngineLabel = "Web Speech API";
-  const isVoiceListening =
-    step.responseType === "voice" &&
-    (voiceProvider === "elevenlabs" ? elevenStep.isListening : isListening);
-  const lastHeardText =
-    voiceProvider === "elevenlabs" ? elevenStep.lastHeard : lastHeard;
+  const isVoiceListening = step.responseType === "voice" && isListening;
 
   // ─── Paused screen ───────────────────────────────────────
   if (isPaused) {
@@ -646,32 +560,15 @@ export function ProductionStep({
                 {/* Voice feedback */}
                 {step.responseType === "voice" && (
                   <>
-                    {isVoiceListening && (
-                      <StepVoiceElevenPanel
-                        provider={voiceProvider}
-                        status={elevenStep.status}
-                        expectedResponse={step.respuesta || ""}
-                        isListening={isVoiceListening}
-                        isSpeaking={isSpeaking || elevenStep.isSpeaking}
-                        lastHeard={lastHeardText}
-                        error={elevenStep.error}
-                        inputBars={elevenStep.inputBars}
-                        outputBars={elevenStep.outputBars}
-                        fallbackEngineLabel={fallbackEngineLabel}
-                        onManualConfirm={handleButtonConfirm}
-                      />
-                    )}
-                    {!isVoiceListening && (
-                      <Button
-                        variant="success"
-                        size="touch"
-                        className="w-full text-xl font-bold"
-                        onClick={handleButtonConfirm}
-                      >
-                        <CheckCircle2 className="h-6 w-6 mr-2" />
-                        Confirmar paso
-                      </Button>
-                    )}
+                    <StepVoiceElevenPanel
+                      expectedResponse={step.respuesta || ""}
+                      isListening={isVoiceListening}
+                      isSpeaking={isSpeaking}
+                      lastHeard={lastHeard}
+                      onManualConfirm={handleButtonConfirm}
+                      onStartListening={startContinuousListening}
+                      isSupported={speechSupported}
+                    />
                   </>
                 )}
 

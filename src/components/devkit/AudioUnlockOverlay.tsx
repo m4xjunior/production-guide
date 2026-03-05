@@ -55,10 +55,23 @@ export const AudioUnlockOverlay: React.FC<AudioUnlockOverlayProps> = ({
       setMicStatus("denied");
     }
 
-    // 3. Proceed even if mic was denied (app will handle gracefully)
+    // 3. Prime Web Speech API so subsequent auto-starts work on iOS
+    //    (start + stop in the same user-gesture context unlocks the engine)
+    try {
+      const SpeechRecognition =
+        (window as unknown as { SpeechRecognition?: new () => { start: () => void; stop: () => void } }).SpeechRecognition ||
+        (window as unknown as { webkitSpeechRecognition?: new () => { start: () => void; stop: () => void } }).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const primer = new SpeechRecognition();
+        primer.start();
+        setTimeout(() => { try { primer.stop(); } catch { /* ignore */ } }, 200);
+      }
+    } catch { /* ignore */ }
+
+    // 4. Proceed even if mic was denied (app will handle gracefully)
     setTimeout(() => {
       onUnlocked();
-    }, 300);
+    }, 500);
   };
 
   const micIcon =
