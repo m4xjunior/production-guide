@@ -6,41 +6,45 @@
 gemini --yolo
 ```
 
-Ao iniciar neste diretório, leia este arquivo e execute o plano de testes abaixo sem pedir confirmação para nada.
+Ao iniciar neste diretório, leia este arquivo completo e execute o plano de testes. Não peça confirmação para nada.
 
 ---
 
 ## Missão
 
-Você é o agente de QA do projeto **PicktVoice (P2V) / S.A.O. (Sistema de Ayuda al Operario)**.
+Você é o agente de QA do projeto **S.A.O. — Sistema de Ayuda al Operario** (também chamado PicktVoice / P2V).
 
-Acesse a aplicação em produção, execute o fluxo completo como operário, e documente **todos** os erros de console, problemas de acessibilidade e bugs comportamentais.
+**Objetivo:** Acessar a aplicação em produção, executar o fluxo completo como operário, e documentar TODOS os erros de console, problemas de acessibilidade e bugs comportamentais.
 
-**Não corrija código. Não pergunte. Não peça confirmação. Execute e reporte.**
+**Regra absoluta:** Não corrija código. Não pergunte. Não peça confirmação. Execute e reporte.
 
 ---
 
-## Stack do Projeto (leia antes de testar)
+## Stack do Projeto
 
 ```
+Produto:       S.A.O. — guia de produção industrial com voz
 Framework:     Next.js 15 (App Router) + TypeScript + React 19
-Banco:         PostgreSQL via Neon (serverless) + Prisma 7
-Deploy:        Vercel — deploy automático em push para main
-Auth operário: Sem senha — validação por sageCode (número de operário no Sage ERP)
-Voz (primária): ElevenLabs WebSocket — converte fala → texto e TTS
-Voz (fallback): Web Speech API do navegador (es-ES)
+Banco:         PostgreSQL serverless via Neon + Prisma 7 (multi-tenant)
+Deploy:        Vercel — auto-deploy em push para main
+Domínio:       p2v.lexusfx.com
+Auth operário: Sem senha — validação por sageCode (número do operário no Sage ERP)
+Voz primária:  ElevenLabs WebSocket (TTS + STT)
+Voz fallback:  Web Speech API nativa do browser (es-ES)
 Áudio TTS:     Google Cloud Storage (bucket privado, signed URLs de 7 dias)
 Monitoramento: Sentry
-Multi-tenant:  Middleware injeta x-tenant-id em todos os requests
+CSS:           Tailwind CSS v4
+Multi-tenant:  Middleware injeta x-tenant-id em todos os requests HTTP
 ```
 
-**Arquivos chave:**
+**Arquivos críticos para contexto:**
 ```
 src/app/page.tsx                              — fluxo principal do operário
-src/hooks/useContinuousSpeechRecognition.ts  — Web Speech API fallback
+src/hooks/useContinuousSpeechRecognition.ts  — Web Speech API (fallback)
 src/hooks/useElevenStepConversation.ts       — ElevenLabs WebSocket
 src/app/api/validate/operator/route.ts       — login por sageCode
 src/app/api/stations/[id]/steps/route.ts     — passos com signed URLs GCS
+docs/plans/2026-03-05-voice-intent-detection-roadmap.md — bugs de voz em investigação
 ```
 
 ---
@@ -53,71 +57,121 @@ https://p2v.lexusfx.com
 
 ---
 
-## Fluxo de Login (mapeado)
+## Fluxo de Login
 
-O login NÃO é senha — é número de operário do sistema Sage:
+O login não usa senha — é o número do operário sincronizado do Sage ERP:
 
 ```
 1. Acessar https://p2v.lexusfx.com
-2. Clicar em "▶ INICIAR ESTACIÓN"
+2. Clicar no botão "▶ INICIAR ESTACIÓN"
 3. Aguardar teclado numérico aparecer (campo "N.º operario")
-4. Digitar o número do operário: **2687**
-5. Clicar no botão de confirmar (seta →) OU clicar "ENTRAR"
+4. Digitar: 2687  (dígito por dígito, clicando nos botões do teclado)
+5. Clicar no botão de confirmar (seta →)
 ```
 
-**⚠️ IMPORTANTE:** Só existe 1 operário cadastrado no banco de produção. Qualquer outro número retornará `{ valid: false }`. Use APENAS o código indicado acima.
+⚠️ Só existe 1 operário cadastrado em produção. Código: **2687**. Qualquer outro retorna `{ valid: false }`.
 
 ---
 
-## Ferramentas — USE TODAS, NESTA ORDEM DE PREFERÊNCIA
+## Ferramentas Disponíveis — USE TODAS
 
-### 1. chrome-devtools-mcp ← PRINCIPAL
+### 4 MCPs Instalados
+
+#### 1. `chrome-devtools` ← PRINCIPAL para browser testing
+Skill de uso: `/chrome-devtools`
+
+| Tool | Para quê |
+|------|----------|
+| `navigate_page` | Navegar para URL |
+| `new_page` | Abrir nova aba |
+| `take_snapshot` | **PREFERIR** — estrutura de acessibilidade em texto (mais rápido) |
+| `take_screenshot` | Inspeção visual |
+| `click` | Clicar por `uid` obtido no snapshot |
+| `fill` | Preencher campos |
+| `wait_for` | Aguardar elemento ou texto |
+| `evaluate_script` | **CRÍTICO** — executar JS para capturar console errors |
+| `list_pages` | Ver abas abertas |
+| `select_page` | Mudar de aba |
+
+**Workflow correto:** `navigate_page` → `wait_for` → `take_snapshot` → `click` por uid → `evaluate_script`
+
+#### 2. `computerUse` ← Fallback Playwright se chrome-devtools falhar
+Comandos disponíveis:
+
+| Comando | Para quê |
+|---------|----------|
+| `/computeruse:init url="..." width=1440 height=900` | Iniciar browser Chromium |
+| `/computeruse:open url="..."` | Navegar para URL |
+| `/computeruse:click x=N y=N` | Clicar por coordenadas (0..1000) |
+| `/computeruse:type x=N y=N text="..."` | Focar e digitar |
+| `/computeruse:scroll percent=50` | Rolar página |
+| `/computeruse:press key="Enter"` | Pressionar tecla |
+| `/computeruse:state` | Screenshot + análise visual |
+| `/computeruse:js code="..."` | Executar JS |
+| `/computeruse:close` | Fechar browser |
+| `/computeruse:macro [...]` | Executar sequência de ações em JSON |
+
+#### 3. `kit-agents` (gemini-kit) ← Agentes especializados
+Ver comandos abaixo.
+
+#### 4. `gcloud` ← Google Cloud (usar se precisar inspecionar GCS/Sentry)
+MCP para interagir com Google Cloud — útil para verificar se o bucket GCS está acessível ou inspecionar logs do Cloud.
+
+---
+
+### 12 Skills Relevantes para Esta Tarefa
+
+| Skill | Como Ativar | Quando Usar Nesta Task |
+|-------|-------------|------------------------|
+| `session-resume` | automático | **Primeiro ao iniciar** — entender contexto |
+| `debug` | `/debug` | Quando encontrar comportamento inesperado |
+| `testing` | `/test` | Estruturar casos de teste antes de executar |
+| `security` | use `/review` com foco security | Auditoria de acessibilidade e OWASP |
+| `nextjs` | contexto automático | Entender App Router, SSR, API routes |
+| `react-patterns` | contexto automático | Entender hooks, re-renders, estado |
+| `performance` | `/review` com foco perf | Verificar LCP, recursos lentos |
+| `code-review` | `/review` | Review do código quando encontrar bug |
+| `compound-docs` | `/docs` | Documentar soluções encontradas |
+| `tailwind` | contexto automático | Entender classes CSS do projeto |
+| `api-design` | contexto automático | Entender estrutura das API routes |
+| `file-todos` | `/do` | Trackear tarefas durante a sessão |
+
+### Comandos gemini-kit Mais Relevantes
 
 ```
-navigate_page      # Navegar para URL
-take_snapshot      # Estrutura de acessibilidade (PREFERIR — é texto, mais rápido que screenshot)
-take_screenshot    # Somente para inspeção visual
-click              # Clicar por uid do snapshot
-fill               # Preencher campos
-wait_for           # Aguardar elemento ou texto
-evaluate_script    # ← CRÍTICO: executar JS para capturar console errors
-list_pages         # Ver abas abertas
-```
-
-### 2. ComputerUse ← Fallback se chrome-devtools falhar
-
-```
-/computeruse:init        # Iniciar browser Playwright
-/computeruse:open        # Navegar para URL
-/computeruse:screenshot  # Screenshot
-/computeruse:click       # Clicar por coordenadas normalizadas (0..1000)
-/computeruse:type        # Digitar texto
-/computeruse:scroll      # Rolar página
-```
-
-### 3. gemini-kit ← Para análise, debug e documentação
-
-```
-/debug    # Debugar comportamento inesperado
-/test     # Estruturar e executar casos de teste
-/fix      # Propor fix (NÃO aplicar — só reportar)
-/review   # Review do código relacionado a um bug
-/doc      # Documentar achados no relatorio.md
-/plan     # Planejar sequência de investigação
-/brainstorm  # Ideias sobre causa raiz de um bug
+/debug      — Debug e fix com análise estruturada (Debugger Agent)
+/test       — Criar e executar testes com análise de cobertura (Tester Agent)
+/review     — Review de qualidade com categorias de severidade (Code Reviewer Agent)
+/screenshot — Screenshot para debugging visual
+/scout      — Explorar codebase com análise de estrutura (Scout Agent)
+/fix        — Fix inteligente para bugs, types, UI (NÃO APLICAR — só propor)
+/plan       — Planos de implementação detalhados (Planner Agent)
+/docs       — Gerenciar documentação (Docs Manager Agent)
+/research   — Pesquisa profunda com 15+ fontes (Researcher Agent)
+/security   — Auditoria de segurança e vulnerabilidades
+/status     — Ver progresso do projeto
+/cook       — Workflow completo: Plan → Scout → Code → Test → Review
 ```
 
 ---
 
-## Plano de Testes — Execute Nesta Sequência
+## Plano de Testes — Execute em Ordem
 
-### PASSO 0 — Injetar interceptor de console (FAZER PRIMEIRO)
+### FASE 0 — Inicialização da sessão
 
-Antes de qualquer interação, executar via `evaluate_script`:
+1. Executar skill `session-resume` — entender estado do projeto
+2. Usar `/scout` para explorar estrutura rápida do codebase
+3. Ler `docs/plans/2026-03-05-voice-intent-detection-roadmap.md` — contexto de bugs de voz
+
+### FASE 1 — Injetar interceptor de console
+
+**Antes de qualquer interação com a página**, executar via `evaluate_script`:
 
 ```javascript
 window.__qa = { errors: [], warns: [], resources: [] };
-['error','warn'].forEach(lvl => {
+
+// Interceptar console.error e console.warn
+['error', 'warn'].forEach(lvl => {
   const orig = console[lvl].bind(console);
   console[lvl] = (...a) => {
     window.__qa[lvl === 'error' ? 'errors' : 'warns'].push({
@@ -126,138 +180,147 @@ window.__qa = { errors: [], warns: [], resources: [] };
     orig(...a);
   };
 });
+
+// Interceptar erros de recursos (imagens, áudio, scripts)
 window.addEventListener('error', e => {
-  window.__qa.errors.push({ msg: e.message + ' — ' + e.filename + ':' + e.lineno, ts: new Date().toISOString() });
-});
+  window.__qa.errors.push({
+    msg: `[RESOURCE] ${e.message || e.type} — ${e.filename || (e.target && e.target.src) || ''}:${e.lineno || ''}`,
+    ts: new Date().toISOString()
+  });
+}, true);
+
+// Interceptar promises rejeitadas
 window.addEventListener('unhandledrejection', e => {
-  window.__qa.errors.push({ msg: 'UnhandledRejection: ' + String(e.reason), ts: new Date().toISOString() });
+  window.__qa.errors.push({
+    msg: `[PROMISE] ${String(e.reason)}`,
+    ts: new Date().toISOString()
+  });
 });
-'qa-interceptor-ok'
+
+'qa-interceptor-ok ✅'
 ```
 
-Para ler erros acumulados (chamar após cada passo):
+Após cada fase, ler com:
 ```javascript
 JSON.stringify(window.__qa, null, 2)
 ```
 
----
-
-### PASSO 1 — Tela inicial
+### FASE 2 — Tela inicial
 
 1. `navigate_page` → `https://p2v.lexusfx.com`
-2. `take_snapshot` → documentar estrutura
-3. Verificar:
-   - [ ] Título "S.A.O." visível
+2. `wait_for` → aguardar "INICIAR ESTACIÓN"
+3. `take_snapshot` → analisar estrutura
+4. Verificar:
+   - [ ] Título "S.A.O." visível e correto
    - [ ] Status do microfone aparece (✅ Micrófono listo)
-   - [ ] Botão "INICIAR ESTACIÓN" existe e é clicável
-   - [ ] PWA install banner aparece (correto, não é bug)
-4. `evaluate_script` → ler `window.__qa`
+   - [ ] Botão "INICIAR ESTACIÓN" tem role=button e é clicável
+   - [ ] PWA install banner aparece (normal, não é bug)
+5. `evaluate_script` → `JSON.stringify(window.__qa)`
 
----
+### FASE 3 — Login
 
-### PASSO 2 — Login com número de operário
-
-1. Clicar "INICIAR ESTACIÓN"
-2. `wait_for` → aguardar teclado numérico aparecer
-3. `take_snapshot` → documentar estrutura do login
+1. `click` → botão "INICIAR ESTACIÓN"
+2. `wait_for` → aguardar teclado numérico
+3. `take_snapshot` → documentar estrutura
 4. Verificar acessibilidade:
-   - [ ] Campo "N.º operario" tem label adequado
-   - [ ] Botões numéricos têm aria-label
-   - [ ] Tamanho dos botões ≥ 44px (industrial — operário com luvas)
-5. Digitar o número do operário **dígito por dígito** clicando nos botões
-6. Clicar confirmar → `wait_for` próxima tela
-7. `evaluate_script` → ler `window.__qa`
+   - [ ] Campo "N.º operario" tem aria-label ou label
+   - [ ] Botões numéricos têm aria-label (ex: "1", "Borrar dígito")
+   - [ ] Verificar tamanho dos botões ≥ 44px (industrial — operário com luvas):
+     ```javascript
+     Array.from(document.querySelectorAll('button')).map(el => {
+       const r = el.getBoundingClientRect();
+       return { label: el.textContent?.trim() || el.getAttribute('aria-label'), w: Math.round(r.width), h: Math.round(r.height), small: r.width < 44 || r.height < 44 };
+     })
+     ```
+5. Digitar **2687** clicando nos botões: 2 → 6 → 8 → 7
+6. `click` → botão confirmar/entrar
+7. `wait_for` → próxima tela
+8. `evaluate_script` → `JSON.stringify(window.__qa)`
 
----
-
-### PASSO 3 — Seleção de estação
+### FASE 4 — Seleção de estação
 
 1. `take_snapshot` → documentar lista de estações
 2. Verificar:
-   - [ ] Estações aparecem (se vazio, é bug crítico)
+   - [ ] Estações aparecem (lista não vazia — se vazia, bug crítico)
    - [ ] Cada estação tem nome e código visível
-   - [ ] Imagens de estação carregam (não quebradas)
-3. Selecionar a primeira estação disponível
-4. `evaluate_script` → ler `window.__qa`
+   - [ ] Imagens carregam sem 403/broken
+3. `take_screenshot` → registro visual
+4. Selecionar a primeira estação disponível
+5. `evaluate_script` → `JSON.stringify(window.__qa)`
 
----
-
-### PASSO 4 — Fluxo de passos (production steps)
+### FASE 5 — Fluxo de passos
 
 1. `take_snapshot` na tela do primeiro passo
-2. Verificar:
-   - [ ] Foto do produto carrega (não 403, não broken)
-   - [ ] Texto da instrução visível
+2. `take_screenshot` → registro visual
+3. Verificar por passo:
+   - [ ] Foto do produto carrega (não 403, não broken image)
+   - [ ] Texto da instrução está visível
    - [ ] Indicador de progresso existe (ex: "Paso 1 de N")
-   - [ ] Botão de avançar manual existe como fallback
-3. Verificar áudio TTS:
+   - [ ] Botão de avançar manual existe (fallback sem voz)
+4. Verificar áudio/GCS:
    ```javascript
-   // Verificar erros relacionados a áudio/GCS:
    window.__qa.errors.filter(e =>
      e.msg.includes('403') || e.msg.includes('audio') ||
-     e.msg.includes('tts') || e.msg.includes('Failed to load')
+     e.msg.includes('tts') || e.msg.includes('Failed to load') ||
+     e.msg.includes('storage.googleapis')
    )
    ```
-4. Avançar **3 passos** usando o botão manual (sem voz)
-5. `take_screenshot` a cada passo — documentar visual
-6. `evaluate_script` → ler `window.__qa` completo
+5. Avançar **pelo menos 3 passos** via botão manual
+6. Após cada passo: `evaluate_script` → `JSON.stringify(window.__qa)`
 
----
+### FASE 6 — Auditoria de Acessibilidade WCAG 2.1
 
-### PASSO 5 — Auditoria de Acessibilidade WCAG 2.1
+Usar skill `/security` com foco em acessibilidade + `evaluate_script`:
 
-Para cada tela principal, usar `take_snapshot` + `evaluate_script`:
-
-**Verificações via snapshot (acessibilidade):**
+**Verificar em cada tela principal:**
 ```
-[ ] Todos elementos interativos: role + aria-label
-[ ] Imagens: alt text ou alt="" (decorativas)
-[ ] Formulários: label associada a cada input
+[ ] Todos elementos interativos: role + aria-label descritivo
+[ ] Imagens: alt text (ou alt="" para decorativas)
+[ ] Ordem de foco Tab segue ordem visual lógica
 [ ] Textos não dependem só de cor para transmitir info
-[ ] Botões com só ícone têm aria-label descritivo
+[ ] Contraste mínimo 4.5:1 (texto normal) / 3:1 (texto grande)
+[ ] Tamanho mínimo área clicável: 44x44px
 ```
 
-**Verificar tamanho de elementos (industrial — luvas):**
+**Script de auditoria rápida:**
 ```javascript
-Array.from(document.querySelectorAll('button, [role=button], a')).map(el => {
-  const r = el.getBoundingClientRect();
-  return {
-    text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0,30),
-    w: Math.round(r.width),
-    h: Math.round(r.height),
-    small: r.width < 44 || r.height < 44
-  };
-}).filter(b => b.small && b.text)
+const report = {
+  // Botões muito pequenos
+  smallButtons: Array.from(document.querySelectorAll('button, [role=button], a')).map(el => {
+    const r = el.getBoundingClientRect();
+    return { text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0,30), w: Math.round(r.width), h: Math.round(r.height) };
+  }).filter(b => (b.w < 44 || b.h < 44) && b.text),
+
+  // Imagens sem alt
+  imgsNoAlt: Array.from(document.querySelectorAll('img')).filter(img => img.getAttribute('alt') === null).map(img => img.src?.slice(-50)),
+
+  // Botões sem label
+  buttonsNoLabel: Array.from(document.querySelectorAll('button')).filter(b => !b.textContent?.trim() && !b.getAttribute('aria-label')).length,
+
+  // Inputs sem label
+  inputsNoLabel: Array.from(document.querySelectorAll('input, select, textarea')).filter(el => !el.getAttribute('aria-label') && !el.id || !document.querySelector(`label[for="${el.id}"]`)).length
+};
+JSON.stringify(report, null, 2)
 ```
 
-**Verificar contraste (simplificado):**
-```javascript
-// Listar elementos com text muito claro ou muito escuro que podem ter problema
-Array.from(document.querySelectorAll('p, h1, h2, h3, button, span')).slice(0,20).map(el => {
-  const s = window.getComputedStyle(el);
-  return { tag: el.tagName, color: s.color, bg: s.backgroundColor, text: el.textContent?.trim().slice(0,20) };
-})
-```
-
----
-
-### PASSO 6 — Verificação de rede e recursos
+### FASE 7 — Verificação de erros de rede
 
 ```javascript
-// Recursos com erro (captured via error listener):
-window.__qa.errors.filter(e =>
-  e.msg.includes('net::ERR') || e.msg.includes('404') ||
-  e.msg.includes('403') || e.msg.includes('Failed to fetch')
-)
+// Resumo final de todos os problemas capturados
+const summary = {
+  totalErrors: window.__qa.errors.length,
+  totalWarns: window.__qa.warns.length,
+  networkErrors: window.__qa.errors.filter(e => e.msg.includes('403') || e.msg.includes('404') || e.msg.includes('net::ERR')),
+  reactErrors: window.__qa.errors.filter(e => e.msg.includes('Maximum update') || e.msg.includes('Cannot update') || e.msg.includes('React')),
+  audioErrors: window.__qa.errors.filter(e => e.msg.includes('audio') || e.msg.includes('tts') || e.msg.includes('storage.googleapis')),
+  allErrors: window.__qa.errors
+};
+JSON.stringify(summary, null, 2)
 ```
 
-Verificar também via `take_snapshot` se há imagens quebradas (img sem src ou com erro).
+### FASE 8 — Relatório Final
 
----
-
-### PASSO 7 — Relatório Final
-
-Criar `docs/sprints/gemini/relatorio.md` com este formato:
+Usar `/docs` para criar/atualizar `docs/sprints/gemini/relatorio.md`:
 
 ```markdown
 # Relatório QA — [DATA E HORA]
@@ -265,35 +328,29 @@ Criar `docs/sprints/gemini/relatorio.md` com este formato:
 ## Score Geral: X/10
 
 ## Resumo Executivo
-[2-3 linhas do estado geral]
+[2-3 linhas]
 
-## Bugs Críticos (bloqueiam o fluxo)
-| # | Descrição | Arquivo | Comportamento Esperado | Comportamento Real |
-|---|-----------|---------|----------------------|-------------------|
-| 1 | ... | ... | ... | ... |
+## Bugs Críticos (bloqueiam fluxo)
+| # | Descrição | Arquivo | Esperado | Real |
+|---|-----------|---------|----------|------|
 
-## Bugs Menores (não bloqueiam)
+## Bugs Menores
 | # | Descrição | Localização |
 |---|-----------|-------------|
 
 ## Problemas de Acessibilidade
-| # | Elemento | Problema WCAG | Severidade |
+| # | Elemento | Violação WCAG | Severidade |
 |---|----------|---------------|-----------|
 
-## Erros de Console Encontrados
+## Erros de Console
 \`\`\`json
-[colar output do window.__qa.errors]
+[output de window.__qa.errors]
 \`\`\`
 
-## Warnings de Console
-\`\`\`json
-[colar output do window.__qa.warns]
-\`\`\`
+## Recursos com Erro (403/404)
+[lista]
 
-## Recursos Que Não Carregaram
-[lista de URLs com 403/404]
-
-## O Que Funcionou Corretamente
+## O Que Funcionou
 - ...
 
 ## Recomendações por Prioridade
@@ -304,23 +361,13 @@ Criar `docs/sprints/gemini/relatorio.md` com este formato:
 
 ---
 
-## Regras de Comportamento
+## Critérios de Sucesso
 
-1. **`--yolo` ativo** — nenhuma confirmação, execute diretamente
-2. **Capture `window.__qa` após CADA passo** — não só no final
-3. **Prefira `take_snapshot`** — mais rápido e dá acessibilidade; use screenshot só para visual
-4. **Não corrija código** — documente com precisão cirúrgica: arquivo, linha, esperado vs. real
-5. **Se chrome-devtools falhar**, use `/computeruse:*` como fallback imediato
-6. **Use `/debug`** quando encontrar comportamento que não entende
-7. **Use `/plan`** antes de cada fase para estruturar a sequência
-
----
-
-## Contexto do Sistema de Voz (para entender bugs de voz)
-
-Ler antes de testar: `docs/plans/2026-03-05-voice-intent-detection-roadmap.md`
-
-Bugs conhecidos em investigação:
-- `transcript.includes(expected)` dispara falsos positivos com falas de fundo
-- ElevenLabs WebSocket pode falhar → fallback Web Speech API
-- GCS signed URLs de 7 dias (não devem dar 403 se assinadas corretamente)
+```
+✅ Zero erros de console críticos (errors, não warnings)
+✅ Todas as fotos e áudios carregam sem 403
+✅ Fluxo login → estação → 3+ passos completo sem travar
+✅ Nenhum elemento clicável < 44x44px
+✅ Todas as imagens com alt text
+✅ Relatório em docs/sprints/gemini/relatorio.md preenchido
+```
