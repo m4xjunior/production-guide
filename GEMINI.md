@@ -405,7 +405,7 @@ Usar `/docs` para criar/atualizar `docs/sprints/gemini/relatorio.md`:
 
 ```
 URL:   https://p2v.lexusfx.com/admin
-Senha: [ADMIN_PASSWORD]   ← Max vai preencher aqui
+Senha: `admin`
 ```
 
 O campo de senha está em `/admin` → input "Contraseña de administrador" → botão "Acceder".
