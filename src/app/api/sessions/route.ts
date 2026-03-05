@@ -63,25 +63,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Desactivar sesiones activas previas — scoped por estaciones del tenant
-    await prisma.operatorSession.updateMany({
-      where: {
-        operatorNumber,
-        isActive: true,
-        station: { tenantId },
-      },
-      data: {
-        isActive: false,
-        logoutAt: new Date(),
-      },
-    });
+    // Atomic: deactivate old sessions + create new one in transaction
+    const session = await prisma.$transaction(async (tx) => {
+      // Desactivar sesiones activas previas — scoped por estaciones del tenant
+      const tenantStationIds = await tx.station.findMany({
+        where: { tenantId },
+        select: { id: true },
+      });
+      await tx.operatorSession.updateMany({
+        where: {
+          operatorNumber,
+          isActive: true,
+          stationId: { in: tenantStationIds.map(s => s.id) },
+        },
+        data: {
+          isActive: false,
+          logoutAt: new Date(),
+        },
+      });
 
-    const session = await prisma.operatorSession.create({
-      data: {
-        operatorNumber,
-        stationId,
-        ...(referenceId !== undefined && { referenceId }),
-      },
+      return tx.operatorSession.create({
+        data: {
+          operatorNumber,
+          stationId,
+          ...(referenceId !== undefined && { referenceId }),
+        },
+      });
     });
 
     const steps = await prisma.step.findMany({

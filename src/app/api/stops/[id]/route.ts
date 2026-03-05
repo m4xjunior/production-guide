@@ -16,8 +16,19 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+    }
     const { endAt } = body;
+
+    // Validar endAt se fornecido
+    if (endAt !== undefined) {
+      const parsed = new Date(endAt);
+      if (isNaN(parsed.getTime())) {
+        return NextResponse.json({ error: "endAt no es una fecha válida" }, { status: 400 });
+      }
+    }
 
     // Verificar que el stop pertenece al tenant via station
     const existing = await prisma.stationStop.findUnique({

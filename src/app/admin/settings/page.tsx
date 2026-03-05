@@ -190,7 +190,8 @@ export default function SettingsPage() {
                 <Slider
                   aria-labelledby="label-ttsSpeed"
                   value={[settings.ttsSpeed]}
-                  onValueChange={([v]) => void updateSetting("ttsSpeed", v)}
+                  onValueChange={([v]) => setSettings(s => s ? { ...s, ttsSpeed: v } : s)}
+                  onValueCommit={([v]) => void updateSetting("ttsSpeed", v)}
                   min={0.5}
                   max={2.0}
                   step={0.1}
@@ -212,7 +213,8 @@ export default function SettingsPage() {
                 <Slider
                   aria-labelledby="label-ttsStability"
                   value={[settings.ttsStability]}
-                  onValueChange={([v]) => void updateSetting("ttsStability", v)}
+                  onValueChange={([v]) => setSettings(s => s ? { ...s, ttsStability: v } : s)}
+                  onValueCommit={([v]) => void updateSetting("ttsStability", v)}
                   min={0}
                   max={1}
                   step={0.05}
@@ -229,7 +231,8 @@ export default function SettingsPage() {
                 <Slider
                   aria-labelledby="label-ttsSimilarity"
                   value={[settings.ttsSimilarity]}
-                  onValueChange={([v]) => void updateSetting("ttsSimilarity", v)}
+                  onValueChange={([v]) => setSettings(s => s ? { ...s, ttsSimilarity: v } : s)}
+                  onValueCommit={([v]) => void updateSetting("ttsSimilarity", v)}
                   min={0}
                   max={1}
                   step={0.05}
@@ -282,7 +285,8 @@ export default function SettingsPage() {
                 <Slider
                   aria-labelledby="label-fontSize"
                   value={[settings.fontSize]}
-                  onValueChange={([v]) => void updateSetting("fontSize", v)}
+                  onValueChange={([v]) => setSettings(s => s ? { ...s, fontSize: v } : s)}
+                  onValueCommit={([v]) => void updateSetting("fontSize", v)}
                   min={12}
                   max={32}
                   step={1}
@@ -334,7 +338,8 @@ export default function SettingsPage() {
                 <Slider
                   aria-labelledby="label-autoAdvanceDelay"
                   value={[settings.autoAdvanceDelay]}
-                  onValueChange={([v]) => void updateSetting("autoAdvanceDelay", v)}
+                  onValueChange={([v]) => setSettings(s => s ? { ...s, autoAdvanceDelay: v } : s)}
+                  onValueCommit={([v]) => void updateSetting("autoAdvanceDelay", v)}
                   min={1000}
                   max={10000}
                   step={500}

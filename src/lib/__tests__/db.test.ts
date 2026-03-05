@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 // sem instanciar Prisma nem conectar à DB real.
 // Extraímos a lógica de transformação de args para testá-la isoladamente.
 
-const TENANT_SCOPED_MODELS = ["station", "operator", "reference", "auditlog"];
+const TENANT_SCOPED_MODELS = ["station", "operator", "reference", "auditlog", "voicecommand"];
 
 async function applyTenantFilter(
   { model, operation, args }: { model: string; operation: string; args: Record<string, unknown> },
@@ -13,7 +13,7 @@ async function applyTenantFilter(
   // Replica a lógica interna de getTenantPrisma para ser testável isoladamente
   let transformedArgs = { ...args };
   if (TENANT_SCOPED_MODELS.includes(model.toLowerCase())) {
-    if (["findMany", "findFirst", "findUnique", "count", "aggregate"].includes(operation)) {
+    if (["findMany", "findFirst", "findUnique", "count", "aggregate", "groupBy"].includes(operation)) {
       transformedArgs = {
         ...transformedArgs,
         where: { ...(transformedArgs.where as Record<string, unknown> ?? {}), tenantId },
@@ -28,6 +28,19 @@ async function applyTenantFilter(
     if (operation === "createMany") {
       const data = (transformedArgs.data ?? []) as Record<string, unknown>[];
       transformedArgs = { ...transformedArgs, data: data.map((d) => ({ ...d, tenantId })) };
+    }
+    if (["update", "updateMany", "delete", "deleteMany"].includes(operation)) {
+      transformedArgs = {
+        ...transformedArgs,
+        where: { ...(transformedArgs.where as Record<string, unknown> ?? {}), tenantId },
+      };
+    }
+    if (operation === "upsert") {
+      transformedArgs = {
+        ...transformedArgs,
+        where: { ...(transformedArgs.where as Record<string, unknown> ?? {}), tenantId },
+        create: { ...(transformedArgs.create as Record<string, unknown> ?? {}), tenantId },
+      };
     }
   }
   return transformedArgs;
@@ -167,7 +180,7 @@ describe("lógica de tenant filter (getTenantPrisma)", () => {
       expect((result.where as Record<string, unknown>)?.tenantId).toBe(TENANT_ID);
     });
 
-    it("NÃO injeta tenantId em operação update (não mapeada)", async () => {
+    it("injeta tenantId no where para update em Station", async () => {
       const result = await applyTenantFilter(
         {
           model: "Station",
@@ -176,17 +189,64 @@ describe("lógica de tenant filter (getTenantPrisma)", () => {
         },
         TENANT_ID
       );
-      // update não está na lista de operações mapeadas — args não devem mudar
-      expect((result.where as Record<string, unknown>)?.tenantId).toBeUndefined();
+      expect(result.where).toEqual({ id: "station-1", tenantId: TENANT_ID });
+      // update NÃO injeta no data, só no where
       expect((result.data as Record<string, unknown>)?.tenantId).toBeUndefined();
     });
 
-    it("NÃO injeta tenantId em operação delete (não mapeada)", async () => {
+    it("injeta tenantId no where para delete em Station", async () => {
       const result = await applyTenantFilter(
         { model: "Station", operation: "delete", args: { where: { id: "station-1" } } },
         TENANT_ID
       );
-      expect((result.where as Record<string, unknown>)?.tenantId).toBeUndefined();
+      expect(result.where).toEqual({ id: "station-1", tenantId: TENANT_ID });
+    });
+
+    it("injeta tenantId no where para updateMany em Operator", async () => {
+      const result = await applyTenantFilter(
+        {
+          model: "Operator",
+          operation: "updateMany",
+          args: { where: { isActive: true }, data: { badge: "NEW" } },
+        },
+        TENANT_ID
+      );
+      expect(result.where).toEqual({ isActive: true, tenantId: TENANT_ID });
+    });
+
+    it("injeta tenantId no where para deleteMany em AuditLog", async () => {
+      const result = await applyTenantFilter(
+        { model: "AuditLog", operation: "deleteMany", args: { where: { action: "old" } } },
+        TENANT_ID
+      );
+      expect(result.where).toEqual({ action: "old", tenantId: TENANT_ID });
+    });
+
+    it("injeta tenantId no where e create para upsert em Station", async () => {
+      const result = await applyTenantFilter(
+        {
+          model: "Station",
+          operation: "upsert",
+          args: {
+            where: { id: "station-1" },
+            create: { name: "Nova" },
+            update: { name: "Atualizada" },
+          },
+        },
+        TENANT_ID
+      );
+      expect(result.where).toEqual({ id: "station-1", tenantId: TENANT_ID });
+      expect(result.create).toEqual({ name: "Nova", tenantId: TENANT_ID });
+      // upsert NÃO injeta no update
+      expect((result.update as Record<string, unknown>)?.tenantId).toBeUndefined();
+    });
+
+    it("injeta tenantId no where para groupBy em VoiceCommand", async () => {
+      const result = await applyTenantFilter(
+        { model: "VoiceCommand", operation: "groupBy", args: { where: { action: "next" } } },
+        TENANT_ID
+      );
+      expect(result.where).toEqual({ action: "next", tenantId: TENANT_ID });
     });
   });
 
@@ -257,15 +317,20 @@ describe("lógica de tenant filter (getTenantPrisma)", () => {
 
   describe("exportações de db.ts", () => {
     it("getTenantPrisma é uma função exportada", async () => {
+      // Setar DATABASE_URL dummy para o módulo carregar sem erro
+      process.env.DATABASE_URL = "postgresql://dummy:dummy@localhost:5432/test";
       vi.unmock("@/lib/db");
-      const { getTenantPrisma } = await import("../db");
-      expect(typeof getTenantPrisma).toBe("function");
+      vi.resetModules();
+      const mod = await import("../db");
+      expect(typeof mod.getTenantPrisma).toBe("function");
     });
 
     it("adminPrisma é exportado", async () => {
+      process.env.DATABASE_URL = "postgresql://dummy:dummy@localhost:5432/test";
       vi.unmock("@/lib/db");
-      const { adminPrisma } = await import("../db");
-      expect(adminPrisma).toBeDefined();
+      vi.resetModules();
+      const mod = await import("../db");
+      expect(mod.adminPrisma).toBeDefined();
     });
   });
 });

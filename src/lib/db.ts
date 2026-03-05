@@ -7,7 +7,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL!;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL environment variable is not set");
+  }
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({
     adapter,
@@ -20,7 +23,7 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // ── Modelos que requerem filtro automático de tenant ──
-const TENANT_SCOPED_MODELS = ["station", "operator", "reference", "auditlog"];
+const TENANT_SCOPED_MODELS = ["station", "operator", "reference", "auditlog", "voicecommand"];
 
 // Cache de clientes estendidos por tenant — evita criar novo $extends() a cada request
 const MAX_TENANT_CACHE_SIZE = 100;
@@ -55,7 +58,7 @@ export function getTenantPrisma(tenantId: string): PrismaClient {
           if (TENANT_SCOPED_MODELS.includes(model.toLowerCase())) {
             // Leitura: injetar tenantId no where
             if (
-              ["findMany", "findFirst", "findUnique", "count", "aggregate"].includes(operation)
+              ["findMany", "findFirst", "findUnique", "count", "aggregate", "groupBy"].includes(operation)
             ) {
               args = { ...args, where: { ...(args.where ?? {}), tenantId } };
             }

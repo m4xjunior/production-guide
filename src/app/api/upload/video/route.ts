@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Storage } from "@google-cloud/storage";
 import { buildGcsPath } from "@/lib/gcs";
+import { prisma } from "@/lib/db";
 
 const MAX_SIZE_BYTES = 200 * 1024 * 1024; // 200 MB
 const ACCEPTED_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
@@ -26,6 +27,10 @@ function getStorage(): Storage {
 }
 
 export async function POST(request: NextRequest) {
+  const tenantId = request.headers.get("x-tenant-id");
+  if (!tenantId) {
+    return NextResponse.json({ error: "Tenant no identificado" }, { status: 400 });
+  }
   const tenantSlug = request.headers.get("x-tenant-slug") || "kh";
 
   const formData = await request.formData().catch(() => null);
@@ -43,6 +48,20 @@ export async function POST(request: NextRequest) {
   if (!stationId || !stepId) {
     return NextResponse.json({ error: "stationId y stepId requeridos" }, { status: 400 });
   }
+  // Verificar que stationId pertence ao tenant
+  const station = await prisma.station.findFirst({
+    where: { id: stationId, tenantId },
+  });
+  if (!station) {
+    return NextResponse.json({ error: "Estación no encontrada" }, { status: 404 });
+  }
+  const step = await prisma.step.findFirst({
+    where: { id: stepId, stationId },
+  });
+  if (!step) {
+    return NextResponse.json({ error: "Paso no encontrado" }, { status: 404 });
+  }
+
   if (!ACCEPTED_TYPES.includes(file.type)) {
     return NextResponse.json(
       { error: `Tipo no soportado: ${file.type}. Acepta: mp4, webm, quicktime` },

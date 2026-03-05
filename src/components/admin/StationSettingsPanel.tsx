@@ -73,8 +73,8 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
           </Label>
           <Input
             id="station-settings-voice-id"
-            value={settings.ttsVoiceId ?? ""}
-            onChange={(e) => void update("ttsVoiceId", e.target.value)}
+            defaultValue={settings.ttsVoiceId ?? ""}
+            onBlur={(e) => void update("ttsVoiceId", e.target.value)}
             placeholder={`Heredar global: ${global.ttsVoiceId}`}
           />
         </div>
@@ -86,8 +86,8 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
             type="number"
             min={12}
             max={32}
-            value={settings.fontSize ?? ""}
-            onChange={(e) =>
+            defaultValue={settings.fontSize ?? ""}
+            onBlur={(e) =>
               void update("fontSize", e.target.value ? parseInt(e.target.value) : null)
             }
             placeholder={`Heredar global: ${global.fontSize}px`}
@@ -99,8 +99,8 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
           <div className="flex gap-2">
             <Input
               id="station-settings-bg-color"
-              value={settings.backgroundColor ?? ""}
-              onChange={(e) => void update("backgroundColor", e.target.value)}
+              defaultValue={settings.backgroundColor ?? ""}
+              onBlur={(e) => void update("backgroundColor", e.target.value)}
               placeholder="Heredar configuracion global"
             />
             {settings.backgroundColor && (
@@ -117,8 +117,8 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
           <div className="flex gap-2">
             <Input
               id="station-settings-accent-color"
-              value={settings.accentColor ?? ""}
-              onChange={(e) => void update("accentColor", e.target.value)}
+              defaultValue={settings.accentColor ?? ""}
+              onBlur={(e) => void update("accentColor", e.target.value)}
               placeholder="Heredar color primario del sistema"
             />
             {settings.accentColor && (
@@ -138,8 +138,8 @@ export function StationSettingsPanel({ stationId }: { stationId: string }) {
             min={1000}
             max={10000}
             step={500}
-            value={settings.autoAdvanceDelay ?? ""}
-            onChange={(e) =>
+            defaultValue={settings.autoAdvanceDelay ?? ""}
+            onBlur={(e) =>
               void update(
                 "autoAdvanceDelay",
                 e.target.value ? parseInt(e.target.value) : null,

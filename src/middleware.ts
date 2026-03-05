@@ -5,12 +5,22 @@ import { verifyPassword } from "@/lib/password";
 const DEFAULT_TENANT_SLUG = process.env.DEFAULT_TENANT_SLUG || "kh";
 
 function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  const maxLen = Math.max(a.length, b.length);
+  let result = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    result |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   }
   return result === 0;
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashCacheKey(tenantId: string, password: string): Promise<string> {
+  const data = new TextEncoder().encode(`${tenantId}:${password}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return bytesToHex(new Uint8Array(hash)).slice(0, 32);
 }
 
 /**
@@ -53,6 +63,7 @@ const RUTAS_INTERNAS = ["/api/tenant-lookup"];
 type TenantCacheEntry = { tenantId: string; adminHashes: string[]; expiresAt: number };
 const edgeTenantCache = new Map<string, TenantCacheEntry>();
 const EDGE_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+const MAX_EDGE_TENANT_CACHE = 200;
 
 // Cache de verificação de password — evita PBKDF2 em cada request
 const adminVerifyCache = new Map<string, { ok: boolean; expiresAt: number }>();
@@ -99,8 +110,8 @@ async function checkAdminPassword(
     return true;
   }
 
-  // 2. Check verify cache
-  const cacheKey = `${tenantId}:${password.length}:${password.slice(0, 4)}`;
+  // 2. Check verify cache (SHA-256 of full password to avoid prefix collisions)
+  const cacheKey = await hashCacheKey(tenantId, password);
   const cached = adminVerifyCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
     return cached.ok;
@@ -117,10 +128,16 @@ async function checkAdminPassword(
     }
   }
 
-  // Cache result
+  // Cache result (sweep expired first, then FIFO evict if still full)
   if (adminVerifyCache.size >= MAX_VERIFY_CACHE) {
-    const firstKey = adminVerifyCache.keys().next().value;
-    if (firstKey) adminVerifyCache.delete(firstKey);
+    const now = Date.now();
+    for (const [key, val] of adminVerifyCache) {
+      if (now >= val.expiresAt) adminVerifyCache.delete(key);
+    }
+    if (adminVerifyCache.size >= MAX_VERIFY_CACHE) {
+      const firstKey = adminVerifyCache.keys().next().value;
+      if (firstKey) adminVerifyCache.delete(firstKey);
+    }
   }
   adminVerifyCache.set(cacheKey, { ok, expiresAt: Date.now() + VERIFY_CACHE_TTL });
   return ok;
@@ -164,6 +181,10 @@ export async function middleware(request: NextRequest) {
         if (data.tenantId) {
           tenantId = data.tenantId;
           adminHashes = data.adminHashes ?? [];
+          if (edgeTenantCache.size >= MAX_EDGE_TENANT_CACHE) {
+            const firstKey = edgeTenantCache.keys().next().value;
+            if (firstKey) edgeTenantCache.delete(firstKey);
+          }
           edgeTenantCache.set(slug, { tenantId, adminHashes, expiresAt: Date.now() + EDGE_CACHE_TTL });
         } else if (data.error) {
           if (!pathname.startsWith("/api")) {

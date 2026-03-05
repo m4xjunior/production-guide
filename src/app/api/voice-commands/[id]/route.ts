@@ -21,6 +21,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Comando de voz no encontrado" }, { status: 404 });
     }
 
+    // Validar tipos dos campos
+    if (body.isEnabled !== undefined && typeof body.isEnabled !== "boolean") {
+      return NextResponse.json({ error: "isEnabled debe ser boolean" }, { status: 400 });
+    }
+    if (body.phrases !== undefined && !Array.isArray(body.phrases)) {
+      return NextResponse.json({ error: "phrases debe ser un array" }, { status: 400 });
+    }
+    if (body.sequence !== undefined && typeof body.sequence !== "number") {
+      return NextResponse.json({ error: "sequence debe ser un número" }, { status: 400 });
+    }
+    if (body.action !== undefined && typeof body.action !== "string") {
+      return NextResponse.json({ error: "action debe ser un string" }, { status: 400 });
+    }
+
     const updated = await prisma.voiceCommand.update({
       where: { id },
       data: {

@@ -110,6 +110,38 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "No se proporcionaron campos válidos para actualizar" }, { status: 400 });
     }
 
+    // Validar tipos e rangos
+    if (directData.ttsSpeed !== undefined) {
+      if (typeof directData.ttsSpeed !== "number" || directData.ttsSpeed < 0.25 || directData.ttsSpeed > 4.0) {
+        return NextResponse.json({ error: "ttsSpeed debe estar entre 0.25 y 4.0" }, { status: 400 });
+      }
+    }
+    if (directData.ttsStability !== undefined) {
+      if (typeof directData.ttsStability !== "number" || directData.ttsStability < 0 || directData.ttsStability > 1) {
+        return NextResponse.json({ error: "ttsStability debe estar entre 0 y 1" }, { status: 400 });
+      }
+    }
+    if (directData.ttsSimilarity !== undefined) {
+      if (typeof directData.ttsSimilarity !== "number" || directData.ttsSimilarity < 0 || directData.ttsSimilarity > 1) {
+        return NextResponse.json({ error: "ttsSimilarity debe estar entre 0 y 1" }, { status: 400 });
+      }
+    }
+    if (directData.fontSize !== undefined) {
+      if (typeof directData.fontSize !== "number" || directData.fontSize < 8 || directData.fontSize > 72) {
+        return NextResponse.json({ error: "fontSize debe estar entre 8 y 72" }, { status: 400 });
+      }
+    }
+    if (directData.theme !== undefined) {
+      if (!["light", "dark"].includes(directData.theme as string)) {
+        return NextResponse.json({ error: "theme debe ser 'light' o 'dark'" }, { status: 400 });
+      }
+    }
+    if (directData.autoAdvanceDelay !== undefined) {
+      if (typeof directData.autoAdvanceDelay !== "number" || directData.autoAdvanceDelay < 500 || directData.autoAdvanceDelay > 30000) {
+        return NextResponse.json({ error: "autoAdvanceDelay debe estar entre 500 y 30000" }, { status: 400 });
+      }
+    }
+
     // Buscar tenant atual para merge de features
     const current = await prisma.tenant.findUnique({ where: { id: tenantId } });
     if (!current) {

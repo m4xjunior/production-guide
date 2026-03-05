@@ -110,31 +110,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const totalPasos = await prisma.step.count({
-      where: { stationId: session.stationId },
-    });
-
-    const logsUnidadActual = await prisma.stepLog.count({
-      where: { sessionId },
-    });
-
-    const logsDeLaUnidadActual =
-      logsUnidadActual - session.completedUnits * totalPasos;
-
-    if (logsDeLaUnidadActual >= totalPasos) {
-      await prisma.operatorSession.update({
-        where: { id: sessionId },
-        data: {
-          completedUnits: { increment: 1 },
-        },
+    // Wrap unit completion check in transaction to prevent race condition (double-count)
+    const unitResult = await prisma.$transaction(async (tx) => {
+      const totalPasos = await tx.step.count({
+        where: { stationId: session!.stationId },
       });
+      const logsUnidadActual = await tx.stepLog.count({
+        where: { sessionId },
+      });
+      const currentSession = await tx.operatorSession.findUnique({
+        where: { id: sessionId },
+      });
+      if (!currentSession) return { completed: false, units: 0 };
 
+      const logsDeLaUnidadActual = logsUnidadActual - currentSession.completedUnits * totalPasos;
+
+      if (logsDeLaUnidadActual >= totalPasos) {
+        await tx.operatorSession.update({
+          where: { id: sessionId },
+          data: { completedUnits: { increment: 1 } },
+        });
+        return { completed: true, units: currentSession.completedUnits + 1 };
+      }
+      return { completed: false, units: currentSession.completedUnits };
+    });
+
+    if (unitResult.completed) {
       return NextResponse.json(
         {
           stepLog,
           skipped: false,
           unidadCompletada: true,
-          unidadesCompletadas: session.completedUnits + 1,
+          unidadesCompletadas: unitResult.units,
           message: "Unidad completada",
         },
         { status: 201 },
