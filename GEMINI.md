@@ -6,25 +6,32 @@
 |--------|--------|--------|-----|
 | 1 | Fluxo operário — login, estações, 3 passos | ✅ Concluída (8/10) | `docs/sprints/gemini/sessao-1-log.md` |
 | 2 | Painel admin — todas as 5 páginas | ✅ Concluída (8.5/10) | `docs/sprints/gemini/sessao-2-log.md` |
-| 3 | Fixes de acessibilidade (QA 1+2) | 🔄 Em andamento | `docs/sprints/gemini/sessao-3-log.md` |
+| 3 | Fixes de acessibilidade (QA 1+2) | ✅ Concluída | `docs/sprints/gemini/sessao-3-log.md` |
+| 4 | Verificar fix de voz mobile + remoção ElevenLabs ConvAI | 🔄 Próxima | `docs/sprints/gemini/sessao-4-log.md` |
 
 **Antes de iniciar:** leia o log da sessão anterior para não repetir o que já foi testado.
 
 ---
 
-## Como Iniciar (Sessão 3 — Fixes)
+## Como Iniciar (Sessão 4 — Verificar fix de voz mobile)
 
-**Task:** Aplicar os fixes documentados no relatório QA das sessões 1 e 2.
-**Arquivo de tasks:** `docs/sprints/gemini/tarefas-fixes.md` — leia inteiro antes de começar.
+**Contexto:** Claude fez mudanças críticas no backend e no fluxo de voz. Precisamos verificar que tudo funciona em produção.
+
+**Mudanças feitas por Claude (commit `c6f5124` e `20cc14a`):**
+1. ElevenLabs ConvAI agent **removido** — `useElevenStepConversation.ts` e `POST /api/elevenlabs/session` deletados
+2. `ProductionStep` agora inicia Web Speech API direto em 500ms (antes: 1000ms + fetch ElevenLabs)
+3. `AudioUnlockOverlay` faz priming do `webkitSpeechRecognition` no gesto de unlock (fix iOS)
+4. `StepVoiceElevenPanel` simplificado — botão "Activar micrófono" se o mic parar
+5. Testes com mocks removidos — ficaram só os de lógica pura
 
 ```bash
-gemini --yolo -i "Leia o GEMINI.md e docs/sprints/gemini/tarefas-fixes.md. Execute todas as tasks de fix de acessibilidade. Ao terminar, rode npx tsc --noEmit e crie sessao-3-log.md."
+gemini --yolo -i "Leia o GEMINI.md sessão 4. Verifica as mudanças de voz mobile feitas por Claude, acede à produção e confirma que tudo funciona. Cria sessao-4-log.md."
 ```
 
 **Regras:**
-- Seguir os before/after exatos do `tarefas-fixes.md`
-- NÃO alterar lógica de negócio
-- NÃO criar arquivos fora de `docs/sprints/gemini/`
+- NÃO corrija código
+- NÃO crie arquivos fora de `docs/sprints/gemini/`
+- Documenta o que funciona E o que ainda falha
 
 ---
 
@@ -57,8 +64,9 @@ Banco:         PostgreSQL serverless via Neon + Prisma 7 (multi-tenant)
 Deploy:        Vercel — auto-deploy em push para main
 Domínio:       p2v.lexusfx.com
 Auth operário: Sem senha — validação por sageCode (número do operário no Sage ERP)
-Voz primária:  ElevenLabs WebSocket (TTS + STT)
-Voz fallback:  Web Speech API nativa do browser (es-ES)
+Voz:           Web Speech API nativa do browser (es-ES, contínua)
+               ElevenLabs = só TTS pré-gerado (áudio MP3 armazenado no GCS)
+               ElevenLabs ConvAI agent REMOVIDO (commit c6f5124)
 Áudio TTS:     Google Cloud Storage (bucket privado, signed URLs de 7 dias)
 Monitoramento: Sentry
 CSS:           Tailwind CSS v4
@@ -68,11 +76,12 @@ Multi-tenant:  Middleware injeta x-tenant-id em todos os requests HTTP
 **Arquivos críticos para contexto:**
 ```
 src/app/page.tsx                              — fluxo principal do operário
-src/hooks/useContinuousSpeechRecognition.ts  — Web Speech API (fallback)
-src/hooks/useElevenStepConversation.ts       — ElevenLabs WebSocket
+src/components/devkit/AudioUnlockOverlay.tsx — unlock audio + priming speech iOS
+src/hooks/useContinuousSpeechRecognition.ts  — Web Speech API contínua
+src/components/ProductionStep.tsx            — passo de produção + voz
+src/components/StepVoiceElevenPanel.tsx      — UI do painel de voz
 src/app/api/validate/operator/route.ts       — login por sageCode
 src/app/api/stations/[id]/steps/route.ts     — passos com signed URLs GCS
-docs/plans/2026-03-05-voice-intent-detection-roadmap.md — bugs de voz em investigação
 ```
 
 ---
@@ -399,6 +408,70 @@ Usar `/docs` para criar/atualizar `docs/sprints/gemini/relatorio.md`:
 1. CRÍTICO: ...
 2. IMPORTANTE: ...
 3. MELHORIA: ...
+```
+
+---
+
+## Critérios de Sucesso — Sessão 4 (Verificação voz mobile)
+
+### O Que Verificar
+
+#### 1. ElevenLabs ConvAI removido
+```javascript
+// Deve retornar 404 (rota não existe mais)
+fetch('/api/elevenlabs/session', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' })
+  .then(r => r.status)
+```
+Esperado: `404`
+
+#### 2. ProductionStep inicia voz automaticamente
+- Entrar no fluxo de operário (login → estação → passo de voz)
+- Verificar que em 500ms o microfone ativa **automaticamente** (sem clicar em nada)
+- O badge deve mudar para "Activo" e o waveform animar
+
+#### 3. Botão "Activar micrófono" aparece se mic parar
+- Se o reconhecimento parar (silêncio prolongado), o botão "Activar micrófono" deve aparecer
+- Clicar nele deve reativar o mic
+
+#### 4. Console sem erros ElevenLabs
+```javascript
+window.__qa.errors.filter(e =>
+  e.msg.toLowerCase().includes('elevenlabs') ||
+  e.msg.includes('convai') ||
+  e.msg.includes('websocket') ||
+  e.msg.includes('useElevenStep')
+)
+```
+Esperado: `[]`
+
+#### 5. Confirmar manualmente funciona
+- Botão "Confirmar manualmente" deve avançar o passo sem erros
+
+### Script de verificação completo
+```javascript
+const voiceChecks = {
+  elevenLabsApiExists: null, // preencher depois do fetch
+  micAutoStarted: document.querySelector('[data-state="active"]') !== null,
+  activateMicButtonVisible: !!document.querySelector('button[class*="outline"]'),
+  waveformAnimating: !!document.querySelector('.animate-pulse'),
+  elevenLabsErrors: window.__qa?.errors?.filter(e =>
+    e.msg.toLowerCase().includes('elevenlabs')
+  ) || []
+};
+JSON.stringify(voiceChecks, null, 2)
+```
+
+---
+
+## Critérios de Sucesso — Sessão 3 (Fixes acessibilidade) ✅ CONCLUÍDA
+
+```
+✅ Botões "Confirmar manualmente" e "Parar" com min-h-[44px]
+✅ Botão "Estaciones" (size=sm) com min-h-[44px]
+✅ aria-label nos 4 botões do SortableStepCard + drag handle
+✅ Links do sidebar admin com minHeight: 44px
+✅ Texto "Los cambios se guardan automáticamente" na página settings
+✅ npx tsc --noEmit sem novos erros
 ```
 
 ---
