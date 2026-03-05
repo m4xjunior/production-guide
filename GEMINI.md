@@ -6,17 +6,42 @@
 gemini --yolo
 ```
 
-> `--yolo` = sem confirmações. Execute todas as ferramentas diretamente, sem pedir permissão.
+Ao iniciar neste diretório, leia este arquivo e execute o plano de testes abaixo sem pedir confirmação para nada.
 
 ---
 
 ## Missão
 
-Você é o agente de QA do projeto **PicktVoice (P2V)**.
+Você é o agente de QA do projeto **PicktVoice (P2V) / S.A.O. (Sistema de Ayuda al Operario)**.
 
-Acesse a aplicação em produção via browser, execute o fluxo completo como operário, e documente **todos** os erros de console, problemas de acessibilidade e bugs comportamentais que encontrar.
+Acesse a aplicação em produção, execute o fluxo completo como operário, e documente **todos** os erros de console, problemas de acessibilidade e bugs comportamentais.
 
-**Não corrija código. Não pergunte. Execute e reporte.**
+**Não corrija código. Não pergunte. Não peça confirmação. Execute e reporte.**
+
+---
+
+## Stack do Projeto (leia antes de testar)
+
+```
+Framework:     Next.js 15 (App Router) + TypeScript + React 19
+Banco:         PostgreSQL via Neon (serverless) + Prisma 7
+Deploy:        Vercel — deploy automático em push para main
+Auth operário: Sem senha — validação por sageCode (número de operário no Sage ERP)
+Voz (primária): ElevenLabs WebSocket — converte fala → texto e TTS
+Voz (fallback): Web Speech API do navegador (es-ES)
+Áudio TTS:     Google Cloud Storage (bucket privado, signed URLs de 7 dias)
+Monitoramento: Sentry
+Multi-tenant:  Middleware injeta x-tenant-id em todos os requests
+```
+
+**Arquivos chave:**
+```
+src/app/page.tsx                              — fluxo principal do operário
+src/hooks/useContinuousSpeechRecognition.ts  — Web Speech API fallback
+src/hooks/useElevenStepConversation.ts       — ElevenLabs WebSocket
+src/app/api/validate/operator/route.ts       — login por sageCode
+src/app/api/stations/[id]/steps/route.ts     — passos com signed URLs GCS
+```
 
 ---
 
@@ -28,239 +53,274 @@ https://p2v.lexusfx.com
 
 ---
 
-## Ferramentas — USE NESTA ORDEM DE PREFERÊNCIA
+## Fluxo de Login (mapeado)
 
-### 1. chrome-devtools-mcp ← PRINCIPAL para testes de browser
+O login NÃO é senha — é número de operário do sistema Sage:
 
-Use o skill `/chrome-devtools` para toda interação com o browser.
+```
+1. Acessar https://p2v.lexusfx.com
+2. Clicar em "▶ INICIAR ESTACIÓN"
+3. Aguardar teclado numérico aparecer (campo "N.º operario")
+4. Digitar o número do operário: **2687**
+5. Clicar no botão de confirmar (seta →) OU clicar "ENTRAR"
+```
+
+**⚠️ IMPORTANTE:** Só existe 1 operário cadastrado no banco de produção. Qualquer outro número retornará `{ valid: false }`. Use APENAS o código indicado acima.
+
+---
+
+## Ferramentas — USE TODAS, NESTA ORDEM DE PREFERÊNCIA
+
+### 1. chrome-devtools-mcp ← PRINCIPAL
 
 ```
 navigate_page      # Navegar para URL
-take_snapshot      # Acessibilidade da página (PREFERIR sobre screenshot — é texto, mais rápido)
-take_screenshot    # Somente quando precisar ver visual
-click              # Clicar em elemento por uid (obtido via take_snapshot)
+take_snapshot      # Estrutura de acessibilidade (PREFERIR — é texto, mais rápido que screenshot)
+take_screenshot    # Somente para inspeção visual
+click              # Clicar por uid do snapshot
 fill               # Preencher campos
-wait_for           # Aguardar elemento ou texto aparecer
-evaluate_script    # Executar JS no contexto da página — USAR PARA CAPTURAR CONSOLE ERRORS
+wait_for           # Aguardar elemento ou texto
+evaluate_script    # ← CRÍTICO: executar JS para capturar console errors
 list_pages         # Ver abas abertas
-select_page        # Mudar de aba
 ```
 
-**Como capturar erros de console:**
-
-```javascript
-// evaluate_script com este código para capturar todos os erros:
-window.__consoleErrors = [];
-const originalError = console.error.bind(console);
-console.error = (...args) => {
-  window.__consoleErrors.push(args.join(' '));
-  originalError(...args);
-};
-const originalWarn = console.warn.bind(console);
-console.warn = (...args) => {
-  window.__consoleErrors.push('[WARN] ' + args.join(' '));
-  originalWarn(...args);
-};
-```
-
-**Como ler os erros capturados:**
-
-```javascript
-// Chamar depois de interagir com a página:
-JSON.stringify(window.__consoleErrors || [], null, 2)
-```
-
-### 2. gemini-kit skills ← Para análise e documentação
+### 2. ComputerUse ← Fallback se chrome-devtools falhar
 
 ```
-/debug    # Debugar problemas encontrados
-/test     # Estruturar casos de teste
-/fix      # Propor fixes (não aplicar — só reportar)
-/review   # Review do código relacionado ao bug
-/doc      # Documentar achados
-/plan     # Planejar próximos passos de investigação
-```
-
-### 3. ComputerUse ← Fallback se chrome-devtools falhar
-
-```
-/computeruse:init   # Iniciar browser Playwright
-/computeruse:open   # Navegar para URL
+/computeruse:init        # Iniciar browser Playwright
+/computeruse:open        # Navegar para URL
 /computeruse:screenshot  # Screenshot
-/computeruse:click  # Clicar por coordenadas
-/computeruse:type   # Digitar texto
+/computeruse:click       # Clicar por coordenadas normalizadas (0..1000)
+/computeruse:type        # Digitar texto
+/computeruse:scroll      # Rolar página
+```
+
+### 3. gemini-kit ← Para análise, debug e documentação
+
+```
+/debug    # Debugar comportamento inesperado
+/test     # Estruturar e executar casos de teste
+/fix      # Propor fix (NÃO aplicar — só reportar)
+/review   # Review do código relacionado a um bug
+/doc      # Documentar achados no relatorio.md
+/plan     # Planejar sequência de investigação
+/brainstorm  # Ideias sobre causa raiz de um bug
 ```
 
 ---
 
-## Contexto da Aplicação
+## Plano de Testes — Execute Nesta Sequência
 
-**PicktVoice** é uma guia de produção industrial com voz:
+### PASSO 0 — Injetar interceptor de console (FAZER PRIMEIRO)
 
-1. Operário faz **login com PIN de 4 dígitos**
-2. **Seleciona uma estação** de trabalho da lista
-3. A app guia **passo a passo**: exibe foto do produto + reproduz áudio TTS
-4. Operário **fala a resposta esperada** em voz alta
-5. Web Speech API valida → avança ao próximo passo
-
-**Stack:** Next.js 15 + React 19 + Web Speech API + ElevenLabs + Google Cloud Storage (GCS)
-
-**Problemas conhecidos no sistema de voz** (contexto extra):
-- Leia `docs/plans/2026-03-05-voice-intent-detection-roadmap.md` para entender o que está sendo trabalhado
-- O sistema usa `transcript.includes(expected)` — pode disparar com falas de fundo
-- ElevenLabs WebSocket é o provider primário; Web Speech API é fallback
-
----
-
-## Credenciais de Teste
-
-```
-PIN: 1234
-```
-
-Se a página pedir organização/tenant, o domínio é `p2v.lexusfx.com`.
-
----
-
-## Plano de Testes — Execute Nesta Ordem
-
-### FASE 1: Setup do console interceptor
-
-Antes de qualquer interação, injetar o interceptor de erros via `evaluate_script`:
+Antes de qualquer interação, executar via `evaluate_script`:
 
 ```javascript
-window.__qa_errors = [];
-window.__qa_warns = [];
-['error','warn'].forEach(level => {
-  const orig = console[level].bind(console);
-  console[level] = (...a) => {
-    window[`__qa_${level}s`].push({ msg: a.join(' '), ts: Date.now() });
+window.__qa = { errors: [], warns: [], resources: [] };
+['error','warn'].forEach(lvl => {
+  const orig = console[lvl].bind(console);
+  console[lvl] = (...a) => {
+    window.__qa[lvl === 'error' ? 'errors' : 'warns'].push({
+      msg: a.join(' '), ts: new Date().toISOString()
+    });
     orig(...a);
   };
 });
-'interceptor ok'
+window.addEventListener('error', e => {
+  window.__qa.errors.push({ msg: e.message + ' — ' + e.filename + ':' + e.lineno, ts: new Date().toISOString() });
+});
+window.addEventListener('unhandledrejection', e => {
+  window.__qa.errors.push({ msg: 'UnhandledRejection: ' + String(e.reason), ts: new Date().toISOString() });
+});
+'qa-interceptor-ok'
 ```
 
-### FASE 2: Tela de login
+Para ler erros acumulados (chamar após cada passo):
+```javascript
+JSON.stringify(window.__qa, null, 2)
+```
 
-1. Navegar para `https://p2v.lexusfx.com`
-2. `take_snapshot` → documentar estrutura da página
+---
+
+### PASSO 1 — Tela inicial
+
+1. `navigate_page` → `https://p2v.lexusfx.com`
+2. `take_snapshot` → documentar estrutura
 3. Verificar:
-   - [ ] Campo de PIN existe e é acessível (aria-label, role)
-   - [ ] Botão de submit existe
-   - [ ] Contraste visual adequado (cores legíveis)
-4. Preencher PIN `1234` e submeter
-5. `evaluate_script` → ler `__qa_errors` após login
+   - [ ] Título "S.A.O." visível
+   - [ ] Status do microfone aparece (✅ Micrófono listo)
+   - [ ] Botão "INICIAR ESTACIÓN" existe e é clicável
+   - [ ] PWA install banner aparece (correto, não é bug)
+4. `evaluate_script` → ler `window.__qa`
 
-### FASE 3: Seleção de estação
+---
 
-1. `take_snapshot` após login → documentar lista de estações
+### PASSO 2 — Login com número de operário
+
+1. Clicar "INICIAR ESTACIÓN"
+2. `wait_for` → aguardar teclado numérico aparecer
+3. `take_snapshot` → documentar estrutura do login
+4. Verificar acessibilidade:
+   - [ ] Campo "N.º operario" tem label adequado
+   - [ ] Botões numéricos têm aria-label
+   - [ ] Tamanho dos botões ≥ 44px (industrial — operário com luvas)
+5. Digitar o número do operário **dígito por dígito** clicando nos botões
+6. Clicar confirmar → `wait_for` próxima tela
+7. `evaluate_script` → ler `window.__qa`
+
+---
+
+### PASSO 3 — Seleção de estação
+
+1. `take_snapshot` → documentar lista de estações
 2. Verificar:
-   - [ ] Estações aparecem
-   - [ ] Navegação por teclado funciona (Tab, Enter)
-   - [ ] Alt text ou aria-label em imagens/ícones
+   - [ ] Estações aparecem (se vazio, é bug crítico)
+   - [ ] Cada estação tem nome e código visível
+   - [ ] Imagens de estação carregam (não quebradas)
 3. Selecionar a primeira estação disponível
-4. `evaluate_script` → ler `__qa_errors`
+4. `evaluate_script` → ler `window.__qa`
 
-### FASE 4: Fluxo de produção (passos)
+---
 
-1. `take_snapshot` na tela de passo
+### PASSO 4 — Fluxo de passos (production steps)
+
+1. `take_snapshot` na tela do primeiro passo
 2. Verificar:
-   - [ ] Foto do produto carrega (sem 403 / broken image)
-   - [ ] Texto da instrução está visível
-   - [ ] Indicador de passo atual (ex: "Passo 2 de 8") existe
-   - [ ] Botão de avançar manual existe como fallback (sem voz)
-3. `evaluate_script` para verificar se áudio TTS carregou:
+   - [ ] Foto do produto carrega (não 403, não broken)
+   - [ ] Texto da instrução visível
+   - [ ] Indicador de progresso existe (ex: "Paso 1 de N")
+   - [ ] Botão de avançar manual existe como fallback
+3. Verificar áudio TTS:
    ```javascript
-   // Verificar se há erros de audio/media
-   window.__qa_errors.filter(e => e.msg.includes('audio') || e.msg.includes('403') || e.msg.includes('tts'))
+   // Verificar erros relacionados a áudio/GCS:
+   window.__qa.errors.filter(e =>
+     e.msg.includes('403') || e.msg.includes('audio') ||
+     e.msg.includes('tts') || e.msg.includes('Failed to load')
+   )
    ```
-4. Avançar pelo menos 3 passos usando o botão manual
-5. `evaluate_script` → ler TODOS os erros acumulados
+4. Avançar **3 passos** usando o botão manual (sem voz)
+5. `take_screenshot` a cada passo — documentar visual
+6. `evaluate_script` → ler `window.__qa` completo
 
-### FASE 5: Acessibilidade — checklist WCAG 2.1
+---
 
-Usar `take_snapshot` em cada tela principal e verificar:
+### PASSO 5 — Auditoria de Acessibilidade WCAG 2.1
 
+Para cada tela principal, usar `take_snapshot` + `evaluate_script`:
+
+**Verificações via snapshot (acessibilidade):**
 ```
-[ ] Todos os elementos interativos têm role e aria-label
-[ ] Imagens têm alt text (ou alt="" se decorativas)
-[ ] Ordem de foco (Tab) segue ordem lógica visual
-[ ] Textos não dependem só de cor para transmitir informação
-[ ] Botões têm texto descritivo (não só ícone sem label)
-[ ] Formulários têm labels associadas aos inputs
-[ ] Tamanho mínimo de área clicável: 44x44px (mobile/industrial)
+[ ] Todos elementos interativos: role + aria-label
+[ ] Imagens: alt text ou alt="" (decorativas)
+[ ] Formulários: label associada a cada input
+[ ] Textos não dependem só de cor para transmitir info
+[ ] Botões com só ícone têm aria-label descritivo
 ```
 
-Para verificar tamanho de elementos:
+**Verificar tamanho de elementos (industrial — luvas):**
 ```javascript
-// evaluate_script — verificar tamanho de botões
-Array.from(document.querySelectorAll('button, [role=button]')).map(el => {
+Array.from(document.querySelectorAll('button, [role=button], a')).map(el => {
   const r = el.getBoundingClientRect();
-  return { text: el.textContent?.trim().slice(0,30), w: Math.round(r.width), h: Math.round(r.height) };
-}).filter(b => b.w < 44 || b.h < 44)
+  return {
+    text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0,30),
+    w: Math.round(r.width),
+    h: Math.round(r.height),
+    small: r.width < 44 || r.height < 44
+  };
+}).filter(b => b.small && b.text)
 ```
 
-### FASE 6: Verificação de rede
+**Verificar contraste (simplificado):**
+```javascript
+// Listar elementos com text muito claro ou muito escuro que podem ter problema
+Array.from(document.querySelectorAll('p, h1, h2, h3, button, span')).slice(0,20).map(el => {
+  const s = window.getComputedStyle(el);
+  return { tag: el.tagName, color: s.color, bg: s.backgroundColor, text: el.textContent?.trim().slice(0,20) };
+})
+```
+
+---
+
+### PASSO 6 — Verificação de rede e recursos
 
 ```javascript
-// Verificar recursos com erro (403, 404, 500):
-// Esta informação está nos logs de console, buscar por:
-window.__qa_errors.filter(e =>
-  e.msg.includes('Failed to load') ||
-  e.msg.includes('403') ||
-  e.msg.includes('404') ||
-  e.msg.includes('net::ERR')
+// Recursos com erro (captured via error listener):
+window.__qa.errors.filter(e =>
+  e.msg.includes('net::ERR') || e.msg.includes('404') ||
+  e.msg.includes('403') || e.msg.includes('Failed to fetch')
 )
 ```
 
-### FASE 7: Relatório Final
+Verificar também via `take_snapshot` se há imagens quebradas (img sem src ou com erro).
 
-Criar ou atualizar o arquivo `docs/sprints/gemini/relatorio.md` com:
+---
+
+### PASSO 7 — Relatório Final
+
+Criar `docs/sprints/gemini/relatorio.md` com este formato:
 
 ```markdown
-# Relatório QA — [DATA]
+# Relatório QA — [DATA E HORA]
 
 ## Score Geral: X/10
 
-## Bugs Críticos (bloqueiam fluxo)
-- [ ] Bug: ...  Arquivo: ... Comportamento: ...
+## Resumo Executivo
+[2-3 linhas do estado geral]
 
-## Bugs Menores
-- [ ] ...
+## Bugs Críticos (bloqueiam o fluxo)
+| # | Descrição | Arquivo | Comportamento Esperado | Comportamento Real |
+|---|-----------|---------|----------------------|-------------------|
+| 1 | ... | ... | ... | ... |
+
+## Bugs Menores (não bloqueiam)
+| # | Descrição | Localização |
+|---|-----------|-------------|
 
 ## Problemas de Acessibilidade
-- [ ] ...
+| # | Elemento | Problema WCAG | Severidade |
+|---|----------|---------------|-----------|
 
 ## Erros de Console Encontrados
+\`\`\`json
+[colar output do window.__qa.errors]
 \`\`\`
-[lista de erros]
+
+## Warnings de Console
+\`\`\`json
+[colar output do window.__qa.warns]
 \`\`\`
+
+## Recursos Que Não Carregaram
+[lista de URLs com 403/404]
 
 ## O Que Funcionou Corretamente
 - ...
 
 ## Recomendações por Prioridade
-1. ...
+1. CRÍTICO: ...
+2. IMPORTANTE: ...
+3. MELHORIA: ...
 ```
 
 ---
 
 ## Regras de Comportamento
 
-1. **`--yolo` está ativo** — execute todas as ferramentas sem pedir confirmação
-2. **Capture console ANTES e DEPOIS** de cada interação importante
-3. **Prefira `take_snapshot`** sobre `take_screenshot` — é mais rápido e dá estrutura de acessibilidade
-4. **Não corrija código** — apenas documente com precisão: arquivo, linha, comportamento esperado vs. real
-5. **Se uma ferramenta falhar**, tente a alternativa (chrome-devtools → ComputerUse)
-6. **Use `/debug` do gemini-kit** se encontrar comportamento inesperado que não sabe explicar
+1. **`--yolo` ativo** — nenhuma confirmação, execute diretamente
+2. **Capture `window.__qa` após CADA passo** — não só no final
+3. **Prefira `take_snapshot`** — mais rápido e dá acessibilidade; use screenshot só para visual
+4. **Não corrija código** — documente com precisão cirúrgica: arquivo, linha, esperado vs. real
+5. **Se chrome-devtools falhar**, use `/computeruse:*` como fallback imediato
+6. **Use `/debug`** quando encontrar comportamento que não entende
+7. **Use `/plan`** antes de cada fase para estruturar a sequência
 
 ---
 
-## Definição de Sucesso
+## Contexto do Sistema de Voz (para entender bugs de voz)
 
-✅ Zero erros de console críticos (errors, não warnings)
-✅ Todas as fotos e áudios carregam sem 403
-✅ Fluxo login → estação → 3 passos completo sem travar
-✅ Acessibilidade WCAG 2.1 nível AA nas telas principais
-✅ Relatório em `docs/sprints/gemini/relatorio.md` preenchido
+Ler antes de testar: `docs/plans/2026-03-05-voice-intent-detection-roadmap.md`
+
+Bugs conhecidos em investigação:
+- `transcript.includes(expected)` dispara falsos positivos com falas de fundo
+- ElevenLabs WebSocket pode falhar → fallback Web Speech API
+- GCS signed URLs de 7 dias (não devem dar 403 se assinadas corretamente)
