@@ -16,6 +16,7 @@ interface SpeechRecognitionConstructor {
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
+  maxAlternatives: number;
   lang: string;
   start(): void;
   stop(): void;
@@ -36,6 +37,143 @@ declare global {
   }
 }
 
+// ── Funções de matching exportadas para teste ──────────────────────
+
+/**
+ * Normaliza texto: lowercase, sem acentos, sem pontuação, espaços únicos.
+ */
+export function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Normalização fonética para espanhol — reduz confusões comuns do STT.
+ * "vueno" → "bueno", "hola" → "ola", "siguiente" → "siguiente"
+ */
+export function phoneticNormalize(str: string): string {
+  return str
+    .replace(/v/g, "b")          // v↔b indistinguíveis em espanhol
+    .replace(/z/g, "s")          // seseo: z→s
+    .replace(/ce/g, "se")        // ce→se
+    .replace(/ci/g, "si")        // ci→si
+    .replace(/ll/g, "y")         // ll→y (yeísmo)
+    .replace(/h/g, "")           // h mudo
+    .replace(/qu/g, "k")         // qu→k
+    .replace(/rr/g, "r")         // simplifica rr
+    .replace(/x/g, "s")          // x→s em muitos dialetos
+    .replace(/([aeiou])\1+/g, "$1"); // vogais duplicadas → uma só
+}
+
+/**
+ * Duas palavras são similares se:
+ * - Idênticas (texto ou fonética)
+ * - Prefixo comum ≥3 chars
+ * - Edit distance ≤1 para curtas, ≤2 para longas
+ */
+export function wordsSimilar(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (a.length < 2 || b.length < 2) return a === b;
+
+  // Phonetic match: "vueno" ≈ "bueno"
+  if (phoneticNormalize(a) === phoneticNormalize(b)) return true;
+
+  // Prefix match: a mais curta é prefixo da mais longa
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  if (short.length >= 3 && long.startsWith(short)) return true;
+
+  // Suffix match: "eno" no fim de "bueno" e "vueno"
+  if (short.length >= 3 && long.endsWith(short)) return true;
+
+  // Edit distance
+  const maxDist = Math.min(a.length, b.length) <= 5 ? 1 : 2;
+  if (Math.abs(a.length - b.length) > maxDist) return false;
+
+  return editDistance(a, b) <= maxDist;
+}
+
+function editDistance(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const curr = [i];
+    for (let j = 1; j <= b.length; j++) {
+      curr[j] =
+        a[i - 1] === b[j - 1]
+          ? prev[j - 1]
+          : 1 + Math.min(prev[j - 1], prev[j], curr[j - 1]);
+    }
+    prev = curr;
+  }
+  return prev[b.length];
+}
+
+/**
+ * Verifica se o transcript faz match com a resposta esperada.
+ *
+ * Estratégia progressiva (6 camadas):
+ * 1. Match exato normalizado
+ * 2. Containment (um contém o outro)
+ * 3. Match fonético (espanhol)
+ * 4. Word overlap exato ≥50% das palavras esperadas
+ * 5. Word overlap fuzzy ≥50% (tolera erros de STT)
+ * 6. Comando curto (1 palavra): qualquer palavra similar no transcript
+ */
+export function matchesExpected(transcript: string, expected: string): boolean {
+  if (!transcript || !expected) return false;
+
+  // 1. Exato
+  if (transcript === expected) return true;
+
+  // 2. Containment
+  if (transcript.includes(expected) || expected.includes(transcript)) return true;
+
+  // 3. Match fonético completo
+  const tPhon = phoneticNormalize(transcript);
+  const ePhon = phoneticNormalize(expected);
+  if (tPhon === ePhon) return true;
+  if (tPhon.includes(ePhon) || ePhon.includes(tPhon)) return true;
+
+  const tWords = transcript.split(" ");
+  const eWords = expected.split(" ");
+
+  // 4. Exact word overlap ≥50%
+  let exactHits = 0;
+  for (const ew of eWords) {
+    if (tWords.includes(ew)) exactHits++;
+  }
+  if (eWords.length > 0 && exactHits / eWords.length >= 0.5) return true;
+
+  // 5. Fuzzy word overlap ≥50%
+  let fuzzyHits = 0;
+  for (const ew of eWords) {
+    for (const tw of tWords) {
+      if (wordsSimilar(tw, ew)) {
+        fuzzyHits++;
+        break;
+      }
+    }
+  }
+  if (eWords.length > 0 && fuzzyHits / eWords.length >= 0.5) return true;
+
+  // 6. Comando curto (1 palavra): qualquer palavra similar no transcript basta
+  if (eWords.length === 1 && eWords[0].length >= 2) {
+    for (const tw of tWords) {
+      if (wordsSimilar(tw, eWords[0])) return true;
+    }
+  }
+
+  return false;
+}
+
+// ── Hook ───────────────────────────────────────────────────────────
+
 export const useContinuousSpeechRecognition = (
   expectedResponse: string,
   onMatch: () => void,
@@ -48,79 +186,98 @@ export const useContinuousSpeechRecognition = (
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isListeningRef = useRef(false);
 
+  // ── Refs para valores mutáveis ──
+  // O handler onresult captura checkMatch no closure do SpeechRecognition.
+  // Sem refs, quando isTTSSpeaking muda, o handler antigo ainda usa o valor velho.
+  const isTTSSpeakingRef = useRef(isTTSSpeaking);
+  const expectedResponseRef = useRef(expectedResponse);
+  const onMatchRef = useRef(onMatch);
+  const matchCooldownRef = useRef(false);
+  const wordBufferRef = useRef<string[]>([]);
+  const bufferTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => { isTTSSpeakingRef.current = isTTSSpeaking; }, [isTTSSpeaking]);
+  useEffect(() => { expectedResponseRef.current = expectedResponse; }, [expectedResponse]);
+  useEffect(() => { onMatchRef.current = onMatch; }, [onMatch]);
+
+  // Reset ao mudar de step
+  useEffect(() => {
+    wordBufferRef.current = [];
+    matchCooldownRef.current = false;
+    setLastHeard("");
+  }, [expectedResponse]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      setIsSupported(!!SpeechRecognition);
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      setIsSupported(!!SR);
     }
   }, []);
 
+  // checkMatch estável — lê tudo de refs, referência nunca muda.
+  // Isso resolve o bug de closure stale no onresult.
   const checkMatch = useCallback(
-    (transcript: string) => {
-      // Normalização ultra-robusta: apenas letras e números
-      const normalize = (str: string) => 
-        str.toLowerCase()
-           .normalize("NFD")
-           .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-           .replace(/[^a-z0-9\s]/g, "") // Remove TUDO exceto letras, números e espaços
-           .replace(/\s+/g, " ") // Normaliza espaços
-           .trim();
+    (transcript: string, isFinal: boolean) => {
+      if (matchCooldownRef.current) return false;
 
       const t = normalize(transcript);
-      const e = normalize(expectedResponse);
+      const e = normalize(expectedResponseRef.current);
+
+      setLastHeard(transcript.trim());
 
       if (!t || !e) return false;
+      if (isTTSSpeakingRef.current) return false;
 
-      // Filtro de segurança relaxado para conversa de fundo
+      // Acumular palavras finais para match cross-result
+      if (isFinal) {
+        wordBufferRef.current.push(...t.split(" "));
+        if (wordBufferRef.current.length > 20) {
+          wordBufferRef.current = wordBufferRef.current.slice(-20);
+        }
+        if (bufferTimerRef.current) clearTimeout(bufferTimerRef.current);
+        bufferTimerRef.current = setTimeout(() => {
+          wordBufferRef.current = [];
+        }, 8000);
+      }
+
+      // Rejeitar frases muito longas (conversa de fundo)
       const tWords = t.split(" ");
       const eWords = e.split(" ");
-      if (tWords.length > eWords.length * 4 + 4) return false;
+      if (tWords.length > eWords.length * 4 + 5) return false;
 
-      // Lógica de matching progressiva
+      // Match: transcript atual OU buffer acumulado
+      const buffered = wordBufferRef.current.join(" ");
       const isMatch =
-        t === e || // Exato
-        t.includes(e) || e.includes(t) || // Contido
-        (e.includes("bueno") && t.includes("bueno")) || // Keyword industrial
-        (e.includes("pin") && t.includes("pin")) || // Keyword industrial
-        (e.includes("ok") && t.includes("ok")) ||
-        (t.length >= 3 && e.includes(t)) || // Match parcial de pelo menos 3 letras
-        (e.length >= 3 && t.includes(e));
+        matchesExpected(t, e) || (buffered.length > 0 && matchesExpected(buffered, e));
 
-      // Feedback visual para o operário saber que o sistema reconheceu mas talvez o TTS estivesse bloqueando
-      const debugStatus = isMatch ? " ✓" : "";
-      const ttsStatus = isTTSSpeaking ? " (TTS)" : "";
-      setLastHeard(transcript + debugStatus + ttsStatus);
-
-      // Só dispara se não estiver falando (mantendo a segurança mas com feedback)
-      if (isMatch && !isTTSSpeaking) {
-        onMatch();
+      if (isMatch) {
+        matchCooldownRef.current = true;
+        setTimeout(() => { matchCooldownRef.current = false; }, 2000);
+        wordBufferRef.current = [];
+        onMatchRef.current();
         return true;
       }
 
       return false;
     },
-    [expectedResponse, onMatch, isTTSSpeaking],
+    [], // Sem deps — estável para sempre, lê de refs
   );
 
   const startContinuousListening = useCallback(() => {
-    // Note: intentionally NOT blocking on isTTSSpeaking here.
-    // checkMatch already ignores transcripts while TTS is speaking.
-    // Blocking here causes recognition to never start when TTS finishes.
     if (!isSupported || isListeningRef.current) return;
 
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SR();
     recognitionRef.current = recognition;
 
     recognition.continuous = true;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 3; // Pedir 3 alternativas ao STT
     recognition.lang = "es-ES";
 
     recognition.onstart = () => {
@@ -129,47 +286,46 @@ export const useContinuousSpeechRecognition = (
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = "";
-      let interimTranscript = "";
+      let bestTranscript = "";
+      let isFinal = false;
 
+      // Iterar por todos os resultados novos
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
+        isFinal = event.results[i].isFinal;
+        const numAlts = event.results[i].length;
+
+        // Verificar TODAS as alternativas do STT (não só a primeira)
+        for (let alt = 0; alt < numAlts; alt++) {
+          const text = event.results[i][alt].transcript;
+          const confidence = event.results[i][alt].confidence;
+
+          // Ignorar alternativas com confiança muito baixa
+          if (confidence > 0 && confidence < 0.15) continue;
+
+          if (text.trim()) {
+            // Tentar match em cada alternativa — parar no primeiro match
+            if (checkMatch(text, isFinal)) return;
+
+            // Guardar o melhor transcript para feedback visual
+            if (!bestTranscript) bestTranscript = text;
+          }
         }
       }
 
-      // Check both final and interim results
-      const textToCheck = finalTranscript || interimTranscript;
-      if (textToCheck.trim()) {
-        setLastHeard(textToCheck);
-        checkMatch(textToCheck);
+      // Se nenhuma alternativa fez match, mostrar o melhor transcript como feedback
+      if (bestTranscript.trim()) {
+        setLastHeard(bestTranscript.trim());
       }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      // Ignore common, non-critical errors
-      if (
-        event.error === "no-speech" ||
-        event.error === "audio-capture" ||
-        event.error === "aborted"
-      ) {
-        return;
-      }
+      if (["no-speech", "audio-capture", "aborted"].includes(event.error)) return;
 
       console.error("Speech recognition error:", event.error);
-
-      // Don't stop on network errors, just restart
-      if (event.error === "network") {
-        return;
-      }
+      if (event.error === "network") return;
 
       setIsListening(false);
 
-      // Auto-restart after error (except for permission denied)
-      // checkMatch already suppresses matches during TTS, so restart is safe
       if (event.error !== "not-allowed" && isListeningRef.current) {
         restartTimeoutRef.current = setTimeout(() => {
           startContinuousListening();
@@ -178,12 +334,10 @@ export const useContinuousSpeechRecognition = (
     };
 
     recognition.onend = () => {
-      // Auto-restart if we're supposed to be listening
-      // checkMatch already suppresses matches during TTS, so restart is safe
       if (isListeningRef.current) {
         restartTimeoutRef.current = setTimeout(() => {
           startContinuousListening();
-        }, 500);
+        }, 150); // 150ms — gap mínimo para não perder falas
       }
     };
 
@@ -208,12 +362,15 @@ export const useContinuousSpeechRecognition = (
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+
+    wordBufferRef.current = [];
+    matchCooldownRef.current = false;
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopContinuousListening();
+      if (bufferTimerRef.current) clearTimeout(bufferTimerRef.current);
     };
   }, [stopContinuousListening]);
 

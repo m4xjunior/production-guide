@@ -121,6 +121,25 @@ export function ProductionStep({
     step.periodEveryN > 0 &&
     completedUnits % step.periodEveryN !== 0;
 
+  const logStepCompletion = useCallback(async (response: string) => {
+    const durationMs = Date.now() - stepStartTimeRef.current;
+    try {
+      await fetch("/api/step-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          stepId: step.id,
+          responseReceived: response,
+          durationMs,
+          wasSkipped: false,
+        }),
+      });
+    } catch (err) {
+      console.error("Error logging step:", err);
+    }
+  }, [sessionId, step.id]);
+
   const resolveAndNavigate = useCallback(
     (responseGiven: string) => {
       const nextStep = resolveNextStep(step, responseGiven, steps);
@@ -138,8 +157,7 @@ export function ProductionStep({
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 900);
     resolveAndNavigate(step.respuesta || "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.respuesta, resolveAndNavigate]);
+  }, [step.respuesta, resolveAndNavigate, logStepCompletion]);
 
   const {
     isListening,
@@ -173,25 +191,6 @@ export function ProductionStep({
   const stopFallbackRecognition = useCallback(() => {
     stopContinuousListeningRef.current();
   }, []);
-
-  const logStepCompletion = useCallback(async (response: string) => {
-    const durationMs = Date.now() - stepStartTimeRef.current;
-    try {
-      await fetch("/api/step-logs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          stepId: step.id,
-          responseReceived: response,
-          durationMs,
-          wasSkipped: false,
-        }),
-      });
-    } catch (err) {
-      console.error("Error logging step:", err);
-    }
-  }, [sessionId, step.id]);
 
   // Auto-skip for period steps that don't apply this unit
   useEffect(() => {

@@ -8,6 +8,14 @@ const preloadedUrls = new Set<string>();
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const safetyTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearSafetyTimer = () => {
+    if (safetyTimerRef.current) {
+      clearTimeout(safetyTimerRef.current);
+      safetyTimerRef.current = null;
+    }
+  };
 
   /**
    * Reproduce audio pre-generado desde una URL usando <audio> nativo.
@@ -23,17 +31,28 @@ export const useTextToSpeech = () => {
       audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
+    clearSafetyTimer();
 
     try {
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
-      audio.onplay = () => setIsSpeaking(true);
+      audio.onplay = () => {
+        setIsSpeaking(true);
+        // Safety: force-reset se o audio nunca terminar (browser bug, element GC'd)
+        clearSafetyTimer();
+        safetyTimerRef.current = setTimeout(() => {
+          setIsSpeaking(false);
+          audioRef.current = null;
+        }, 30000);
+      };
       audio.onended = () => {
+        clearSafetyTimer();
         setIsSpeaking(false);
         audioRef.current = null;
       };
       audio.onerror = () => {
+        clearSafetyTimer();
         setIsSpeaking(false);
         audioRef.current = null;
       };
@@ -42,11 +61,13 @@ export const useTextToSpeech = () => {
     } catch (err) {
       console.error("Error reproduciendo audio TTS:", err);
       Sentry.captureException(err);
+      clearSafetyTimer();
       setIsSpeaking(false);
     }
   }, []);
 
   const stop = useCallback(() => {
+    clearSafetyTimer();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
