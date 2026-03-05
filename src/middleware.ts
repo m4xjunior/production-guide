@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractSubdomain } from "@/lib/tenant-cache";
+import { verifyPassword } from "@/lib/password";
 
 const DEFAULT_TENANT_SLUG = process.env.DEFAULT_TENANT_SLUG || "kh";
 
@@ -17,7 +18,7 @@ function constantTimeEqual(a: string, b: string): boolean {
  * 1. Extrae subdomínio → passa slug como header.
  * 2. Resolve tenant ID via API route interna (/api/tenant-lookup).
  * 3. Injeta x-tenant-id e x-tenant-slug nos headers.
- * 4. Valida X-Admin-Password para rotas protegidas.
+ * 4. Valida admin per-tenant (TenantAdmin) com fallback para ADMIN_PASSWORD.
  */
 
 const RUTAS_PROTEGIDAS_ESCRITURA = [
@@ -49,8 +50,14 @@ const RUTAS_OPERARIO = [
 const RUTAS_INTERNAS = ["/api/tenant-lookup"];
 
 // Cache de tenant no Edge — persiste dentro do mesmo isolate V8
-const edgeTenantCache = new Map<string, { tenantId: string; expiresAt: number }>();
+type TenantCacheEntry = { tenantId: string; adminHashes: string[]; expiresAt: number };
+const edgeTenantCache = new Map<string, TenantCacheEntry>();
 const EDGE_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+// Cache de verificação de password — evita PBKDF2 em cada request
+const adminVerifyCache = new Map<string, { ok: boolean; expiresAt: number }>();
+const VERIFY_CACHE_TTL = 5 * 60 * 1000;
+const MAX_VERIFY_CACHE = 50;
 
 function requiereAdmin(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
@@ -76,6 +83,49 @@ function requiereAdmin(request: NextRequest): boolean {
   return false;
 }
 
+/**
+ * Verifica a password do admin:
+ * 1. Fast path: ADMIN_PASSWORD env var (constant-time, instant)
+ * 2. Per-tenant: TenantAdmin hashes via PBKDF2 (cached 5 min)
+ */
+async function checkAdminPassword(
+  password: string,
+  tenantId: string,
+  adminHashes: string[],
+): Promise<boolean> {
+  // 1. Fast path: global ADMIN_PASSWORD (backward compat)
+  const globalPassword = process.env.ADMIN_PASSWORD;
+  if (globalPassword && constantTimeEqual(password, globalPassword)) {
+    return true;
+  }
+
+  // 2. Check verify cache
+  const cacheKey = `${tenantId}:${password.length}:${password.slice(0, 4)}`;
+  const cached = adminVerifyCache.get(cacheKey);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.ok;
+  }
+
+  // 3. Verify against TenantAdmin PBKDF2 hashes
+  if (adminHashes.length === 0) return false;
+
+  let ok = false;
+  for (const hash of adminHashes) {
+    if (await verifyPassword(password, hash)) {
+      ok = true;
+      break;
+    }
+  }
+
+  // Cache result
+  if (adminVerifyCache.size >= MAX_VERIFY_CACHE) {
+    const firstKey = adminVerifyCache.keys().next().value;
+    if (firstKey) adminVerifyCache.delete(firstKey);
+  }
+  adminVerifyCache.set(cacheKey, { ok, expiresAt: Date.now() + VERIFY_CACHE_TTL });
+  return ok;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -88,12 +138,13 @@ export async function middleware(request: NextRequest) {
   const slug = extractSubdomain(hostname) ?? DEFAULT_TENANT_SLUG;
 
   // Resolver tenant via API route interna (sem usar Prisma diretamente — Edge Runtime)
-  // Cache local no isolate evita fetch repetido para o mesmo slug
   let tenantId: string | null = null;
+  let adminHashes: string[] = [];
 
   const cachedTenant = edgeTenantCache.get(slug);
   if (cachedTenant && Date.now() < cachedTenant.expiresAt) {
     tenantId = cachedTenant.tenantId;
+    adminHashes = cachedTenant.adminHashes;
   } else {
     try {
       const lookupUrl = new URL(`/api/tenant-lookup?slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(hostname)}`, request.url);
@@ -109,10 +160,11 @@ export async function middleware(request: NextRequest) {
         headers: { "x-internal-middleware": internalSecret },
       });
       if (res.ok) {
-        const data = await res.json() as { tenantId?: string; error?: string };
+        const data = await res.json() as { tenantId?: string; adminHashes?: string[]; error?: string };
         if (data.tenantId) {
           tenantId = data.tenantId;
-          edgeTenantCache.set(slug, { tenantId, expiresAt: Date.now() + EDGE_CACHE_TTL });
+          adminHashes = data.adminHashes ?? [];
+          edgeTenantCache.set(slug, { tenantId, adminHashes, expiresAt: Date.now() + EDGE_CACHE_TTL });
         } else if (data.error) {
           if (!pathname.startsWith("/api")) {
             const response = NextResponse.next();
@@ -123,7 +175,6 @@ export async function middleware(request: NextRequest) {
         }
       }
     } catch {
-      // DB indisponível — retornar 503 para API, deixar frontend passar
       if (pathname.startsWith("/api")) {
         return NextResponse.json({ error: "Servicio temporalmente no disponible" }, { status: 503 });
       }
@@ -135,29 +186,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.json({ error: "Tenant no identificado" }, { status: 503 });
   }
 
-  // Validar admin para rotas protegidas
+  // Validar admin para rotas protegidas (per-tenant + fallback global)
   if (pathname.startsWith("/api") && requiereAdmin(request)) {
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword) {
-      console.error("ADMIN_PASSWORD no configurada en variables de entorno");
-      return NextResponse.json(
-        { error: "Configuración de servidor incompleta" },
-        { status: 500 }
-      );
-    }
-
     const passwordRecibida = request.headers.get("X-Admin-Password");
     if (!passwordRecibida) {
       return NextResponse.json(
         { error: "Acceso denegado. Se requiere la cabecera X-Admin-Password" },
-        { status: 401 }
+        { status: 401 },
       );
     }
-    if (!constantTimeEqual(passwordRecibida, adminPassword)) {
+
+    const isValid = await checkAdminPassword(passwordRecibida, tenantId || "", adminHashes);
+    if (!isValid) {
       return NextResponse.json(
         { error: "Contraseña de administrador incorrecta" },
-        { status: 401 }
+        { status: 401 },
       );
     }
   }

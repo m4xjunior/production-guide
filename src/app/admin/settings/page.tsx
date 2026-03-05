@@ -54,7 +54,7 @@ export default function SettingsPage() {
       .then((r) => r.json())
       .then((d: { settings: GlobalSettings }) => setSettings(d.settings))
       .catch(() => {});
-    fetch("/api/config/audit?entityType=GlobalSettings&limit=30")
+    fetch("/api/config/audit?entityType=Tenant&limit=30")
       .then((r) => r.json())
       .then((d: { logs: AuditLog[] }) => setAuditLogs(d.logs))
       .catch(() => {});
