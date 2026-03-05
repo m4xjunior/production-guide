@@ -8,21 +8,38 @@ import { getPublicUrl } from "@/lib/gcs";
  * Genera audio TTS para todos los pasos que tengan texto de voz
  * pero no tengan audio generado (vozAudioUrl = null).
  * Con ?force=true regenera todos (reseta vozAudioUrl primero).
- * Protegido por middleware admin.
+ * Protegido por middleware admin. Scoped al tenant del request.
  */
 export async function POST(request: NextRequest) {
   try {
+    const tenantId = request.headers.get("x-tenant-id");
+    if (!tenantId) {
+      return NextResponse.json({ error: "Tenant no identificado" }, { status: 400 });
+    }
+
     const force = request.nextUrl.searchParams.get("force") === "true";
+
+    // Obtener IDs de estaciones del tenant para acotar el scope
+    const tenantStations = await prisma.station.findMany({
+      where: { tenantId },
+      select: { id: true },
+    });
+    const stationIds = tenantStations.map((s) => s.id);
+
+    if (stationIds.length === 0) {
+      return NextResponse.json({ message: "No hay estaciones para este tenant", generated: 0 });
+    }
 
     if (force) {
       await prisma.step.updateMany({
-        where: { voz: { not: null } },
+        where: { stationId: { in: stationIds }, voz: { not: null } },
         data: { vozAudioUrl: null },
       });
     }
 
     const steps = await prisma.step.findMany({
       where: {
+        stationId: { in: stationIds },
         voz: { not: null },
         vozAudioUrl: null,
       },

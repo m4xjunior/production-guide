@@ -31,11 +31,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que la estación existe y está activa
+    // Verificar que la estación existe, está activa y pertenece al tenant
+    const tenantId = request.headers.get("x-tenant-id");
     const station = await prisma.station.findUnique({
       where: { id: stationId },
     });
-    if (!station || !station.isActive) {
+    if (!station || !station.isActive || (tenantId && station.tenantId !== tenantId)) {
       return NextResponse.json(
         { error: "Estación no encontrada o no está activa" },
         { status: 404 },

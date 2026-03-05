@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 
 const { GET } = await import("@/app/api/references/route");
+
+const makeRequest = () =>
+  new NextRequest("http://localhost/api/references", {
+    headers: { "x-tenant-id": "tenant-test-uuid" },
+  });
 
 describe("GET /api/references — filtro isActive (integração leve)", () => {
   beforeEach(() => {
@@ -16,7 +22,7 @@ describe("GET /api/references — filtro isActive (integração leve)", () => {
     ] as never);
 
     // ACT
-    const response = await GET();
+    const response = await GET(makeRequest());
     const data = await response.json();
 
     // ASSERT
@@ -24,7 +30,7 @@ describe("GET /api/references — filtro isActive (integração leve)", () => {
     // Verify the handler called findMany with isActive: true filter
     expect(prisma.reference.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { isActive: true },
+        where: expect.objectContaining({ isActive: true }),
       })
     );
     // Only the active one is in the response
@@ -39,7 +45,7 @@ describe("GET /api/references — filtro isActive (integração leve)", () => {
     ] as never);
 
     // ACT
-    const response = await GET();
+    const response = await GET(makeRequest());
     const data = await response.json();
 
     // ASSERT

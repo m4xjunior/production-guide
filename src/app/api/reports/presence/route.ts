@@ -32,15 +32,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const tenantId = request.headers.get("x-tenant-id");
+    if (!tenantId) {
+      return NextResponse.json({ error: "Tenant no identificado" }, { status: 400 });
+    }
+
     // Construir filtro de consulta
     const where: {
       loginAt: { gte: Date; lte: Date };
       operatorNumber?: string;
+      station: { tenantId: string };
     } = {
       loginAt: {
         gte: fechaDesde,
         lte: fechaHasta,
       },
+      station: { tenantId },
     };
 
     if (operatorNumber) {
@@ -83,9 +90,12 @@ export async function GET(request: NextRequest) {
       porOperario[op].sesiones.push(sesion);
       porOperario[op].totalSesiones += 1;
 
-      // Calcular horas trabajadas (si tiene logoutAt, usar esa; si no, usar ahora para sesiones activas)
-      const fin = sesion.logoutAt ?? new Date();
-      const duracionMs = fin.getTime() - sesion.loginAt.getTime();
+      // Calcular horas trabajadas.
+      // Sesiones activas sin logout: usar el mínimo entre ahora y loginAt + 24h
+      // para evitar acumular duraciones absurdas por sesiones colgadas.
+      const MAX_SESSION_MS = 24 * 60 * 60 * 1000;
+      const fin = sesion.logoutAt ?? new Date(Math.min(Date.now(), sesion.loginAt.getTime() + MAX_SESSION_MS));
+      const duracionMs = Math.max(0, fin.getTime() - sesion.loginAt.getTime());
       const duracionHoras = duracionMs / (1000 * 60 * 60);
       porOperario[op].totalHoras += duracionHoras;
     }

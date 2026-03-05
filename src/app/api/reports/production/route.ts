@@ -32,15 +32,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const tenantId = request.headers.get("x-tenant-id");
+    if (!tenantId) {
+      return NextResponse.json({ error: "Tenant no identificado" }, { status: 400 });
+    }
+
     // Construir filtro de consulta para sesiones
     const whereSession: {
       loginAt: { gte: Date; lte: Date };
       stationId?: string;
+      station: { tenantId: string };
     } = {
       loginAt: {
         gte: fechaDesde,
         lte: fechaHasta,
       },
+      station: { tenantId },
     };
 
     if (stationId) {

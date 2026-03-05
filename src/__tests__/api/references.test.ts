@@ -1,8 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 
 // Dynamic import so the mock is in place before the module loads
 const { GET } = await import("@/app/api/references/route");
+
+const makeRequest = () =>
+  new NextRequest("http://localhost/api/references", {
+    headers: { "x-tenant-id": "tenant-test-uuid" },
+  });
 
 describe("GET /api/references", () => {
   beforeEach(() => {
@@ -17,7 +23,7 @@ describe("GET /api/references", () => {
     ] as never);
 
     // ACT
-    const response = await GET();
+    const response = await GET(makeRequest());
     const data = await response.json();
 
     // ASSERT
@@ -32,7 +38,7 @@ describe("GET /api/references", () => {
     vi.mocked(prisma.reference.findMany).mockResolvedValue([] as never);
 
     // ACT
-    const response = await GET();
+    const response = await GET(makeRequest());
     const data = await response.json();
 
     // ASSERT
@@ -46,7 +52,7 @@ describe("GET /api/references", () => {
     vi.mocked(prisma.reference.findMany).mockResolvedValue([] as never);
 
     // ACT
-    const response = await GET();
+    const response = await GET(makeRequest());
 
     // ASSERT
     expect(response.status).toBe(200);
